@@ -32,6 +32,7 @@ Developed through a collaboration between [PygmalionAI](https://pygmalion.chat) 
 
 ## 📋 Table of Contents
 
+- [🧠 Deep Tree Echo Integration](#-deep-tree-echo-integration)
 - [🏗️ System Architecture](#️-system-architecture)
 - [✨ Key Features](#-key-features)
 - [🚀 Quick Start](#-quick-start)
@@ -41,6 +42,43 @@ Developed through a collaboration between [PygmalionAI](https://pygmalion.chat) 
 - [📊 Performance & Benchmarks](#-performance--benchmarks)
 - [🤝 Contributing](#-contributing)
 - [🙏 Acknowledgements](#-acknowledgements)
+
+## 🧠 Deep Tree Echo Integration
+
+> **Next-Generation Embodied AI Architecture**
+
+This repository features an advanced integration of **Deep Tree Echo Membrane Computing** with the Aphrodite Engine, implementing a comprehensive 4E Embodied AI framework with Echo-Self AI Evolution Engine and Agent-Arena-Relation (AAR) orchestration.
+
+### 🎯 Key Integration Components
+
+- **Echo-Self AI Evolution Engine**: Self-optimizing neural architectures through genetic algorithms
+- **Agent-Arena-Relation (AAR)**: Multi-agent orchestration and simulation environments  
+- **4E Embodied AI Framework**: Embodied, Embedded, Extended, and Enactive artificial intelligence
+- **DTESN Kernel**: Deep Tree Echo State Networks with P-System membrane computing
+- **Sensory-Motor Integration**: Virtual sensory analogues with proprioceptive feedback loops
+- **Dynamic MLOps**: Real-time model training and optimization pipeline
+
+### 📚 Documentation
+
+- **[Deep Tree Echo Development Roadmap](DEEP_TREE_ECHO_ROADMAP.md)** - Comprehensive 4-phase development plan
+- **[Deep Tree Echo Architecture](DEEP_TREE_ECHO_ARCHITECTURE.md)** - Technical integration specifications
+- **[Echo.Kern Documentation](echo.kern/)** - DTESN kernel implementation and guides
+
+### 🚀 Getting Started with Deep Tree Echo
+
+```bash
+# Enable Deep Tree Echo features
+export DEEP_TREE_ECHO_ENABLED=true
+export AAR_ORCHESTRATION=true
+export EMBODIED_AI_FRAMEWORK=true
+
+# Run with advanced features
+aphrodite run meta-llama/Meta-Llama-3.1-8B-Instruct \
+  --deep-tree-echo \
+  --enable-evolution-engine \
+  --aar-max-agents 1000 \
+  --embodied-cognition
+```
 
 ## 🏗️ System Architecture
 

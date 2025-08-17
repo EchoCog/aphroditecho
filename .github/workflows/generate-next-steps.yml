@@ -1,0 +1,56 @@
+name: Generate Next Steps Issues
+
+on:
+  schedule:
+    # Runs every Monday at 9 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+    inputs:
+      force_recreation:
+        description: 'Force close and recreate all roadmap issues'
+        required: false
+        default: 'false'
+        type: boolean
+      roadmap_file:
+        description: 'Roadmap file to parse (default: DEEP_TREE_ECHO_ROADMAP.md)'
+        required: false
+        default: 'DEEP_TREE_ECHO_ROADMAP.md'
+        type: string
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  generate-issues:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install PyGithub markdown
+
+      - name: Generate roadmap issues
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+          FORCE_RECREATION: ${{ github.event.inputs.force_recreation || 'false' }}
+          ROADMAP_FILE: ${{ github.event.inputs.roadmap_file || 'DEEP_TREE_ECHO_ROADMAP.md' }}
+        run: |
+          python .github/scripts/generate_roadmap_issues.py
+
+      - name: Generate legacy DTESN issues (if needed)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+          FORCE_RECREATION: 'false'
+          ROADMAP_FILE: 'echo.kern/DEVO-GENESIS.md'
+        run: |
+          python .github/scripts/generate_roadmap_issues.py

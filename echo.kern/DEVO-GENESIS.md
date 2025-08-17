@@ -121,6 +121,10 @@ DTESN-optimized virtual address space layout:
 
 ## Next Development Steps
 
+> **Note**: This roadmap has been superseded by the comprehensive [Deep Tree Echo Development Roadmap](../DEEP_TREE_ECHO_ROADMAP.md) which integrates Echo-Self AI Evolution Engine, Agent-Arena-Relation (AAR) orchestration, and 4E Embodied AI framework.
+
+### Legacy DTESN Development (Maintenance Mode)
+
 1. **Immediate (Week 1-2)**:
    - [x] Implement OEIS A000081 enumeration validator (oeis_a000081_enumerator.py)
    - [x] Create DTESN kernel specification compiler (dtesn_compiler.py)
@@ -154,6 +158,23 @@ DTESN-optimized virtual address space layout:
    - [ ] Biological interface development
    - [ ] Commercial deployment tools
    - [ ] Research extensions and publications
+
+### Deep Tree Echo Evolution Integration
+
+**Primary Development Focus**: See [Deep Tree Echo Development Roadmap](../DEEP_TREE_ECHO_ROADMAP.md) for the comprehensive 4-phase roadmap including:
+
+- **Phase 1**: Echo-Self AI Evolution Engine + AAR Core Orchestration (Weeks 1-6)
+- **Phase 2**: 4E Embodied AI Framework Implementation (Weeks 7-12) 
+- **Phase 3**: Sensory-Motor Integration with Proprioceptive Feedback (Weeks 13-18)
+- **Phase 4**: MLOps & Dynamic Training Integration (Weeks 19-24)
+
+**Integration Tasks** (Links existing DTESN with new Deep Tree Echo framework):
+- [ ] Integrate Echo-Self evolution engine with existing DTESN kernel
+- [ ] Migrate P-System membranes to AAR orchestration system
+- [ ] Extend B-Series calculations for embodied AI spatial reasoning
+- [ ] Connect ESN reservoir management with sensory-motor systems
+- [ ] Integrate DTESN memory allocator with proprioceptive feedback loops
+- [ ] Extend neuromorphic HAL for 4E embodied AI requirements
 
 ## Automated Issue Generation
 
