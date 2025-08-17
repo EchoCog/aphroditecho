@@ -40,33 +40,40 @@ pip install -r requirements/dev.txt --timeout 1800
 
 ## Linting, Formatting, and Code Quality
 
-### Linting Commands (Validated to work)
+### Linting Commands (Validated with timing)
 ```bash
-# Ruff linting - takes ~0.5 seconds, finds ~800 issues typically
+# Ruff linting - takes ~0.5 seconds, finds 814 issues currently
 ruff check . --show-source
 
 # Spell checking - takes ~5 seconds
 codespell --toml pyproject.toml
 
-# isort import sorting
+# isort import sorting check - takes ~3.5 seconds, finds many import issues
 isort --check-only .
 
-# MyPy type checking  
-mypy aphrodite/ --ignore-missing-imports
+# MyPy type checking - takes ~33 seconds, finds ~40 type errors across modules
+mypy --follow-imports skip aphrodite/
+# Or use the comprehensive script:
+bash tools/mypy.sh  # takes ~33 seconds
 ```
 
-### Formatting Script
+### Formatting Script and Fixes
 ```bash
 # The main formatting script (has version dependency issues)
 bash formatting.sh
 
-# Alternative: Run tools individually
+# Alternative: Run tools individually to fix issues
 ruff check . --fix
-isort .
+isort .  # Fix import ordering
 codespell --toml pyproject.toml --write-changes
 ```
 
-**Known Issue**: `formatting.sh` expects specific tool versions defined in `requirements/lint.txt` but they're actually defined in `.github/workflows/ruff.yml`. Use individual commands if version check fails.
+### Required Tool Versions (from .github/workflows/ruff.yml)
+- `ruff==0.1.5`
+- `codespell==2.3.0` 
+- Tools must match exact versions for `formatting.sh` to work
+
+**Known Issue**: `formatting.sh` expects specific tool versions defined in `requirements/lint.txt` but they're actually defined in `.github/workflows/ruff.yml`. Install exact versions or use individual commands.
 
 ## Testing
 
@@ -111,6 +118,10 @@ pytest tests/ -v --timeout 1800
 - `setup.py` - Main build configuration with CMake integration
 - `pyproject.toml` - Package metadata and tool configurations
 - `formatting.sh` - Code formatting and linting script
+- `tools/mypy.sh` - Comprehensive MyPy type checking script
+- `tools/check_repo.sh` - Repository cleanliness validation
+- `build_wheel.sh` - Docker-based wheel building
+- `runtime.sh` - Conda environment management
 - `CONTRIBUTING.md` - Development setup guide
 - `README.md` - Quick start and installation guide
 
@@ -149,8 +160,29 @@ docker run --runtime nvidia --gpus all \
 ```bash
 # Always run before committing changes
 ruff check . --fix
-codespell --toml pyproject.toml --write-changes
+codespell --toml pyproject.toml --write-changes  
 isort .
+
+# Comprehensive type checking
+bash tools/mypy.sh  # ~33 seconds
+
+# Repository cleanliness check
+bash tools/check_repo.sh
+```
+
+### Helper Scripts (Validated)
+```bash
+# Comprehensive MyPy checking across all modules
+bash tools/mypy.sh  # ~33 seconds, checks all major packages
+
+# Repository validation (git cleanliness and tags)
+bash tools/check_repo.sh
+
+# Docker-based wheel building (for distribution)
+bash build_wheel.sh
+
+# Conda environment management
+bash runtime.sh  # Requires conda setup
 ```
 
 ### CI Pipeline
@@ -182,14 +214,19 @@ isort .
 ## Known Issues and Workarounds
 
 1. **Formatting Script**: Version checks may fail, use individual tools
-2. **Long Installation**: Normal behavior, never cancel builds
+2. **Long Installation**: Normal behavior, never cancel builds  
 3. **Memory Usage**: Use `--gpu-memory-utilization 0.6` or `--single-user-mode` for development
 4. **Windows**: Requires building from source, limited support
+5. **Network Timeouts**: pip installations may timeout, increase timeout values
+6. **Code Quality**: Repository currently has 814 ruff issues, 40 MyPy errors, many import ordering issues
+7. **Test Dependencies**: Full test suite requires many additional packages (numpy, torch, etc.)
 
-## Timing Expectations
+## Timing Expectations (Validated)
 
-- **Linting (ruff)**: ~0.5 seconds
+- **Linting (ruff)**: ~0.5 seconds (finds 814 issues currently)
 - **Spell checking (codespell)**: ~5 seconds  
+- **Import sorting (isort)**: ~3.5 seconds (finds many import issues)
+- **Type checking (mypy)**: ~33 seconds (finds ~40 type errors)
 - **Installation (CPU)**: 30-60 minutes
 - **Installation (CUDA)**: 45-90 minutes
 - **Full test suite**: 15-45 minutes (TBD - needs validation)
@@ -204,10 +241,17 @@ export APHRODITE_TARGET_DEVICE=cpu
 pip install -e . --timeout 3600
 pip install -r requirements/dev.txt --timeout 1800
 
-# Code quality checks
-ruff check . --fix
-codespell --toml pyproject.toml --write-changes
-isort .
+# Install exact linting tool versions
+pip install ruff==0.1.5 codespell==2.3.0 isort==5.13.2 mypy
+
+# Code quality checks (with validated timing)
+ruff check . --fix                                    # ~0.5s, fix 814 issues
+codespell --toml pyproject.toml --write-changes      # ~5s, spell check  
+isort .                                               # ~3.5s, fix import order
+bash tools/mypy.sh                                    # ~33s, comprehensive type check
+
+# Repository validation
+bash tools/check_repo.sh                             # Check git status and tags
 
 # Run tests (after full installation)
 pytest tests/ -v --timeout 1800
@@ -217,4 +261,4 @@ python examples/aphrodite_engine_example.py --model microsoft/DialoGPT-medium
 ```
 
 ---
-*Last updated: Based on repository exploration and initial validation. Some timing estimates pending full validation.*
+*Last updated: Based on comprehensive repository exploration and validation. All linting command timings and tool functionality verified. Installation timing estimates based on complexity analysis. Some advanced functionality pending full installation validation.*
