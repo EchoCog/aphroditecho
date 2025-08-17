@@ -1,0 +1,37 @@
+# VB9 Examples Makefile
+
+</$objtype/mkfile
+
+TARG=\
+	hello\
+	texteditor\
+	filemanager\
+
+HFILES=\
+	../include/vb9.h\
+
+CFLAGS=$CFLAGS -I../include
+LIB=../src/libvb9.a
+
+BIN=/$objtype/bin
+
+all:V: $TARG
+
+%: %.c $LIB
+	$CC $CFLAGS -o $target $stem.c $LIB
+
+clean:V:
+	rm -f $TARG *.$O
+
+install:V: $TARG
+	cp $TARG $BIN/vb9examples
+
+run-hello:V: hello
+	./hello
+
+test:V: $TARG
+	echo 'Testing VB9 examples...'
+	for(prog in $TARG) {
+		echo 'Running '$prog'...'
+		./$prog
+	}

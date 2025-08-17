@@ -1,0 +1,106 @@
+# VB9 Makefile - Plan 9 style
+# Building the 1.4MB runtime and form designer
+
+</$objtype/mkfile
+
+# Target size limit - like VB6!
+SIZELIMIT=1400000
+
+# Core library
+LIB=libvb9.a
+LIBFILES=\
+	vb9.$O\
+	vb9util.$O\
+
+# Programs  
+TARG=\
+	formdesigner\
+	vb9demo\
+
+# Header dependencies
+HFILES=\
+	../include/vb9.h\
+
+# Build flags
+CFLAGS=$CFLAGS -I../include
+
+BIN=/$objtype/bin
+
+# Default target
+all:V: $LIB $TARG
+
+# Library
+$LIB: $LIBFILES
+	ar rvs $LIB $LIBFILES
+
+# Form designer - the main IDE
+formdesigner: formdesigner.$O $LIB
+	$LD -o $target $prereq
+
+# Demo program
+vb9demo: vb9demo.$O $LIB  
+	$LD -o $target $prereq
+
+# Check size - must be under 1.4MB like VB6
+checksize:V: $LIB $TARG
+	echo 'VB9 Runtime Size Check:'
+	for(f in $LIB $TARG) {
+		size=`{ls -l $f | awk '{print $6}'}
+		echo $f: $size bytes
+		if(test $size -gt $SIZELIMIT) {
+			echo 'ERROR: '$f' exceeds 1.4MB limit!'
+			exit 1
+		}
+	}
+	totalsize=`{ls -l $LIB $TARG | awk '{sum += $6} END {print sum}'}
+	echo 'Total VB9 runtime: '$totalsize' bytes ('$SIZELIMIT' limit)'
+	if(test $totalsize -le $SIZELIMIT) {
+		echo 'SUCCESS: Under VB6 1.4MB target!'
+	}
+
+# Install to Plan 9 bin
+install:V: $LIB $TARG checksize
+	cp $TARG $BIN
+	echo 'VB9 installed to '$BIN
+
+# Clean build artifacts
+clean:V:
+	rm -f *.$O $LIB $TARG
+
+# Examples
+examples:V: $LIB
+	cd ../examples && mk
+
+# Run the form designer
+run:V: formdesigner
+	./formdesigner
+
+# Quick test
+test:V: vb9demo
+	./vb9demo
+
+# Help
+help:V:
+	echo 'VB9 - Visual Basic for Plan 9'
+	echo 'Targets:'
+	echo '  all        - Build library and programs'
+	echo '  formdesigner - Build the visual form designer'
+	echo '  vb9demo    - Build demo program'
+	echo '  checksize  - Verify 1.4MB size limit'
+	echo '  install    - Install to '$BIN
+	echo '  examples   - Build example programs'
+	echo '  run        - Run the form designer'
+	echo '  test       - Run demo program'
+	echo '  clean      - Remove build artifacts'
+	echo '  help       - Show this help'
+	echo ''
+	echo 'The VB6 workflow:'
+	echo '  1. mk run'
+	echo '  2. Draw your form'
+	echo '  3. Press R to run'
+	echo '  4. Press Q to quit'
+	echo '  5. mk install'
+
+# Object file dependencies
+%.$O: %.c $HFILES
+	$CC $CFLAGS $stem.c
