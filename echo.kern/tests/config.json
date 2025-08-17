@@ -1,0 +1,50 @@
+{
+  "framework_version": "1.0.0",
+  "description": "Real-time testing configuration for Echo.Kern DTESN system",
+  
+  "test_configuration": {
+    "run_performance_tests": true,
+    "run_interactive_tests": true,
+    "run_integration_tests": true,
+    "run_monitoring_test": true,
+    
+    "performance_runs": 10,
+    "monitoring_duration": 30,
+    "monitoring_interval": 100,
+    "base_url": "http://localhost:8000"
+  },
+  
+  "performance_thresholds": {
+    "membrane_evolution": 10.0,
+    "b_series_computation": 100.0,
+    "esn_state_update": 1000.0,
+    "context_switch": 5.0,
+    "memory_access": 0.1,
+    "oeis_validation": 1000.0,
+    "web_response": 100000.0,
+    "javascript_execution": 50000.0
+  },
+  
+  "monitoring_thresholds": {
+    "web_response_time_ms": 100.0,
+    "javascript_load_time_ms": 50.0,
+    "server_cpu_percent": 80.0,
+    "memory_usage_percent": 90.0,
+    "error_rate_percent": 5.0,
+    "request_rate_per_second": 1000.0
+  },
+  
+  "output_settings": {
+    "generate_reports": true,
+    "export_json": true,
+    "console_output": true,
+    "timestamp_format": "ISO8601"
+  },
+  
+  "dtesn_settings": {
+    "max_membrane_depth": 4,
+    "reservoir_size": 100,
+    "b_series_order": 4,
+    "context_switch_cycles": 1000
+  }
+}

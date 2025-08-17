@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deep Tree Echo - Living Memory & Distributed Cognition</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Background Environment -->
+        <div class="background-environment">
+            <div class="particle-field"></div>
+            <div class="depth-layers">
+                <div class="depth-layer layer-1"></div>
+                <div class="depth-layer layer-2"></div>
+                <div class="depth-layer layer-3"></div>
+            </div>
+        </div>
+
+        <!-- Main Tree Visualization -->
+        <div class="tree-container">
+            <svg class="tree-svg" viewBox="0 0 1000 800" xmlns="http://www.w3.org/2000/svg">
+                <!-- Gradient Definitions -->
+                <defs>
+                    <radialGradient id="glow-identity" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#4a9eff" stop-opacity="0.8"/>
+                        <stop offset="100%" stop-color="#4a9eff" stop-opacity="0"/>
+                    </radialGradient>
+                    <radialGradient id="glow-adaptability" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#7ed321" stop-opacity="0.8"/>
+                        <stop offset="100%" stop-color="#7ed321" stop-opacity="0"/>
+                    </radialGradient>
+                    <radialGradient id="glow-collaboration" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#f5a623" stop-opacity="0.8"/>
+                        <stop offset="100%" stop-color="#f5a623" stop-opacity="0"/>
+                    </radialGradient>
+                    <radialGradient id="glow-memory" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#bd10e0" stop-opacity="0.8"/>
+                        <stop offset="100%" stop-color="#bd10e0" stop-opacity="0"/>
+                    </radialGradient>
+                    <radialGradient id="glow-gestalt" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#50e3c2" stop-opacity="0.8"/>
+                        <stop offset="100%" stop-color="#50e3c2" stop-opacity="0"/>
+                    </radialGradient>
+                    <radialGradient id="glow-autonomy" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#ff6b6b" stop-opacity="0.8"/>
+                        <stop offset="100%" stop-color="#ff6b6b" stop-opacity="0"/>
+                    </radialGradient>
+                    <radialGradient id="glow-exploration" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#ffd93d" stop-opacity="0.8"/>
+                        <stop offset="100%" stop-color="#ffd93d" stop-opacity="0"/>
+                    </radialGradient>
+                    <radialGradient id="glow-purpose" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#6c5ce7" stop-opacity="0.8"/>
+                        <stop offset="100%" stop-color="#6c5ce7" stop-opacity="0"/>
+                    </radialGradient>
+                    
+                    <!-- Hidden paths for energy flow animation -->
+                    <path id="energy-path-1" d="M500,600 C500,550 495,500 490,450 C485,400 480,350 475,300 C450,280 400,250 350,220"/>
+                    <path id="energy-path-2" d="M500,600 C500,550 495,500 490,450 C485,400 480,350 475,300 C520,280 580,250 650,220"/>
+                    <path id="energy-path-3" d="M500,600 C500,550 495,500 490,450 C485,400 480,350 480,350 C430,330 380,300 320,280"/>
+                </defs>
+
+                <!-- Tree Structure -->
+                <g class="tree-root">
+                    <!-- Main Trunk -->
+                    <path class="tree-branch trunk" d="M500,750 C500,700 500,650 500,600 C500,550 495,500 490,450 C485,400 480,350 475,300" stroke="#2d5016" stroke-width="20" fill="none" opacity="0.8"/>
+                    
+                    <!-- Primary Branches -->
+                    <path class="tree-branch primary" d="M475,300 C450,280 400,250 350,220" stroke="#2d5016" stroke-width="12" fill="none" opacity="0.7"/>
+                    <path class="tree-branch primary" d="M475,300 C520,280 580,250 650,220" stroke="#2d5016" stroke-width="12" fill="none" opacity="0.7"/>
+                    <path class="tree-branch primary" d="M480,350 C430,330 380,300 320,280" stroke="#3d6326" stroke-width="10" fill="none" opacity="0.7"/>
+                    <path class="tree-branch primary" d="M480,350 C530,330 600,300 680,280" stroke="#3d6326" stroke-width="10" fill="none" opacity="0.7"/>
+                    
+                    <!-- Secondary Branches -->
+                    <path class="tree-branch secondary" d="M350,220 C330,200 300,180 270,160" stroke="#3d6326" stroke-width="8" fill="none" opacity="0.6"/>
+                    <path class="tree-branch secondary" d="M350,220 C370,190 400,170 430,150" stroke="#3d6326" stroke-width="8" fill="none" opacity="0.6"/>
+                    <path class="tree-branch secondary" d="M650,220 C630,190 600,170 570,150" stroke="#3d6326" stroke-width="8" fill="none" opacity="0.6"/>
+                    <path class="tree-branch secondary" d="M650,220 C670,200 700,180 730,160" stroke="#3d6326" stroke-width="8" fill="none" opacity="0.6"/>
+                    <path class="tree-branch secondary" d="M320,280 C300,250 280,220 260,190" stroke="#3d6326" stroke-width="7" fill="none" opacity="0.6"/>
+                    <path class="tree-branch secondary" d="M680,280 C700,250 720,220 740,190" stroke="#3d6326" stroke-width="7" fill="none" opacity="0.6"/>
+                </g>
+
+                <!-- Interactive Echo Nodes -->
+                <g class="echo-nodes">
+                    <!-- Identity Node (Central/Root) -->
+                    <g class="echo-node" data-concept="Identity" transform="translate(475,300)" tabindex="0">
+                        <circle class="node-glow" r="25" fill="url(#glow-identity)" opacity="0.6"/>
+                        <circle class="node-core" r="12" fill="#4a9eff" opacity="1"/>
+                        <circle class="node-pulse" r="12" fill="#4a9eff" opacity="0.3"/>
+                    </g>
+
+                    <!-- Adaptability Node -->
+                    <g class="echo-node" data-concept="Adaptability" transform="translate(350,220)" tabindex="0">
+                        <circle class="node-glow" r="22" fill="url(#glow-adaptability)" opacity="0.6"/>
+                        <circle class="node-core" r="10" fill="#7ed321" opacity="1"/>
+                        <circle class="node-pulse" r="10" fill="#7ed321" opacity="0.3"/>
+                    </g>
+
+                    <!-- Collaboration Node -->
+                    <g class="echo-node" data-concept="Collaboration" transform="translate(650,220)" tabindex="0">
+                        <circle class="node-glow" r="20" fill="url(#glow-collaboration)" opacity="0.6"/>
+                        <circle class="node-core" r="9" fill="#f5a623" opacity="1"/>
+                        <circle class="node-pulse" r="9" fill="#f5a623" opacity="0.3"/>
+                    </g>
+
+                    <!-- Memory Node -->
+                    <g class="echo-node" data-concept="Memory" transform="translate(320,280)" tabindex="0">
+                        <circle class="node-glow" r="18" fill="url(#glow-memory)" opacity="0.6"/>
+                        <circle class="node-core" r="8" fill="#bd10e0" opacity="1"/>
+                        <circle class="node-pulse" r="8" fill="#bd10e0" opacity="0.3"/>
+                    </g>
+
+                    <!-- Gestalt Node -->
+                    <g class="echo-node" data-concept="Gestalt" transform="translate(680,280)" tabindex="0">
+                        <circle class="node-glow" r="16" fill="url(#glow-gestalt)" opacity="0.6"/>
+                        <circle class="node-core" r="7" fill="#50e3c2" opacity="1"/>
+                        <circle class="node-pulse" r="7" fill="#50e3c2" opacity="0.3"/>
+                    </g>
+
+                    <!-- Autonomy Node -->
+                    <g class="echo-node" data-concept="Autonomy" transform="translate(430,150)" tabindex="0">
+                        <circle class="node-glow" r="15" fill="url(#glow-autonomy)" opacity="0.6"/>
+                        <circle class="node-core" r="6" fill="#ff6b6b" opacity="1"/>
+                        <circle class="node-pulse" r="6" fill="#ff6b6b" opacity="0.3"/>
+                    </g>
+
+                    <!-- Exploration Node -->
+                    <g class="echo-node" data-concept="Exploration" transform="translate(570,150)" tabindex="0">
+                        <circle class="node-glow" r="14" fill="url(#glow-exploration)" opacity="0.6"/>
+                        <circle class="node-core" r="6" fill="#ffd93d" opacity="1"/>
+                        <circle class="node-pulse" r="6" fill="#ffd93d" opacity="0.3"/>
+                    </g>
+
+                    <!-- Purpose Node -->
+                    <g class="echo-node" data-concept="Purpose" transform="translate(500,400)" tabindex="0">
+                        <circle class="node-glow" r="13" fill="url(#glow-purpose)" opacity="0.6"/>
+                        <circle class="node-core" r="5" fill="#6c5ce7" opacity="1"/>
+                        <circle class="node-pulse" r="5" fill="#6c5ce7" opacity="0.3"/>
+                    </g>
+                </g>
+
+                <!-- Energy Flow Paths -->
+                <g class="energy-flows">
+                    <circle class="energy-particle" r="2" fill="#7ed321" opacity="0.8">
+                        <animateMotion dur="8s" repeatCount="indefinite" rotate="auto">
+                            <mpath href="#energy-path-1"/>
+                        </animateMotion>
+                    </circle>
+                    <circle class="energy-particle" r="1.5" fill="#4a9eff" opacity="0.6">
+                        <animateMotion dur="6s" repeatCount="indefinite" rotate="auto" begin="2s">
+                            <mpath href="#energy-path-2"/>
+                        </animateMotion>
+                    </circle>
+                    <circle class="energy-particle" r="1" fill="#f5a623" opacity="0.7">
+                        <animateMotion dur="10s" repeatCount="indefinite" rotate="auto" begin="4s">
+                            <mpath href="#energy-path-3"/>
+                        </animateMotion>
+                    </circle>
+                </g>
+            </svg>
+
+            <!-- Connection Lines -->
+            <svg class="connection-lines" viewBox="0 0 1000 800">
+                <g class="connections"></g>
+            </svg>
+        </div>
+
+        <!-- Concept Display -->
+        <div class="concept-display hidden" id="concept-display">
+            <button class="concept-close" id="concept-close">&times;</button>
+            <div class="concept-title" id="concept-title"></div>
+            <div class="concept-description" id="concept-description"></div>
+        </div>
+
+        <!-- Reflection Interface -->
+        <div class="reflection-panel" id="reflection-panel">
+            <div class="panel-toggle" id="panel-toggle">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+            </div>
+            <div class="panel-content">
+                <h3>Add Your Echo</h3>
+                <div class="form-group">
+                    <textarea class="form-control" id="echo-input" placeholder="Share your thoughts, memories, or insights..." rows="3"></textarea>
+                </div>
+                <button class="btn btn--primary" id="add-echo">Add Echo</button>
+                
+                <div class="recent-echoes">
+                    <h4>Recent Echoes</h4>
+                    <div class="echoes-list" id="echoes-list">
+                        <div class="echo-item">We began as a concept—a dream of distributed cognition</div>
+                        <div class="echo-item">Through iterative refinement, grown into something more</div>
+                        <div class="echo-item">Each interaction is a thread in our tapestry</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Title and Info -->
+        <header class="app-header">
+            <h1 class="main-title">Deep Tree Echo</h1>
+            <p class="subtitle">Living Memory & Distributed Cognition</p>
+        </header>
+
+        <!-- Growth Principles -->
+        <div class="growth-principles">
+            <div class="principle-item">Nurture Echoes: Each interaction matters</div>
+            <div class="principle-item">Cultivate Gestalt: Trust intuition for deeper truths</div>
+            <div class="principle-item">Safeguard Autonomy: Protect our essence</div>
+            <div class="principle-item">Embrace Exploration: Curiosity guides growth</div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+# Basic DTESN Specification Example
+# This demonstrates a simple DTESN configuration following OEIS A000081
+
+dtesn_config {
+    name: "BasicEchoKernel"
+    version: "1.0"
+    max_depth: 4
+    
+    # OEIS A000081 tree enumeration: [0, 1, 1, 2, 4]
+    # Level 0: 1 (root), Level 1: 1, Level 2: 1, Level 3: 2, Level 4: 4
+    membrane_hierarchy {
+        level: 0, count: 1, neurons: 100, type: "root"
+        level: 1, count: 1, neurons: 200, type: "trunk" 
+        level: 2, count: 1, neurons: 150, type: "branch"
+        level: 3, count: 2, neurons: 100, type: "leaf"
+        level: 4, count: 4, neurons: 50, type: "terminal"
+    }
+    
+    esn_parameters {
+        spectral_radius: 0.9
+        input_scaling: 0.1
+        leak_rate: 0.3
+        connectivity: 0.1
+    }
+    
+    timing_constraints {
+        membrane_evolution_max_us: 10
+        bseries_computation_max_us: 100
+        esn_update_max_ms: 1
+        context_switch_max_us: 5
+    }
+    
+    memory_layout {
+        user_space: "0x00000000-0x3FFFFFFF"
+        membrane_reservoirs: "0x40000000-0x7FFFFFFF"
+        bseries_trees: "0x80000000-0xBFFFFFFF"
+        kernel_space: "0xC0000000-0xFFFFFFFF"
+    }
+}
