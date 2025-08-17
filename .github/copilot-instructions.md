@@ -2,6 +2,12 @@
 
 Aphrodite Engine is a high-performance LLM inference engine built on vLLM's Paged Attention technology, designed for serving HuggingFace-compatible models at scale.
 
+## Note contents of repository folder: https://github.com/EchoCog/aphroditecho/eho.kern
+
+**Optimize for the integration of the "Deep Tree Echo" Membrane Computing architecture and implementation of the Echo-Self AI Evolution Engine with Agent-Arena-Relation (AAR) as the Core Orchestration system. The Aphrodite Engine should be configured as a 4E Embodied AI framework for Deep Tree Echo with Virtual mappings to Sensory-Motor analogues with Proprioceptive feedback loops to enable MLOps & Dynamic Model Training.**
+
+---
+
 **ALWAYS reference these instructions first and fallback to search or bash commands only when you encounter unexpected information that does not match the information here.**
 
 ## Working Effectively
