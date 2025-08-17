@@ -32,11 +32,12 @@ pip install -r requirements/dev.txt --timeout 1800
 ```
 **NEVER CANCEL**: Development dependencies installation takes 15-30 minutes. Wait for completion.
 
-### Build System
-- Uses setuptools with CMake for C++/CUDA extensions
-- Complex build process compiles kernels for target hardware
-- Build artifacts stored in `build/` directory
-- Extensions built: `_C`, `_moe_C`, `_rocm_C` (device dependent)
+### Build System Requirements (Validated)
+- **CMake**: Version 3.31.6+ available and working
+- **Python**: 3.9-3.12 (tested with 3.12.3)  
+- **Git**: Repository operations working (shallow clone may need `git fetch --unshallow --tags`)
+- **Docker**: Available for containerized builds (`docker --version` works)
+- **Build tools**: ninja, setuptools, wheel (from requirements/build.txt)
 
 ## Linting, Formatting, and Code Quality
 
@@ -206,10 +207,53 @@ bash runtime.sh  # Requires conda setup
 - Check environment variables: `APHRODITE_TARGET_DEVICE`
 - Look at `setup.py` for build configuration
 
-### Performance Testing
-- Use `examples/` for basic functionality testing
-- Benchmark scripts available but require full installation
-- Monitor memory usage (takes 90% GPU VRAM by default)
+## Manual Validation Scenarios
+
+When making changes to Aphrodite Engine, always test these scenarios to ensure functionality:
+
+### 1. Code Quality Pipeline
+```bash
+# Complete validation sequence (~42 seconds total)
+ruff check . --fix                      # ~0.5s - Fix linting issues  
+isort .                                  # ~3.5s - Fix import ordering
+codespell --toml pyproject.toml --write-changes  # ~5s - Fix spelling
+bash tools/mypy.sh                       # ~33s - Check type annotations
+```
+
+### 2. Repository Health Check
+```bash
+# Ensure repository is ready for CI
+git status --porcelain                   # Should be empty after changes
+bash tools/check_repo.sh                 # May fail on shallow clones (normal)
+```
+
+### 3. Build Prerequisites Validation
+```bash  
+# Verify build environment
+cmake --version                          # Should be 3.26.1+
+python --version                         # Should be 3.9-3.12
+echo $APHRODITE_TARGET_DEVICE           # Should be set (cpu/cuda/rocm/etc.)
+```
+
+### 4. Installation Test (Full Validation)
+```bash
+# **NEVER CANCEL** - Takes 30-90 minutes depending on target device
+export APHRODITE_TARGET_DEVICE=cpu      # or cuda, rocm, etc.
+time pip install -e . --timeout 3600    # Monitor for actual timing
+```
+
+### 5. Basic Functionality Test (After Installation)
+```bash
+# Test CLI and basic imports
+aphrodite --help                         # Should show command options
+python -c "from aphrodite import LLM, SamplingParams; print('Imports work')"
+```
+
+### 6. Example Validation (After Installation)
+```bash
+# Test basic offline inference (requires model download)
+python examples/offline_inference/offline_inference.py
+```
 
 ## Known Issues and Workarounds
 
@@ -220,6 +264,8 @@ bash runtime.sh  # Requires conda setup
 5. **Network Timeouts**: pip installations may timeout, increase timeout values
 6. **Code Quality**: Repository currently has 814 ruff issues, 40 MyPy errors, many import ordering issues
 7. **Test Dependencies**: Full test suite requires many additional packages (numpy, torch, etc.)
+8. **Shallow Clone**: `tools/check_repo.sh` fails on shallow clones (use `git fetch --unshallow --tags` if needed)
+9. **Model Downloads**: Examples require large model downloads from HuggingFace
 
 ## Timing Expectations (Validated)
 
