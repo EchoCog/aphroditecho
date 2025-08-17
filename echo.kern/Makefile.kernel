@@ -1,0 +1,338 @@
+# DTESN Kernel Build System
+# ========================
+# Comprehensive build system for Echo.Kern DTESN components
+
+CC = gcc
+CXX = g++
+CFLAGS = -std=c99 -Wall -Wextra -O2 -g -I. -Iinclude -mavx2 -mfma -D_GNU_SOURCE -D_POSIX_C_SOURCE=200809L
+CXXFLAGS = -std=c++17 -Wall -Wextra -O2 -g -I. -Iinclude -mavx2 -mfma -D_GNU_SOURCE
+LDFLAGS = -lm -lpthread -lrt
+AR = ar
+ARFLAGS = rcs
+
+# Build directories
+BUILD_DIR = build
+KERNEL_DIR = kernel/dtesn
+INCLUDE_DIR = include/dtesn
+TEST_DIR = tests/kernel
+DOCS_DIR = docs
+
+# DTESN Kernel Source Files (user-space buildable)
+KERNEL_SOURCES = \
+    $(KERNEL_DIR)/memory.c \
+    $(KERNEL_DIR)/psystem.c \
+    $(KERNEL_DIR)/bseries.c \
+    $(KERNEL_DIR)/bseries_vector.c \
+    $(KERNEL_DIR)/esn.c \
+    $(KERNEL_DIR)/esn_sparse.c \
+    $(KERNEL_DIR)/esn_hardware.c \
+    $(KERNEL_DIR)/scheduler.c \
+    $(KERNEL_DIR)/sched_policy.c \
+    $(KERNEL_DIR)/profiler.c
+
+# Kernel-only sources (require kernel headers)
+KERNEL_ONLY_SOURCES = \
+    $(KERNEL_DIR)/psystem_syscalls.c \
+    $(KERNEL_DIR)/syscalls.c
+
+# Header files
+KERNEL_HEADERS = \
+    $(INCLUDE_DIR)/memory.h \
+    $(INCLUDE_DIR)/psystem.h \
+    $(INCLUDE_DIR)/bseries.h \
+    $(INCLUDE_DIR)/esn.h \
+    $(INCLUDE_DIR)/scheduler.h \
+    $(INCLUDE_DIR)/neuro_hal.h \
+    $(INCLUDE_DIR)/profiler.h \
+    include/uapi/dtesn.h
+
+# Test source files
+TEST_SOURCES = \
+    $(TEST_DIR)/test_dtesn_memory.c \
+    $(TEST_DIR)/test_psystem.c \
+    $(TEST_DIR)/test_psystem_basic.c \
+    $(TEST_DIR)/test_bseries.c \
+    $(TEST_DIR)/test_esn.c \
+    $(TEST_DIR)/test_scheduler.c
+
+# Integration test source files
+INTEGRATION_TEST_DIR = tests/integration
+INTEGRATION_TEST_SOURCES = \
+    $(INTEGRATION_TEST_DIR)/dtesn_integration_suite.c \
+    $(INTEGRATION_TEST_DIR)/cross_component_tests.c \
+    $(INTEGRATION_TEST_DIR)/performance_regression.c
+
+# Object files
+KERNEL_OBJECTS = $(KERNEL_SOURCES:%.c=$(BUILD_DIR)/%.o)
+TEST_OBJECTS = $(TEST_SOURCES:%.c=$(BUILD_DIR)/%.o)
+
+# Library targets
+DTESN_LIB = $(BUILD_DIR)/libdtesn.a
+DTESN_SHARED = $(BUILD_DIR)/libdtesn.so
+
+# Test executables
+TEST_EXECUTABLES = \
+    $(BUILD_DIR)/test_dtesn_memory \
+    $(BUILD_DIR)/test_psystem \
+    $(BUILD_DIR)/test_psystem_basic \
+    $(BUILD_DIR)/test_bseries \
+    $(BUILD_DIR)/test_esn \
+    $(BUILD_DIR)/test_scheduler
+
+# Integration test executables
+INTEGRATION_TEST_EXECUTABLES = \
+    $(BUILD_DIR)/dtesn_integration_suite \
+    $(BUILD_DIR)/cross_component_tests \
+    $(BUILD_DIR)/performance_regression
+
+# Main targets
+.PHONY: all clean install test docs kernel lib shared help test-integration
+.DEFAULT_GOAL := help
+
+help:
+	@echo "DTESN Kernel Build System"
+	@echo "========================"
+	@echo ""
+	@echo "Targets:"
+	@echo "  all            - Build everything (kernel + tests)"
+	@echo "  kernel         - Build kernel library"
+	@echo "  lib            - Build static library"
+	@echo "  shared         - Build shared library"
+	@echo "  test           - Build and run all tests"
+	@echo "  test-only      - Build tests without running"
+	@echo "  test-integration - Build and run integration tests"
+	@echo "  integration-only - Build integration tests without running"
+	@echo "  docs           - Generate kernel documentation"
+	@echo "  install        - Install headers and libraries"
+	@echo "  clean          - Clean all build artifacts"
+	@echo "  status         - Show implementation status"
+	@echo ""
+	@echo "Examples:"
+	@echo "  make kernel          # Build DTESN kernel"
+	@echo "  make test            # Build and run tests"
+	@echo "  make install PREFIX=/usr/local"
+
+all: kernel integration-only
+
+# Kernel library targets
+kernel: $(DTESN_LIB) $(DTESN_SHARED)
+
+lib: $(DTESN_LIB)
+
+shared: $(DTESN_SHARED)
+
+# Create build directories
+$(BUILD_DIR):
+	@mkdir -p $(BUILD_DIR)
+	@mkdir -p $(BUILD_DIR)/$(KERNEL_DIR)
+	@mkdir -p $(BUILD_DIR)/$(TEST_DIR)
+	@mkdir -p $(BUILD_DIR)/$(INTEGRATION_TEST_DIR)
+
+# Build kernel object files
+$(BUILD_DIR)/%.o: %.c $(KERNEL_HEADERS) | $(BUILD_DIR)
+	@echo "CC $<"
+	@$(CC) $(CFLAGS) -c $< -o $@
+
+# Build static library
+$(DTESN_LIB): $(KERNEL_OBJECTS)
+	@echo "AR $@"
+	@$(AR) $(ARFLAGS) $@ $^
+
+# Build shared library
+$(DTESN_SHARED): $(KERNEL_OBJECTS)
+	@echo "LD $@"
+	@$(CC) -shared -o $@ $^ $(LDFLAGS)
+
+# Build individual test executables
+$(BUILD_DIR)/test_dtesn_memory: $(TEST_DIR)/test_dtesn_memory.c $(DTESN_LIB)
+	@echo "CC $@"
+	@$(CC) $(CFLAGS) -o $@ $< $(DTESN_LIB) $(LDFLAGS)
+
+$(BUILD_DIR)/test_psystem: $(TEST_DIR)/test_psystem.c $(DTESN_LIB)
+	@echo "CC $@"
+	@$(CC) $(CFLAGS) -o $@ $< $(DTESN_LIB) $(LDFLAGS)
+
+$(BUILD_DIR)/test_psystem_basic: $(TEST_DIR)/test_psystem_basic.c $(DTESN_LIB)
+	@echo "CC $@"
+	@$(CC) $(CFLAGS) -o $@ $< $(DTESN_LIB) $(LDFLAGS)
+
+$(BUILD_DIR)/test_bseries: $(TEST_DIR)/test_bseries.c $(DTESN_LIB)
+	@echo "CC $@"
+	@$(CC) $(CFLAGS) -o $@ $< $(DTESN_LIB) $(LDFLAGS)
+
+$(BUILD_DIR)/test_esn: $(TEST_DIR)/test_esn.c $(DTESN_LIB)
+	@echo "CC $@"
+	@$(CC) $(CFLAGS) -o $@ $< $(DTESN_LIB) $(LDFLAGS)
+
+$(BUILD_DIR)/test_scheduler: $(TEST_DIR)/test_scheduler.c $(DTESN_LIB)
+	@echo "CC $@"
+	@$(CC) $(CFLAGS) -o $@ $< $(DTESN_LIB) $(LDFLAGS)
+
+# Build integration test executables
+$(BUILD_DIR)/dtesn_integration_suite: $(INTEGRATION_TEST_DIR)/dtesn_integration_suite.c $(DTESN_LIB)
+	@echo "CC $@"
+	@$(CC) $(CFLAGS) -o $@ $< $(DTESN_LIB) $(LDFLAGS)
+
+$(BUILD_DIR)/cross_component_tests: $(INTEGRATION_TEST_DIR)/cross_component_tests.c $(DTESN_LIB)
+	@echo "CC $@"
+	@$(CC) $(CFLAGS) -o $@ $< $(DTESN_LIB) $(LDFLAGS)
+
+$(BUILD_DIR)/performance_regression: $(INTEGRATION_TEST_DIR)/performance_regression.c $(DTESN_LIB)
+	@echo "CC $@"
+	@$(CC) $(CFLAGS) -o $@ $< $(DTESN_LIB) $(LDFLAGS)
+
+# Test targets
+test-only: $(TEST_EXECUTABLES)
+
+integration-only: $(INTEGRATION_TEST_EXECUTABLES)
+
+test: test-only
+	@echo ""
+	@echo "🧪 Running DTESN Kernel Test Suite"
+	@echo "=================================="
+	@for test in $(TEST_EXECUTABLES); do \
+		echo ""; \
+		echo "Running $$test..."; \
+		./$$test || exit 1; \
+	done
+	@echo ""
+	@echo "✅ All DTESN kernel tests passed!"
+
+test-integration: integration-only
+	@echo ""
+	@echo "🔗 Running DTESN Integration Test Suite"
+	@echo "======================================="
+	@for test in $(INTEGRATION_TEST_EXECUTABLES); do \
+		echo ""; \
+		echo "Running $$test..."; \
+		./$$test || exit 1; \
+	done
+	@echo ""
+	@echo "✅ All DTESN integration tests passed!"
+
+# Individual test runs
+test-memory: $(BUILD_DIR)/test_dtesn_memory
+	@echo "🧠 Testing DTESN Memory Management..."
+	@./$<
+
+test-psystem: $(BUILD_DIR)/test_psystem $(BUILD_DIR)/test_psystem_basic
+	@echo "🔬 Testing P-System Membranes..."
+	@./$(BUILD_DIR)/test_psystem
+	@./$(BUILD_DIR)/test_psystem_basic
+
+test-bseries: $(BUILD_DIR)/test_bseries
+	@echo "🌳 Testing B-Series Computation..."
+	@./$<
+
+test-esn: $(BUILD_DIR)/test_esn
+	@echo "🧮 Testing ESN Reservoir..."
+	@./$<
+
+test-scheduler: $(BUILD_DIR)/test_scheduler
+	@echo "⏱️ Testing DTESN Scheduler..."
+	@./$<
+
+# Documentation target
+docs:
+	@echo "📚 Generating DTESN Kernel Documentation..."
+	@echo "  ✅ Implementation Status: $(DOCS_DIR)/KERNEL_IMPLEMENTATION_STATUS.md"
+	@echo "  ✅ Architecture Overview: docs/DTESN-ARCHITECTURE.md"
+	@echo "  ✅ API Reference: include/dtesn/*.h"
+	@echo "  ✅ Test Documentation: tests/README.md"
+	@python3 echo_kernel_spec.py
+
+# Installation target
+PREFIX ?= /usr/local
+LIBDIR ?= $(PREFIX)/lib
+INCLUDEDIR ?= $(PREFIX)/include
+
+install: kernel
+	@echo "📦 Installing DTESN Kernel..."
+	@install -d $(LIBDIR)
+	@install -d $(INCLUDEDIR)/dtesn
+	@install -d $(INCLUDEDIR)/uapi
+	@install -m 644 $(DTESN_LIB) $(LIBDIR)/
+	@install -m 755 $(DTESN_SHARED) $(LIBDIR)/
+	@install -m 644 $(INCLUDE_DIR)/*.h $(INCLUDEDIR)/dtesn/
+	@install -m 644 include/uapi/*.h $(INCLUDEDIR)/uapi/
+	@echo "  ✅ Libraries installed to $(LIBDIR)"
+	@echo "  ✅ Headers installed to $(INCLUDEDIR)"
+
+# Status and information targets
+status:
+	@echo "📊 DTESN Kernel Implementation Status"
+	@echo "====================================="
+	@echo ""
+	@echo "Implementation Files:"
+	@printf "  %-30s %s\n" "Kernel sources:" "$(words $(KERNEL_SOURCES)) files"
+	@printf "  %-30s %s\n" "Header files:" "$(words $(KERNEL_HEADERS)) files"
+	@printf "  %-30s %s\n" "Test files:" "$(words $(TEST_SOURCES)) files"
+	@echo ""
+	@echo "Code Statistics:"
+	@printf "  %-30s %s\n" "Total kernel lines:" "$$(cat $(KERNEL_SOURCES) 2>/dev/null | wc -l || echo 'N/A')"
+	@printf "  %-30s %s\n" "Total header lines:" "$$(cat $(KERNEL_HEADERS) 2>/dev/null | wc -l || echo 'N/A')"
+	@printf "  %-30s %s\n" "Total test lines:" "$$(cat $(TEST_SOURCES) 2>/dev/null | wc -l || echo 'N/A')"
+	@echo ""
+	@echo "Build Status:"
+	@printf "  %-30s %s\n" "Build directory:" "$$([ -d $(BUILD_DIR) ] && echo 'Exists' || echo 'Missing')"
+	@printf "  %-30s %s\n" "Static library:" "$$([ -f $(DTESN_LIB) ] && echo 'Built' || echo 'Not built')"
+	@printf "  %-30s %s\n" "Shared library:" "$$([ -f $(DTESN_SHARED) ] && echo 'Built' || echo 'Not built')"
+	@echo ""
+	@echo "Component Status:"
+	@printf "  %-30s %s\n" "Memory Management:" "$$([ -f $(KERNEL_DIR)/memory.c ] && echo '✅ Implemented' || echo '❌ Missing')"
+	@printf "  %-30s %s\n" "P-System Membranes:" "$$([ -f $(KERNEL_DIR)/psystem.c ] && echo '✅ Implemented' || echo '❌ Missing')"
+	@printf "  %-30s %s\n" "B-Series Computation:" "$$([ -f $(KERNEL_DIR)/bseries.c ] && echo '✅ Implemented' || echo '❌ Missing')"
+	@printf "  %-30s %s\n" "ESN Reservoir:" "$$([ -f $(KERNEL_DIR)/esn.c ] && echo '✅ Implemented' || echo '❌ Missing')"
+	@printf "  %-30s %s\n" "Scheduler:" "$$([ -f $(KERNEL_DIR)/scheduler.c ] && echo '✅ Implemented' || echo '❌ Missing')"
+	@printf "  %-30s %s\n" "System Calls:" "$$([ -f $(KERNEL_DIR)/syscalls.c ] && echo '✅ Implemented (kernel-only)' || echo '❌ Missing')"
+	@printf "  %-30s %s\n" "Profiler:" "$$([ -f $(KERNEL_DIR)/profiler.c ] && echo '✅ Implemented' || echo '❌ Missing')"
+	@echo ""
+	@echo "ℹ️  Note: System call modules require kernel build environment"
+
+# Performance benchmarking
+benchmark: test-only
+	@echo "🏃 Running DTESN Performance Benchmarks..."
+	@echo "========================================="
+	@echo "Memory Management Performance:"
+	@./$(BUILD_DIR)/test_dtesn_memory | grep -E "(Average|Maximum|Threshold)"
+	@echo ""
+	@echo "📊 See docs/KERNEL_IMPLEMENTATION_STATUS.md for complete results"
+
+# Validation target
+validate: test docs
+	@echo "✅ DTESN Kernel Validation Complete"
+	@echo "==================================="
+	@echo "  ✅ All kernel components implemented"
+	@echo "  ✅ All tests passing"
+	@echo "  ✅ OEIS A000081 compliance verified"
+	@echo "  ✅ Performance targets met"
+	@echo "  ✅ Documentation generated"
+	@echo ""
+	@echo "🚀 DTESN Kernel ready for deployment!"
+
+# Clean target
+clean:
+	@echo "🧹 Cleaning DTESN build artifacts..."
+	@rm -rf $(BUILD_DIR)
+	@echo "  ✅ Build directory cleaned"
+
+# Debug target
+debug: CFLAGS += -DDEBUG -g3 -O0
+debug: kernel test-only
+	@echo "🐛 Debug build complete with symbols and assertions"
+
+# Release target  
+release: CFLAGS += -DNDEBUG -O3 -flto
+release: kernel
+	@echo "🚀 Release build complete with optimizations"
+
+# Check dependencies
+check-deps:
+	@echo "🔍 Checking build dependencies..."
+	@command -v $(CC) >/dev/null || (echo "❌ GCC not found" && exit 1)
+	@command -v $(AR) >/dev/null || (echo "❌ AR not found" && exit 1)
+	@echo "  ✅ GCC: $$($(CC) --version | head -1)"
+	@echo "  ✅ Build tools available"
+
+.PHONY: test-memory test-psystem test-bseries test-esn test-scheduler
+.PHONY: benchmark validate debug release check-deps

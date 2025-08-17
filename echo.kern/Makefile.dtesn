@@ -1,0 +1,23 @@
+# DTESN Memory Management System Build
+CC = gcc
+CFLAGS = -std=c99 -Wall -Wextra -O2 -I.
+LDFLAGS = 
+
+# Source files
+DTESN_SRC = kernel/dtesn/memory.c
+TEST_SRC = tests/kernel/test_dtesn_memory.c
+HEADERS = include/dtesn/memory.h
+
+# Targets
+all: test_dtesn_memory
+
+test_dtesn_memory: $(TEST_SRC) $(DTESN_SRC) $(HEADERS)
+	$(CC) $(CFLAGS) -o $@ $(TEST_SRC) $(DTESN_SRC) $(LDFLAGS)
+
+test: test_dtesn_memory
+	./test_dtesn_memory
+
+clean:
+	rm -f test_dtesn_memory
+
+.PHONY: all test clean

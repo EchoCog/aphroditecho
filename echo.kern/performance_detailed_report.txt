@@ -1,0 +1,50 @@
+DTESN Performance Detailed Report
+=================================
+
+Test Configuration:
+  Iterations per test: 1000
+  Warmup iterations: 100
+  Regression threshold: 10.0%
+
+Memory Allocation:
+  Min: 0.03 μs
+  Avg: 0.03 μs
+  P95: 0.04 μs
+  P99: 0.04 μs
+  Max: 0.10 μs
+
+Membrane Evolution:
+  Min: 27.83 μs
+  Avg: 68.79 μs
+  P95: 70.08 μs
+  P99: 70.52 μs
+  Max: 78.49 μs
+
+B-Series Computation:
+  Min: 138.71 μs
+  Avg: 141.31 μs
+  P95: 142.09 μs
+  P99: 152.16 μs
+  Max: 164.00 μs
+
+ESN State Update:
+  Min: 846.79 μs
+  Avg: 862.03 μs
+  P95: 863.09 μs
+  P99: 867.14 μs
+  Max: 904.45 μs
+
+Context Switch:
+  Min: 15.11 μs
+  Avg: 64.93 μs
+  P95: 65.91 μs
+  P99: 68.48 μs
+  Max: 75.25 μs
+
+Integrated Pipeline:
+  Min: 1197.78 μs
+  Avg: 1248.59 μs
+  P95: 1251.55 μs
+  P99: 1267.22 μs
+  Max: 1844.54 μs
+
