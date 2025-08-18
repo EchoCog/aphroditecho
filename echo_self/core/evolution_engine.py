@@ -2,6 +2,7 @@
 Core Evolution Engine for Echo-Self AI System
 
 Main orchestrator for self-optimizing neural architectures through genetic algorithms.
+Integrates with meta-learning system for architecture optimization.
 """
 
 from typing import List, Dict, Optional, Tuple, Any
@@ -9,6 +10,9 @@ import asyncio
 import logging
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
+
+# Import meta-learning components
+from ..meta_learning import MetaLearningOptimizer, MetaLearningConfig, DTESNMetaLearningBridge
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +57,7 @@ class Individual(ABC):
 class EchoSelfEvolutionEngine:
     """Main evolution engine for self-optimizing AI systems."""
     
-    def __init__(self, config: EvolutionConfig):
+    def __init__(self, config: EvolutionConfig, enable_meta_learning: bool = True):
         self.config = config
         self.population: List[Individual] = []
         self.generation = 0
@@ -64,16 +68,39 @@ class EchoSelfEvolutionEngine:
         self.dtesn_kernel = None
         self.aar_orchestrator = None
         
+        # Meta-learning integration
+        self.enable_meta_learning = enable_meta_learning
+        self.meta_optimizer = None
+        self.dtesn_bridge = None
+        
+        if enable_meta_learning:
+            meta_config = MetaLearningConfig()
+            self.meta_optimizer = MetaLearningOptimizer(meta_config)
+            self.dtesn_bridge = DTESNMetaLearningBridge(self.meta_optimizer)
+            logger.info("Meta-learning system enabled")
+        
         logger.info(f"Echo-Self Evolution Engine initialized with config: {config}")
     
     def set_dtesn_integration(self, dtesn_kernel):
         """Set DTESN kernel integration."""
         self.dtesn_kernel = dtesn_kernel
+        
+        # Set integration for meta-learning components
+        if self.meta_optimizer:
+            self.meta_optimizer.set_dtesn_integration(dtesn_kernel)
+        if self.dtesn_bridge:
+            self.dtesn_bridge.set_dtesn_kernel(dtesn_kernel)
+        
         logger.info("DTESN kernel integration enabled")
     
     def set_aar_integration(self, aar_orchestrator):
         """Set AAR orchestrator integration.""" 
         self.aar_orchestrator = aar_orchestrator
+        
+        # Set integration for meta-learning components
+        if self.meta_optimizer:
+            self.meta_optimizer.set_evolution_engine(self)
+        
         logger.info("AAR orchestrator integration enabled")
     
     async def initialize_population(self, individual_factory) -> None:
@@ -87,9 +114,28 @@ class EchoSelfEvolutionEngine:
         logger.info(f"Population initialized with {len(self.population)} individuals")
     
     async def evolve_step(self) -> Dict[str, Any]:
-        """Execute single evolution step."""
+        """Execute single evolution step with meta-learning optimization."""
         if not self.population:
             raise RuntimeError("Population not initialized")
+        
+        # Apply meta-learning optimization to evolution parameters
+        if self.meta_optimizer and self.generation > 0:
+            current_params = {
+                'mutation_rate': self.config.mutation_rate,
+                'selection_pressure': self.config.selection_pressure,
+                'crossover_rate': self.config.crossover_rate,
+                'population_size': self.config.population_size,
+                'elitism_ratio': self.config.elitism_ratio
+            }
+            
+            optimized_params = await self.meta_optimizer.optimize_evolution_parameters(current_params)
+            
+            # Update evolution config with optimized parameters
+            self.config.mutation_rate = optimized_params.get('mutation_rate', self.config.mutation_rate)
+            self.config.selection_pressure = optimized_params.get('selection_pressure', self.config.selection_pressure)
+            self.config.crossover_rate = optimized_params.get('crossover_rate', self.config.crossover_rate)
+            
+            logger.debug(f"Applied meta-learning optimization: {optimized_params}")
         
         # Evaluate fitness for all individuals
         fitness_scores = await self._evaluate_population()
@@ -102,6 +148,10 @@ class EchoSelfEvolutionEngine:
         # Track best individual
         best_idx = fitness_scores.index(max(fitness_scores))
         self.best_individual = self.population[best_idx]
+        
+        # Record architecture performance for meta-learning
+        if self.meta_optimizer:
+            await self._record_meta_learning_data(fitness_scores)
         
         # Selection and reproduction
         new_population = await self._create_next_generation()
@@ -254,13 +304,111 @@ class EchoSelfEvolutionEngine:
     
     def get_statistics(self) -> Dict[str, Any]:
         """Get current evolution statistics."""
-        return {
+        stats = {
             'generation': self.generation,
             'population_size': len(self.population),
             'best_fitness': self.best_individual.fitness if self.best_individual else 0.0,
             'evolution_history': self.evolution_history.copy(),
             'config': self.config
         }
+        
+        # Add meta-learning statistics if available
+        if self.meta_optimizer:
+            stats['meta_learning'] = self.meta_optimizer.get_meta_learning_stats()
+        if self.dtesn_bridge:
+            stats['dtesn_integration'] = self.dtesn_bridge.get_dtesn_integration_stats()
+        
+        return stats
+    
+    async def _record_meta_learning_data(self, fitness_scores: List[float]) -> None:
+        """Record architecture performance data for meta-learning."""
+        if not self.meta_optimizer:
+            return
+        
+        # Record performance for best performing individuals
+        sorted_indices = sorted(range(len(fitness_scores)), key=lambda i: fitness_scores[i], reverse=True)
+        top_performers = sorted_indices[:min(5, len(sorted_indices))]
+        
+        for idx in top_performers:
+            individual = self.population[idx]
+            fitness = fitness_scores[idx]
+            
+            # Extract architecture parameters from individual
+            architecture_params = self._extract_architecture_params(individual)
+            
+            # Calculate convergence and diversity metrics
+            convergence_rate = self._calculate_convergence_rate()
+            diversity_metric = self._calculate_diversity()
+            
+            # Record performance in meta-learning system
+            await self.meta_optimizer.record_architecture_performance(
+                architecture_params=architecture_params,
+                fitness_score=fitness,
+                generation=self.generation,
+                convergence_rate=convergence_rate,
+                diversity_metric=diversity_metric
+            )
+        
+        # Also record DTESN performance if bridge is available
+        if self.dtesn_bridge and self.dtesn_kernel:
+            dtesn_metrics = await self.dtesn_bridge.extract_dtesn_metrics()
+            dtesn_config = await self._get_dtesn_config()
+            
+            await self.dtesn_bridge.record_dtesn_performance(
+                config=dtesn_config,
+                performance_metrics=dtesn_metrics,
+                generation=self.generation
+            )
+    
+    def _extract_architecture_params(self, individual: Individual) -> Dict[str, Any]:
+        """Extract architecture parameters from individual for meta-learning."""
+        # Extract relevant parameters from individual's genome
+        architecture_params = {}
+        
+        if hasattr(individual, 'genome') and isinstance(individual.genome, dict):
+            # Common architecture parameters
+            for key in ['layer_count', 'hidden_size', 'learning_rate', 'dropout_rate',
+                       'activation_function', 'optimizer_type', 'batch_size']:
+                if key in individual.genome:
+                    architecture_params[key] = individual.genome[key]
+            
+            # DTESN-specific parameters
+            for key in ['membrane_depth', 'reservoir_scaling', 'b_series_order', 'plasticity_factor']:
+                if key in individual.genome:
+                    architecture_params[key] = individual.genome[key]
+        
+        # Add default values if not present
+        if not architecture_params:
+            architecture_params = {
+                'fitness': individual.fitness,
+                'age': individual.age,
+                'genome_size': len(str(individual.genome)) if hasattr(individual, 'genome') else 0
+            }
+        
+        return architecture_params
+    
+    async def _get_dtesn_config(self) -> Dict[str, Any]:
+        """Get current DTESN configuration."""
+        # Default DTESN configuration
+        default_config = {
+            'membrane_hierarchy_depth': 8,
+            'reservoir_size_factor': 1.0,
+            'b_series_order': 16,
+            'plasticity_threshold': 0.1,
+            'homeostasis_target': 0.5
+        }
+        
+        # Try to get actual config from DTESN kernel
+        if self.dtesn_kernel:
+            try:
+                # Placeholder for actual DTESN kernel config extraction
+                # In real implementation, this would query the kernel
+                return default_config
+            except Exception as e:
+                logger.warning(f"Failed to get DTESN config: {e}")
+                return default_config
+        
+        return default_config
     
     async def save_checkpoint(self, filepath: str) -> None:
         """Save evolution state to file."""
