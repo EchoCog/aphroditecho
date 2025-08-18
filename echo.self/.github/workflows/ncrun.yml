@@ -1,0 +1,566 @@
+name: Run NanoCog Tests and Server
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'NanoCog/**'
+      - '.github/workflows/ncrun.yml'
+  pull_request:
+    branches: [ main, master ]
+    paths:
+      - 'NanoCog/**'
+      - '.github/workflows/ncrun.yml'
+  workflow_run:
+    workflows: ["Train NanoCog Model"]
+    types:
+      - completed
+  workflow_dispatch:
+    inputs:
+      deploy_server:
+        description: 'Deploy server after tests'
+        required: false
+        default: false
+        type: boolean
+      port:
+        description: 'Server port'
+        required: false
+        default: '8080'
+        type: string
+      model_artifact:
+        description: 'Model artifact name (leave empty for latest)'
+        required: false
+        default: ''
+        type: string
+      mock_atomspace:
+        description: 'Use mock AtomSpace data'
+        required: false
+        default: true
+        type: boolean
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10"]
+
+    steps:
+    - name: Checkout opencog-central
+      uses: actions/checkout@v4
+      with:
+        path: opencog-central
+
+    - name: Checkout nanoGPT
+      uses: actions/checkout@v4
+      with:
+        repository: drzo/nanoGPT
+        path: nanoGPT
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install torch numpy tiktoken transformers requests fastapi uvicorn rich pytest pytest-asyncio httpx pytest-cov
+
+    - name: Determine model artifact name
+      id: model
+      run: |
+        if [[ -n "${{ github.event.inputs.model_artifact }}" ]]; then
+          echo "artifact_name=${{ github.event.inputs.model_artifact }}" >> $GITHUB_OUTPUT
+        else
+          echo "artifact_name=nanocog-model-out-nanocog-ci" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Download model artifact
+      uses: dawidd6/action-download-artifact@v2
+      with:
+        workflow: nctrain.yml
+        name: ${{ steps.model.outputs.artifact_name }}
+        path: nanoGPT/out-nanocog-ci
+        if_no_artifact_found: warn
+
+    - name: Create model checkpoint if not found
+      run: |
+        if [ ! -f nanoGPT/out-nanocog-ci/ckpt.pt ]; then
+          echo "No model artifact found, creating minimal checkpoint for testing"
+          mkdir -p nanoGPT/out-nanocog-ci
+          # Create a minimal config file
+          cat > nanoGPT/out-nanocog-ci/minimal_config.py << EOL
+        import torch
+        
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.embedding = torch.nn.Embedding(100, 64)
+                self.transformer = torch.nn.TransformerEncoder(
+                    torch.nn.TransformerEncoderLayer(d_model=64, nhead=2, batch_first=True), 
+                    num_layers=2
+                )
+                self.lm_head = torch.nn.Linear(64, 100)
+            
+            def forward(self, idx):
+                x = self.embedding(idx)
+                x = self.transformer(x)
+                logits = self.lm_head(x)
+                return logits
+            
+            def generate(self, idx, max_new_tokens, **kwargs):
+                # Simple dummy generation that just returns the input
+                return idx
+        
+        model = DummyModel()
+        model_args = {
+            'n_layer': 2,
+            'n_head': 2,
+            'n_embd': 64,
+            'block_size': 128,
+            'vocab_size': 100,
+            'dropout': 0.0,
+        }
+        
+        checkpoint = {
+            'model': model.state_dict(),
+            'model_args': model_args,
+            'iter_num': 0,
+            'best_val_loss': 999.0,
+            'config': {'dataset': 'cogprime'}
+        }
+        
+        torch.save(checkpoint, 'nanoGPT/out-nanocog-ci/ckpt.pt')
+        EOL
+          
+          # Run the script to create the checkpoint
+          cd nanoGPT
+          python -c "exec(open('out-nanocog-ci/minimal_config.py').read())"
+        fi
+
+    - name: Prepare directory structure
+      run: |
+        # Create necessary directories
+        mkdir -p opencog-central/NanoCog/data
+        mkdir -p opencog-central/NanoCog/tests
+        mkdir -p opencog-central/NanoCog/introspection
+        
+        # Make sure nanoGPT can find the opencog-central repo
+        ln -s $(pwd)/opencog-central $(pwd)/nanoGPT/opencog-central
+        
+        # Create a simple test directory structure for AtomSpace
+        mkdir -p opencog-central/NanoCog/tests/mock_atomspace
+        touch opencog-central/NanoCog/tests/mock_atomspace/__init__.py
+        
+        # Create a simple mock AtomSpace test file
+        cat > opencog-central/NanoCog/tests/mock_atomspace/test_mock.py << EOL
+import unittest
+import json
+import os
+import sys
+
+# Add the parent directory to sys.path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+
+from introspection.atomspace_client import AtomSpaceClient
+
+class TestMockAtomSpace(unittest.TestCase):
+    def test_mock_cognitive_state(self):
+        """Test the mock cognitive state generation."""
+        client = AtomSpaceClient("http://localhost:8080/api/v1")  # Dummy endpoint
+        mock_data = client.mock_get_cognitive_state()
+        
+        # Check that the mock data has the expected structure
+        self.assertIn('atom_count', mock_data)
+        self.assertIn('active_goals', mock_data)
+        self.assertIn('attention_distribution', mock_data)
+        self.assertIn('atom_distribution', mock_data)
+        self.assertIn('cognitive_schematics', mock_data)
+        self.assertIn('bottlenecks', mock_data)
+        self.assertIn('recommendations', mock_data)
+        
+        # Check that there are some active goals
+        self.assertTrue(len(mock_data['active_goals']) > 0)
+        
+        # Check that there are some bottlenecks
+        self.assertTrue(len(mock_data['bottlenecks']) > 0)
+        
+        # Check that there are some recommendations
+        self.assertTrue(len(mock_data['recommendations']) > 0)
+
+if __name__ == '__main__':
+    unittest.main()
+EOL
+
+    - name: Create test for introspection client
+      run: |
+        # Create a test file for the introspection client
+        mkdir -p opencog-central/NanoCog/tests/introspection
+        touch opencog-central/NanoCog/tests/introspection/__init__.py
+        
+        cat > opencog-central/NanoCog/tests/introspection/test_atomspace_client.py << EOL
+import unittest
+import os
+import sys
+import json
+import requests
+from unittest.mock import patch, MagicMock
+
+# Add the parent directory to sys.path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+
+from introspection.atomspace_client import AtomSpaceClient
+
+class TestAtomSpaceClient(unittest.TestCase):
+    def setUp(self):
+        self.client = AtomSpaceClient("http://localhost:8080/api/v1")
+    
+    @patch('requests.Session.get')
+    def test_test_connection(self, mock_get):
+        # Mock the response
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_get.return_value = mock_response
+        
+        # Test the method
+        result = self.client.test_connection()
+        
+        # Verify the result
+        self.assertTrue(result)
+        mock_get.assert_called_once_with(
+            "http://localhost:8080/api/v1/status",
+            headers=self.client.headers,
+            timeout=self.client.timeout
+        )
+    
+    @patch('requests.Session.get')
+    def test_get_atom_count(self, mock_get):
+        # Mock the response
+        mock_response = MagicMock()
+        mock_response.json.return_value = {"count": 42}
+        mock_get.return_value = mock_response
+        
+        # Test the method
+        result = self.client.get_atom_count()
+        
+        # Verify the result
+        self.assertEqual(result, 42)
+        mock_get.assert_called_once()
+    
+    def test_mock_get_cognitive_state(self):
+        # Test the mock data generation
+        mock_data = self.client.mock_get_cognitive_state()
+        
+        # Check that the mock data has the expected structure
+        self.assertIn('atom_count', mock_data)
+        self.assertIn('active_goals', mock_data)
+        self.assertIn('attention_distribution', mock_data)
+        self.assertIn('atom_distribution', mock_data)
+        self.assertIn('cognitive_schematics', mock_data)
+        
+        # Verify some values
+        self.assertGreater(mock_data['atom_count'], 0)
+        self.assertGreater(len(mock_data['active_goals']), 0)
+        self.assertGreater(
+            mock_data['attention_distribution']['high_sti_count'], 0
+        )
+
+if __name__ == '__main__':
+    unittest.main()
+EOL
+
+    - name: Create test for server
+      run: |
+        # Create a test file for the server
+        mkdir -p opencog-central/NanoCog/tests/server
+        touch opencog-central/NanoCog/tests/server/__init__.py
+        
+        cat > opencog-central/NanoCog/tests/server/test_server.py << EOL
+import pytest
+import os
+import sys
+import json
+from fastapi.testclient import TestClient
+from unittest.mock import patch, MagicMock
+
+# Add the parent directory to sys.path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+
+# Mock the model loading
+class MockModelConfig:
+    def __init__(self, model_path, device="cpu", max_tokens=2048):
+        self.model_path = model_path
+        self.device = device
+        self.max_tokens = max_tokens
+        self.model = MagicMock()
+        self.tokenizer = MagicMock()
+        self.model_info = {
+            "model_args": {"n_layer": 2, "n_head": 2, "n_embd": 64},
+            "config": {"dataset": "cogprime"},
+            "iter_num": 0,
+            "best_val_loss": 999.0,
+            "checkpoint_path": model_path
+        }
+    
+    def load_model(self):
+        return True
+    
+    def generate(self, prompt, max_new_tokens=500, temperature=0.7, top_k=200, stream=False, callback=None):
+        if stream and callback:
+            callback("This ")
+            callback("is ")
+            callback("a ")
+            callback("test ")
+            callback("response.")
+            return "This is a test response."
+        return "This is a test response."
+
+# Patch the ModelConfig in server.py
+with patch('server.ModelConfig', MockModelConfig):
+    from server import app
+
+client = TestClient(app)
+
+def test_root():
+    response = client.get("/")
+    assert response.status_code == 200
+    assert "name" in response.json()
+    assert "status" in response.json()
+
+def test_status():
+    response = client.get("/status")
+    assert response.status_code == 200
+    assert "status" in response.json()
+    assert "model_loaded" in response.json()
+
+def test_chat():
+    response = client.post(
+        "/chat",
+        json={
+            "messages": [
+                {"role": "user", "content": "Hello, NanoCog!"}
+            ],
+            "max_tokens": 50,
+            "temperature": 0.7,
+            "top_k": 200,
+            "stream": False
+        }
+    )
+    assert response.status_code == 200
+    assert "text" in response.json()
+    assert "model" in response.json()
+    assert "created_at" in response.json()
+    assert "tokens_generated" in response.json()
+
+@pytest.mark.asyncio
+async def test_chat_stream():
+    response = client.post(
+        "/chat/stream",
+        json={
+            "messages": [
+                {"role": "user", "content": "Hello, NanoCog!"}
+            ],
+            "max_tokens": 50,
+            "temperature": 0.7,
+            "top_k": 200,
+            "stream": True
+        }
+    )
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "text/event-stream"
+    
+    # Check that we get some data in the stream
+    content = response.content.decode("utf-8")
+    assert "data:" in content
+EOL
+
+    - name: Create test for CLI
+      run: |
+        # Create a test file for the CLI
+        mkdir -p opencog-central/NanoCog/tests/cli
+        touch opencog-central/NanoCog/tests/cli/__init__.py
+        
+        cat > opencog-central/NanoCog/tests/cli/test_nctalk.py << EOL
+import unittest
+import os
+import sys
+import json
+from unittest.mock import patch, MagicMock
+
+# Add the parent directory to sys.path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+
+# Create a mock for the ModelConfig
+class MockModelConfig:
+    def __init__(self, model_path, device="cpu", max_tokens=2048):
+        self.model_path = model_path
+        self.device = device
+        self.max_tokens = max_tokens
+        self.model = None
+        self.tokenizer = None
+        self.model_info = {}
+    
+    def load_model(self):
+        self.model = MagicMock()
+        self.tokenizer = MagicMock()
+        self.model_info = {
+            "model_args": {"n_layer": 2, "n_head": 2, "n_embd": 64},
+            "iter_num": 0,
+            "best_val_loss": 999.0,
+            "checkpoint_path": self.model_path
+        }
+        return True
+    
+    def generate(self, prompt, max_new_tokens=500, temperature=0.7, top_k=200, callback=None):
+        if callback:
+            callback("This ")
+            callback("is ")
+            callback("a ")
+            callback("test ")
+            callback("response.")
+        return "This is a test response."
+
+# Import with patching
+with patch('nctalk.ModelConfig', MockModelConfig):
+    from nctalk import ConversationHistory, DiagnosticMode
+
+class TestConversationHistory(unittest.TestCase):
+    def test_add_message(self):
+        history = ConversationHistory()
+        history.add_message("user", "Hello")
+        history.add_message("assistant", "Hi there")
+        
+        messages = history.get_messages()
+        self.assertEqual(len(messages), 2)
+        self.assertEqual(messages[0]["role"], "user")
+        self.assertEqual(messages[0]["content"], "Hello")
+        self.assertEqual(messages[1]["role"], "assistant")
+        self.assertEqual(messages[1]["content"], "Hi there")
+    
+    def test_clear(self):
+        history = ConversationHistory()
+        history.add_message("user", "Hello")
+        history.clear()
+        
+        messages = history.get_messages()
+        self.assertEqual(len(messages), 0)
+    
+    def test_format_for_prompt(self):
+        history = ConversationHistory()
+        history.add_message("user", "Hello")
+        history.add_message("assistant", "Hi there")
+        
+        prompt = history.format_for_prompt()
+        self.assertIn("User: Hello", prompt)
+        self.assertIn("NanoCog: Hi there", prompt)
+        self.assertTrue(prompt.endswith("NanoCog: "))
+
+class TestDiagnosticMode(unittest.TestCase):
+    def test_format_diagnostic_prompt(self):
+        diagnostic = DiagnosticMode()
+        
+        # Create mock introspection data
+        introspection_data = {
+            "atom_count": 1000,
+            "active_goals": [
+                {"name": "Goal1", "sti": 0.8},
+                {"name": "Goal2", "sti": 0.7}
+            ],
+            "attention_summary": {
+                "avg_sti": 0.3,
+                "max_sti": 0.9
+            }
+        }
+        
+        prompt = diagnostic.format_diagnostic_prompt(introspection_data)
+        
+        # Check that the prompt contains the expected elements
+        self.assertIn("AtomSpace Data", prompt)
+        self.assertIn("Total atoms: 1000", prompt)
+        self.assertIn("Goal1", prompt)
+        self.assertIn("Goal2", prompt)
+        self.assertIn("```json", prompt)
+        self.assertIn("NanoCog (Diagnostic Analysis):", prompt)
+
+if __name__ == '__main__':
+    unittest.main()
+EOL
+
+    - name: Run unit tests for introspection client
+      run: |
+        cd opencog-central
+        python -m pytest NanoCog/tests/introspection -v
+
+    - name: Run mock AtomSpace tests
+      if: ${{ github.event.inputs.mock_atomspace != 'false' }}
+      run: |
+        cd opencog-central
+        python -m pytest NanoCog/tests/mock_atomspace -v
+
+    - name: Run CLI tests
+      run: |
+        cd opencog-central
+        python -m pytest NanoCog/tests/cli -v
+
+    - name: Run server tests
+      run: |
+        cd opencog-central
+        python -m pytest NanoCog/tests/server -v
+
+    - name: Test NanoCog CLI with model
+      run: |
+        cd opencog-central
+        # Create a simple test script
+        cat > test_nctalk.py << EOL
+import sys
+import os
+sys.path.insert(0, os.path.abspath('.'))
+from NanoCog.nctalk import ModelConfig
+
+# Initialize the model
+model_config = ModelConfig("../nanoGPT/out-nanocog-ci/ckpt.pt", device="cpu")
+model_config.load_model()
+
+# Test simple generation
+prompt = "User: Explain cognitive synergy in CogPrime.\nNanoCog: "
+response = model_config.generate(prompt, max_new_tokens=50, temperature=0.8)
+print("Response:", response)
+
+# Test with callback
+def callback(token):
+    print(token, end="", flush=True)
+    return True
+
+print("\nStreaming response:")
+response = model_config.generate(prompt, max_new_tokens=50, temperature=0.8, callback=callback)
+print("\nDone!")
+EOL
+        python test_nctalk.py
+
+    - name: Deploy server (if requested)
+      if: ${{ github.event.inputs.deploy_server == 'true' }}
+      run: |
+        cd opencog-central
+        # Start the server in the background
+        python NanoCog/server.py --model_path=../nanoGPT/out-nanocog-ci/ckpt.pt --port=${{ github.event.inputs.port }} &
+        SERVER_PID=$!
+        
+        # Wait for the server to start
+        sleep 5
+        
+        # Test that the server is running
+        curl -s http://localhost:${{ github.event.inputs.port }}/status | jq
+        
+        # Test a simple chat request
+        curl -s -X POST http://localhost:${{ github.event.inputs.port }}/chat \
+          -H "Content-Type: application/json" \
+          -d '{"messages":[{"role":"user","content":"Hello, NanoCog!"}],"max_tokens":50,"temperature":0.7,"top_k":200,"stream":false}' | jq
+        
+        # Keep the server running for a while (for manual testing if needed)
+        sleep 60
+        
+        # Kill the server
+        kill $SERVER_PID

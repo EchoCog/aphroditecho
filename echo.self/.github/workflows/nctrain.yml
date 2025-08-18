@@ -1,0 +1,183 @@
+name: Train NanoCog Model
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'NanoCog/**'
+      - '.github/workflows/nctrain.yml'
+  pull_request:
+    branches: [ main, master ]
+    paths:
+      - 'NanoCog/**'
+      - '.github/workflows/nctrain.yml'
+  workflow_dispatch:
+    inputs:
+      training_type:
+        description: 'Training type (ci or full)'
+        required: true
+        default: 'ci'
+        type: choice
+        options:
+          - ci
+          - full
+      n_layer:
+        description: 'Number of transformer layers'
+        required: false
+        default: '8'
+        type: string
+      n_head:
+        description: 'Number of attention heads'
+        required: false
+        default: '8'
+        type: string
+      n_embd:
+        description: 'Embedding dimension'
+        required: false
+        default: '512'
+        type: string
+      max_iters:
+        description: 'Maximum training iterations'
+        required: false
+        default: '20000'
+        type: string
+      batch_size:
+        description: 'Batch size'
+        required: false
+        default: '16'
+        type: string
+      learning_rate:
+        description: 'Learning rate'
+        required: false
+        default: '3e-4'
+        type: string
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10"]
+
+    steps:
+    - name: Checkout opencog-central
+      uses: actions/checkout@v4
+      with:
+        path: opencog-central
+
+    - name: Checkout nanoGPT
+      uses: actions/checkout@v4
+      with:
+        repository: drzo/nanoGPT
+        path: nanoGPT
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install torch numpy tiktoken transformers requests fastapi uvicorn rich pytest
+        # Install any other dependencies needed for training
+
+    - name: Determine training parameters
+      id: params
+      run: |
+        # Default to CI parameters (small model, quick training)
+        if [[ "${{ github.event_name }}" != "workflow_dispatch" || "${{ github.event.inputs.training_type }}" == "ci" ]]; then
+          echo "CI training mode - using reduced parameters"
+          echo "n_layer=2" >> $GITHUB_OUTPUT
+          echo "n_head=2" >> $GITHUB_OUTPUT
+          echo "n_embd=128" >> $GITHUB_OUTPUT
+          echo "max_iters=10" >> $GITHUB_OUTPUT
+          echo "batch_size=4" >> $GITHUB_OUTPUT
+          echo "learning_rate=3e-4" >> $GITHUB_OUTPUT
+          echo "output_dir=out-nanocog-ci" >> $GITHUB_OUTPUT
+        else
+          echo "Full training mode - using specified parameters"
+          echo "n_layer=${{ github.event.inputs.n_layer }}" >> $GITHUB_OUTPUT
+          echo "n_head=${{ github.event.inputs.n_head }}" >> $GITHUB_OUTPUT
+          echo "n_embd=${{ github.event.inputs.n_embd }}" >> $GITHUB_OUTPUT
+          echo "max_iters=${{ github.event.inputs.max_iters }}" >> $GITHUB_OUTPUT
+          echo "batch_size=${{ github.event.inputs.batch_size }}" >> $GITHUB_OUTPUT
+          echo "learning_rate=${{ github.event.inputs.learning_rate }}" >> $GITHUB_OUTPUT
+          echo "output_dir=out-nanocog-full" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Prepare directory structure
+      run: |
+        # Create necessary directories
+        mkdir -p opencog-central/NanoCog/data
+        # Make sure nanoGPT can find the opencog-central repo
+        ln -s $(pwd)/opencog-central $(pwd)/nanoGPT/opencog-central
+
+    - name: Prepare CogPrime dataset
+      run: |
+        cd opencog-central/NanoCog
+        python prepare.py
+        # Copy data to nanoGPT data directory
+        mkdir -p ../../nanoGPT/data/cogprime
+        cp -r data/* ../../nanoGPT/data/cogprime/
+
+    - name: Create training config
+      run: |
+        cat > nanoGPT/config/train_nanocog_ci.py << EOL
+        # NanoCog training configuration for CI/CD
+        out_dir = '${{ steps.params.outputs.output_dir }}'
+        eval_interval = 5
+        eval_iters = 2
+        log_interval = 1
+
+        # Data
+        dataset = 'cogprime'
+        batch_size = ${{ steps.params.outputs.batch_size }}
+        block_size = 512
+        gradient_accumulation_steps = 1
+
+        # Model
+        n_layer = ${{ steps.params.outputs.n_layer }}
+        n_head = ${{ steps.params.outputs.n_head }}
+        n_embd = ${{ steps.params.outputs.n_embd }}
+        dropout = 0.0
+        bias = False
+
+        # AdamW optimizer
+        learning_rate = ${{ steps.params.outputs.learning_rate }}
+        max_iters = ${{ steps.params.outputs.max_iters }}
+        weight_decay = 1e-1
+        beta1 = 0.9
+        beta2 = 0.95
+        grad_clip = 1.0
+
+        # Learning rate decay
+        decay_lr = True
+        warmup_iters = 2
+        lr_decay_iters = ${{ steps.params.outputs.max_iters }}
+        min_lr = 1e-5
+
+        # System
+        device = 'cpu'  # Use CPU for GitHub Actions
+        dtype = 'float32'
+        compile = False
+        EOL
+
+    - name: Train NanoCog model
+      run: |
+        cd nanoGPT
+        python train.py config/train_nanocog_ci.py
+
+    - name: Test model sampling
+      run: |
+        cd nanoGPT
+        python sample.py --out_dir=${{ steps.params.outputs.output_dir }} --start="Explain cognitive synergy in CogPrime:" --max_new_tokens=50
+
+    - name: Upload trained model
+      uses: actions/upload-artifact@v4
+      with:
+        name: nanocog-model-${{ steps.params.outputs.output_dir }}
+        path: nanoGPT/${{ steps.params.outputs.output_dir }}/
+        retention-days: 7

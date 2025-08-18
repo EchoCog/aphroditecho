@@ -1,0 +1,13 @@
+node_modules
+.env
+build
+dist
+coverage
+*.log
+.DS_Store
+.vscode
+.idea
+*.yml
+*.yaml
+.github/
+public/build/

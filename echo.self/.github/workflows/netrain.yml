@@ -1,0 +1,242 @@
+name: Train NanEcho Model
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'NanoCog/**'
+      - 'echoself.md'
+      - 'eva/**'
+      - '.github/workflows/netrain.yml'
+  pull_request:
+    branches: [ main, master ]
+    paths:
+      - 'NanoCog/**'
+      - 'echoself.md'
+      - 'eva/**'
+      - '.github/workflows/netrain.yml'
+  workflow_dispatch:
+    inputs:
+      training_type:
+        description: 'Training type (ci or full)'
+        required: true
+        default: 'ci'
+        type: choice
+        options:
+          - ci
+          - full
+      n_layer:
+        description: 'Number of transformer layers'
+        required: false
+        default: '12'
+        type: string
+      n_head:
+        description: 'Number of attention heads'
+        required: false
+        default: '12'
+        type: string
+      n_embd:
+        description: 'Embedding dimension'
+        required: false
+        default: '768'
+        type: string
+      max_iters:
+        description: 'Maximum training iterations'
+        required: false
+        default: '50000'
+        type: string
+      batch_size:
+        description: 'Batch size'
+        required: false
+        default: '8'
+        type: string
+      learning_rate:
+        description: 'Learning rate'
+        required: false
+        default: '1e-4'
+        type: string
+      echo_depth:
+        description: 'Echo self reflection depth'
+        required: false
+        default: '3'
+        type: string
+      persona_weight:
+        description: 'Persona dimension weighting'
+        required: false
+        default: '0.7'
+        type: string
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10"]
+
+    steps:
+    - name: Checkout echoself repository
+      uses: actions/checkout@v4
+      with:
+        path: echoself
+
+    - name: Checkout nanoGPT
+      uses: actions/checkout@v4
+      with:
+        repository: drzo/nanoGPT
+        path: nanoGPT
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        # Install dependencies from requirements.txt
+        pip install -r requirements.txt
+
+    - name: Determine training parameters
+      id: params
+      run: |
+        # Default to CI parameters (smaller model, quick training for testing)
+        if [[ "${{ github.event_name }}" != "workflow_dispatch" || "${{ github.event.inputs.training_type }}" == "ci" ]]; then
+          echo "CI training mode - using reduced parameters"
+          echo "n_layer=4" >> $GITHUB_OUTPUT
+          echo "n_head=4" >> $GITHUB_OUTPUT
+          echo "n_embd=256" >> $GITHUB_OUTPUT
+          echo "max_iters=100" >> $GITHUB_OUTPUT
+          echo "batch_size=2" >> $GITHUB_OUTPUT
+          echo "learning_rate=1e-4" >> $GITHUB_OUTPUT
+          echo "echo_depth=2" >> $GITHUB_OUTPUT
+          echo "persona_weight=0.5" >> $GITHUB_OUTPUT
+          echo "output_dir=out-nanecho-ci" >> $GITHUB_OUTPUT
+        else
+          echo "Full training mode - using specified parameters"
+          echo "n_layer=${{ github.event.inputs.n_layer }}" >> $GITHUB_OUTPUT
+          echo "n_head=${{ github.event.inputs.n_head }}" >> $GITHUB_OUTPUT
+          echo "n_embd=${{ github.event.inputs.n_embd }}" >> $GITHUB_OUTPUT
+          echo "max_iters=${{ github.event.inputs.max_iters }}" >> $GITHUB_OUTPUT
+          echo "batch_size=${{ github.event.inputs.batch_size }}" >> $GITHUB_OUTPUT
+          echo "learning_rate=${{ github.event.inputs.learning_rate }}" >> $GITHUB_OUTPUT
+          echo "echo_depth=${{ github.event.inputs.echo_depth }}" >> $GITHUB_OUTPUT
+          echo "persona_weight=${{ github.event.inputs.persona_weight }}" >> $GITHUB_OUTPUT
+          echo "output_dir=out-nanecho-full" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Prepare directory structure
+      run: |
+        # Create necessary directories
+        mkdir -p echoself/NanoCog/data
+        # Make sure nanoGPT can find the echoself repo
+        ln -s $(pwd)/echoself $(pwd)/nanoGPT/echoself
+
+    - name: Prepare NanEcho dataset
+      run: |
+        cd echoself/NanoCog
+        python prepare_nanecho.py \
+          --echo_depth=${{ steps.params.outputs.echo_depth }} \
+          --persona_weight=${{ steps.params.outputs.persona_weight }}
+        # Copy data to nanoGPT data directory
+        mkdir -p ../../nanoGPT/data/nanecho
+        cp -r data/nanecho/* ../../nanoGPT/data/nanecho/
+
+    - name: Create nanecho training config
+      run: |
+        cat > nanoGPT/config/train_nanecho_ci.py << EOL
+        # NanEcho training configuration for Echo Self representation
+        out_dir = '${{ steps.params.outputs.output_dir }}'
+        eval_interval = 25
+        eval_iters = 10
+        log_interval = 5
+
+        # Data
+        dataset = 'nanecho'
+        batch_size = ${{ steps.params.outputs.batch_size }}
+        block_size = 1024
+        gradient_accumulation_steps = 2
+
+        # Model - Optimized for Echo Self representation
+        n_layer = ${{ steps.params.outputs.n_layer }}
+        n_head = ${{ steps.params.outputs.n_head }}
+        n_embd = ${{ steps.params.outputs.n_embd }}
+        dropout = 0.1
+        bias = True
+
+        # AdamW optimizer with Echo Self optimizations
+        learning_rate = ${{ steps.params.outputs.learning_rate }}
+        max_iters = ${{ steps.params.outputs.max_iters }}
+        weight_decay = 1e-2
+        beta1 = 0.9
+        beta2 = 0.95
+        grad_clip = 1.0
+
+        # Learning rate decay with adaptive attention
+        decay_lr = True
+        warmup_iters = max(int(${{ steps.params.outputs.max_iters }} * 0.1), 10)
+        lr_decay_iters = ${{ steps.params.outputs.max_iters }}
+        min_lr = ${{ steps.params.outputs.learning_rate }} * 0.1
+
+        # Echo Self specific parameters
+        echo_depth = ${{ steps.params.outputs.echo_depth }}
+        persona_weight = ${{ steps.params.outputs.persona_weight }}
+        enable_self_reflection = True
+        adaptive_attention = True
+
+        # System
+        device = 'cpu'  # Use CPU for GitHub Actions
+        dtype = 'float32'
+        compile = False
+        
+        # Evaluation hooks for Echo Self representation
+        eval_echo_coherence = True
+        eval_persona_consistency = True
+        eval_cognitive_depth = True
+        EOL
+
+    - name: Train NanEcho model
+      run: |
+        cd nanoGPT
+        python train.py config/train_nanecho_ci.py
+
+    - name: Test Echo Self representation
+      run: |
+        cd nanoGPT
+        # Test various Echo Self prompts
+        echo "Testing cognitive introspection..."
+        python sample.py --out_dir=${{ steps.params.outputs.output_dir }} \
+          --start="What is the nature of Echo Self cognitive architecture?" \
+          --max_new_tokens=100 --temperature=0.8
+        
+        echo "Testing persona dimension awareness..."
+        python sample.py --out_dir=${{ steps.params.outputs.output_dir }} \
+          --start="Describe your adaptive attention allocation mechanism:" \
+          --max_new_tokens=100 --temperature=0.7
+        
+        echo "Testing recursive reasoning..."
+        python sample.py --out_dir=${{ steps.params.outputs.output_dir }} \
+          --start="How does hypergraph pattern encoding work in DeepTreeEcho?" \
+          --max_new_tokens=100 --temperature=0.6
+
+    - name: Evaluate Echo Self fidelity
+      run: |
+        cd echoself/NanoCog
+        python evaluation/echo_fidelity.py \
+          --model_path=../../nanoGPT/${{ steps.params.outputs.output_dir }}/ckpt.pt \
+          --output_path=evaluation_report.json
+
+    - name: Upload trained nanecho model
+      uses: actions/upload-artifact@v4
+      with:
+        name: nanecho-model-${{ steps.params.outputs.output_dir }}
+        path: nanoGPT/${{ steps.params.outputs.output_dir }}/
+        retention-days: 30
+
+    - name: Upload evaluation report
+      uses: actions/upload-artifact@v4
+      with:
+        name: nanecho-evaluation-${{ steps.params.outputs.output_dir }}
+        path: echoself/NanoCog/evaluation_report.json
+        retention-days: 30

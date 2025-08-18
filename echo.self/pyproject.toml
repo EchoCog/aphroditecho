@@ -1,0 +1,62 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nanocog"
+version = "0.1.0"
+description = "NanoCog - A CogPrime-trained nanoGPT model with Echo Self representation"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "NanoCog Team"}
+]
+keywords = ["ai", "machine-learning", "gpt", "cogprime", "echo-self"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "torch>=2.0.0",
+    "numpy>=1.21.0",
+    "tiktoken>=0.5.0",
+    "transformers>=4.30.0",
+    "fastapi>=0.100.0",
+    "uvicorn>=0.23.0",
+    "requests>=2.31.0",
+    "markdown>=3.4.0",
+    "beautifulsoup4>=4.12.0",
+    "pyyaml>=6.0",
+    "rich>=13.0.0",
+    "pytest>=7.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "black>=23.0.0",
+    "flake8>=6.0.0",
+    "mypy>=1.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/your-username/nanocog"
+Repository = "https://github.com/your-username/nanocog"
+Issues = "https://github.com/your-username/nanocog/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["NanoCog*"]
+
+[tool.pytest.ini_options]
+testpaths = ["NanoCog"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]

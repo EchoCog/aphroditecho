@@ -1,0 +1,22 @@
+# Core ML and AI dependencies
+torch>=2.0.0
+numpy>=1.21.0
+tiktoken>=0.5.0
+transformers>=4.30.0
+
+# Web framework and API
+fastapi>=0.100.0
+uvicorn>=0.23.0
+requests>=2.31.0
+
+# Data processing and utilities
+markdown>=3.4.0
+beautifulsoup4>=4.12.0
+pyyaml>=6.0
+rich>=13.0.0
+
+# Testing and development
+pytest>=7.0.0
+
+# Additional dependencies for Echo Self processing
+# These are already installed in the workflow but listed here for completeness
