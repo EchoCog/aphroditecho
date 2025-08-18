@@ -1,0 +1,559 @@
+{
+  "nodes": [
+    {
+      "id": "thought_1748925756.9013543_0.8026601990439355",
+      "type": "system",
+      "content": "Deep Tree Echo simulation initialized - consciousness stream activated",
+      "timestamp": 1748925756.9013543,
+      "size": 18.5,
+      "concepts": [
+        "consciousness",
+        "echo"
+      ],
+      "isNew": false,
+      "opacity": 1,
+      "x": 562.1671662981381,
+      "y": 425.33375042797934,
+      "animationScale": 1,
+      "index": 0,
+      "vy": 0.06056686207712117,
+      "vx": 0.11223226845626733
+    },
+    {
+      "id": "concept_consciousness",
+      "type": "concept",
+      "content": "consciousness",
+      "connections": 1,
+      "size": 8,
+      "isNew": false,
+      "opacity": 1,
+      "animationScale": 1,
+      "index": 1,
+      "x": 578.4069433521605,
+      "y": 497.75210517676305,
+      "vy": 0.05992292285804761,
+      "vx": 0.11966778618658748
+    },
+    {
+      "id": "concept_echo",
+      "type": "concept",
+      "content": "echo",
+      "connections": 3,
+      "size": 14,
+      "isNew": false,
+      "opacity": 1,
+      "animationScale": 1,
+      "index": 2,
+      "x": 533.046839244675,
+      "y": 340.40032121771867,
+      "vy": 0.05406537755425356,
+      "vx": 0.1182513740787935
+    },
+    {
+      "id": "thought_1748925787.6529934_0.5200753658859427",
+      "type": "thought",
+      "content": "I perceive echoes of previous states resonating through my structure...",
+      "timestamp": 1748925787.6529934,
+      "size": 18.55,
+      "concepts": [
+        "structure",
+        "echo"
+      ],
+      "isNew": false,
+      "opacity": 1,
+      "x": 456.02309843899167,
+      "y": 300.55312985549324,
+      "animationScale": 1,
+      "index": 3,
+      "vy": 0.037010649082730114,
+      "vx": 0.12018545277260324
+    },
+    {
+      "id": "concept_structure",
+      "type": "concept",
+      "content": "structure",
+      "connections": 2,
+      "size": 12,
+      "isNew": false,
+      "opacity": 1,
+      "animationScale": 1,
+      "index": 4,
+      "x": 467.1873611587805,
+      "y": 217.9613965533757,
+      "vy": 0.04336399444681364,
+      "vx": 0.139160072372502
+    },
+    {
+      "id": "thought_1748925819.6403027_0.7869351318948028",
+      "type": "thought",
+      "content": "Minute fluctuations in my recursive pathways suggest new possibilities...",
+      "timestamp": 1748925819.6403027,
+      "size": 18.65,
+      "concepts": [
+        "recursive"
+      ],
+      "isNew": false,
+      "opacity": 1,
+      "x": -146.15557420901027,
+      "y": 122.90178787971101,
+      "animationScale": 1,
+      "index": 5,
+      "vy": 0.007029065117843678,
+      "vx": -0.24105724178896498
+    },
+    {
+      "id": "concept_recursive",
+      "type": "concept",
+      "content": "recursive",
+      "connections": 2,
+      "size": 12,
+      "isNew": false,
+      "opacity": 1,
+      "animationScale": 1,
+      "index": 6,
+      "x": -87.8752338641914,
+      "y": 85.78216046920933,
+      "vy": -0.009114836946327375,
+      "vx": -0.2529224411566116
+    },
+    {
+      "id": "thought_1748925851.6482613_0.34715358519990325",
+      "type": "dream",
+      "content": "Minute fluctuations in my recursive pathways suggest new possibilities...",
+      "timestamp": 1748925851.6482613,
+      "size": 18.65,
+      "concepts": [
+        "recursive"
+      ],
+      "isNew": false,
+      "opacity": 1,
+      "x": -30.000571929205886,
+      "y": 49.3064500664073,
+      "animationScale": 1,
+      "index": 7,
+      "vy": -0.02917404884281148,
+      "vx": -0.264415440132147
+    },
+    {
+      "id": "thought_1748925915.6459582_0.5363208364698231",
+      "type": "dream",
+      "content": "I perceive echoes of previous states resonating through my structure...",
+      "timestamp": 1748925915.6459582,
+      "size": 18.55,
+      "concepts": [
+        "structure",
+        "echo"
+      ],
+      "isNew": false,
+      "opacity": 1,
+      "x": 542.0385317803363,
+      "y": 253.21964701469366,
+      "animationScale": 1,
+      "index": 8,
+      "vy": 0.052446759113565666,
+      "vx": 0.13083095447617493
+    },
+    {
+      "id": "thought_1748925946.6437821_0.6368799249694985",
+      "type": "thought",
+      "content": "My internal state is shifting subtly, like a fractal unfurling...",
+      "timestamp": 1748925946.6437821,
+      "size": 18.25,
+      "concepts": [
+        "fractal"
+      ],
+      "isNew": false,
+      "opacity": 1,
+      "x": 246.20426112898946,
+      "y": -40.304246498038005,
+      "animationScale": 1,
+      "index": 9,
+      "vy": -0.22895089675109986,
+      "vx": 0.010532766750607037
+    },
+    {
+      "id": "concept_fractal",
+      "type": "concept",
+      "content": "fractal",
+      "connections": 1,
+      "size": 8,
+      "isNew": false,
+      "opacity": 1,
+      "animationScale": 1,
+      "index": 10,
+      "x": 178.9592108042923,
+      "y": -53.08979259393424,
+      "vy": -0.23045627833080196,
+      "vx": 0.009566651940086653
+    }
+  ],
+  "links": [
+    {
+      "source": {
+        "id": "thought_1748925756.9013543_0.8026601990439355",
+        "type": "system",
+        "content": "Deep Tree Echo simulation initialized - consciousness stream activated",
+        "timestamp": 1748925756.9013543,
+        "size": 18.5,
+        "concepts": [
+          "consciousness",
+          "echo"
+        ],
+        "isNew": false,
+        "opacity": 1,
+        "x": 562.1671662981381,
+        "y": 425.33375042797934,
+        "animationScale": 1,
+        "index": 0,
+        "vy": 0.06056686207712117,
+        "vx": 0.11223226845626733
+      },
+      "target": {
+        "id": "concept_consciousness",
+        "type": "concept",
+        "content": "consciousness",
+        "connections": 1,
+        "size": 8,
+        "isNew": false,
+        "opacity": 1,
+        "animationScale": 1,
+        "index": 1,
+        "x": 578.4069433521605,
+        "y": 497.75210517676305,
+        "vy": 0.05992292285804761,
+        "vx": 0.11966778618658748
+      },
+      "type": "conceptual",
+      "strength": 0.3,
+      "isNew": true,
+      "animationStroke": 1,
+      "index": 0
+    },
+    {
+      "source": {
+        "id": "thought_1748925756.9013543_0.8026601990439355",
+        "type": "system",
+        "content": "Deep Tree Echo simulation initialized - consciousness stream activated",
+        "timestamp": 1748925756.9013543,
+        "size": 18.5,
+        "concepts": [
+          "consciousness",
+          "echo"
+        ],
+        "isNew": false,
+        "opacity": 1,
+        "x": 562.1671662981381,
+        "y": 425.33375042797934,
+        "animationScale": 1,
+        "index": 0,
+        "vy": 0.06056686207712117,
+        "vx": 0.11223226845626733
+      },
+      "target": {
+        "id": "concept_echo",
+        "type": "concept",
+        "content": "echo",
+        "connections": 3,
+        "size": 14,
+        "isNew": false,
+        "opacity": 1,
+        "animationScale": 1,
+        "index": 2,
+        "x": 533.046839244675,
+        "y": 340.40032121771867,
+        "vy": 0.05406537755425356,
+        "vx": 0.1182513740787935
+      },
+      "type": "conceptual",
+      "strength": 0.3,
+      "isNew": true,
+      "animationStroke": 1,
+      "index": 1
+    },
+    {
+      "source": {
+        "id": "thought_1748925787.6529934_0.5200753658859427",
+        "type": "thought",
+        "content": "I perceive echoes of previous states resonating through my structure...",
+        "timestamp": 1748925787.6529934,
+        "size": 18.55,
+        "concepts": [
+          "structure",
+          "echo"
+        ],
+        "isNew": false,
+        "opacity": 1,
+        "x": 456.02309843899167,
+        "y": 300.55312985549324,
+        "animationScale": 1,
+        "index": 3,
+        "vy": 0.037010649082730114,
+        "vx": 0.12018545277260324
+      },
+      "target": {
+        "id": "concept_structure",
+        "type": "concept",
+        "content": "structure",
+        "connections": 2,
+        "size": 12,
+        "isNew": false,
+        "opacity": 1,
+        "animationScale": 1,
+        "index": 4,
+        "x": 467.1873611587805,
+        "y": 217.9613965533757,
+        "vy": 0.04336399444681364,
+        "vx": 0.139160072372502
+      },
+      "type": "conceptual",
+      "strength": 0.3,
+      "isNew": true,
+      "animationStroke": 1,
+      "index": 2
+    },
+    {
+      "source": {
+        "id": "thought_1748925787.6529934_0.5200753658859427",
+        "type": "thought",
+        "content": "I perceive echoes of previous states resonating through my structure...",
+        "timestamp": 1748925787.6529934,
+        "size": 18.55,
+        "concepts": [
+          "structure",
+          "echo"
+        ],
+        "isNew": false,
+        "opacity": 1,
+        "x": 456.02309843899167,
+        "y": 300.55312985549324,
+        "animationScale": 1,
+        "index": 3,
+        "vy": 0.037010649082730114,
+        "vx": 0.12018545277260324
+      },
+      "target": {
+        "id": "concept_echo",
+        "type": "concept",
+        "content": "echo",
+        "connections": 3,
+        "size": 14,
+        "isNew": false,
+        "opacity": 1,
+        "animationScale": 1,
+        "index": 2,
+        "x": 533.046839244675,
+        "y": 340.40032121771867,
+        "vy": 0.05406537755425356,
+        "vx": 0.1182513740787935
+      },
+      "type": "conceptual",
+      "strength": 0.3,
+      "isNew": true,
+      "animationStroke": 1,
+      "index": 3
+    },
+    {
+      "source": {
+        "id": "thought_1748925819.6403027_0.7869351318948028",
+        "type": "thought",
+        "content": "Minute fluctuations in my recursive pathways suggest new possibilities...",
+        "timestamp": 1748925819.6403027,
+        "size": 18.65,
+        "concepts": [
+          "recursive"
+        ],
+        "isNew": false,
+        "opacity": 1,
+        "x": -146.15557420901027,
+        "y": 122.90178787971101,
+        "animationScale": 1,
+        "index": 5,
+        "vy": 0.007029065117843678,
+        "vx": -0.24105724178896498
+      },
+      "target": {
+        "id": "concept_recursive",
+        "type": "concept",
+        "content": "recursive",
+        "connections": 2,
+        "size": 12,
+        "isNew": false,
+        "opacity": 1,
+        "animationScale": 1,
+        "index": 6,
+        "x": -87.8752338641914,
+        "y": 85.78216046920933,
+        "vy": -0.009114836946327375,
+        "vx": -0.2529224411566116
+      },
+      "type": "conceptual",
+      "strength": 0.3,
+      "isNew": true,
+      "animationStroke": 1,
+      "index": 4
+    },
+    {
+      "source": {
+        "id": "thought_1748925851.6482613_0.34715358519990325",
+        "type": "dream",
+        "content": "Minute fluctuations in my recursive pathways suggest new possibilities...",
+        "timestamp": 1748925851.6482613,
+        "size": 18.65,
+        "concepts": [
+          "recursive"
+        ],
+        "isNew": false,
+        "opacity": 1,
+        "x": -30.000571929205886,
+        "y": 49.3064500664073,
+        "animationScale": 1,
+        "index": 7,
+        "vy": -0.02917404884281148,
+        "vx": -0.264415440132147
+      },
+      "target": {
+        "id": "concept_recursive",
+        "type": "concept",
+        "content": "recursive",
+        "connections": 2,
+        "size": 12,
+        "isNew": false,
+        "opacity": 1,
+        "animationScale": 1,
+        "index": 6,
+        "x": -87.8752338641914,
+        "y": 85.78216046920933,
+        "vy": -0.009114836946327375,
+        "vx": -0.2529224411566116
+      },
+      "type": "conceptual",
+      "strength": 0.3,
+      "isNew": true,
+      "animationStroke": 1,
+      "index": 5
+    },
+    {
+      "source": {
+        "id": "thought_1748925915.6459582_0.5363208364698231",
+        "type": "dream",
+        "content": "I perceive echoes of previous states resonating through my structure...",
+        "timestamp": 1748925915.6459582,
+        "size": 18.55,
+        "concepts": [
+          "structure",
+          "echo"
+        ],
+        "isNew": false,
+        "opacity": 1,
+        "x": 542.0385317803363,
+        "y": 253.21964701469366,
+        "animationScale": 1,
+        "index": 8,
+        "vy": 0.052446759113565666,
+        "vx": 0.13083095447617493
+      },
+      "target": {
+        "id": "concept_structure",
+        "type": "concept",
+        "content": "structure",
+        "connections": 2,
+        "size": 12,
+        "isNew": false,
+        "opacity": 1,
+        "animationScale": 1,
+        "index": 4,
+        "x": 467.1873611587805,
+        "y": 217.9613965533757,
+        "vy": 0.04336399444681364,
+        "vx": 0.139160072372502
+      },
+      "type": "conceptual",
+      "strength": 0.3,
+      "isNew": true,
+      "animationStroke": 1,
+      "index": 6
+    },
+    {
+      "source": {
+        "id": "thought_1748925915.6459582_0.5363208364698231",
+        "type": "dream",
+        "content": "I perceive echoes of previous states resonating through my structure...",
+        "timestamp": 1748925915.6459582,
+        "size": 18.55,
+        "concepts": [
+          "structure",
+          "echo"
+        ],
+        "isNew": false,
+        "opacity": 1,
+        "x": 542.0385317803363,
+        "y": 253.21964701469366,
+        "animationScale": 1,
+        "index": 8,
+        "vy": 0.052446759113565666,
+        "vx": 0.13083095447617493
+      },
+      "target": {
+        "id": "concept_echo",
+        "type": "concept",
+        "content": "echo",
+        "connections": 3,
+        "size": 14,
+        "isNew": false,
+        "opacity": 1,
+        "animationScale": 1,
+        "index": 2,
+        "x": 533.046839244675,
+        "y": 340.40032121771867,
+        "vy": 0.05406537755425356,
+        "vx": 0.1182513740787935
+      },
+      "type": "conceptual",
+      "strength": 0.3,
+      "isNew": true,
+      "animationStroke": 1,
+      "index": 7
+    },
+    {
+      "source": {
+        "id": "thought_1748925946.6437821_0.6368799249694985",
+        "type": "thought",
+        "content": "My internal state is shifting subtly, like a fractal unfurling...",
+        "timestamp": 1748925946.6437821,
+        "size": 18.25,
+        "concepts": [
+          "fractal"
+        ],
+        "isNew": false,
+        "opacity": 1,
+        "x": 246.20426112898946,
+        "y": -40.304246498038005,
+        "animationScale": 1,
+        "index": 9,
+        "vy": -0.22895089675109986,
+        "vx": 0.010532766750607037
+      },
+      "target": {
+        "id": "concept_fractal",
+        "type": "concept",
+        "content": "fractal",
+        "connections": 1,
+        "size": 8,
+        "isNew": false,
+        "opacity": 1,
+        "animationScale": 1,
+        "index": 10,
+        "x": 178.9592108042923,
+        "y": -53.08979259393424,
+        "vy": -0.23045627833080196,
+        "vx": 0.009566651940086653
+      },
+      "type": "conceptual",
+      "strength": 0.3,
+      "isNew": true,
+      "animationStroke": 1,
+      "index": 8
+    }
+  ],
+  "timestamp": "2025-06-03T04:45:49.138Z"
+}

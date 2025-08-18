@@ -1,0 +1,19 @@
+System: Initializing cognitive session...
+System: Cognitive session initialized. Ready for interaction.
+11:53:52
+You: hi
+11:54:29
+Echo: Integrated cognitive response: Drawing from memory (0 experiences), applying reasoning patterns, and considering linguistic structure. Memory membrane activated. Processing: hi...
+11:54:30 • 393ms
+Membrane Details
+Memory: Memory membrane activated. Processing: hi
+Reasoning: General reasoning applied to: hi
+Grammar: Grammar analysis: 1 words, 0 sentences, simple complexity. Symbolic patterns detected.
+You: where are we?
+11:54:46
+Echo: Integrated cognitive response: Drawing from memory (1 experiences), applying reasoning patterns, and considering linguistic structure. Memory membrane activated. Processing: where are w...
+11:54:46 • 270ms
+Membrane Details
+Memory: Memory membrane activated. Processing: where are we?
+Reasoning: Reasoning membrane engaged for question: where are we?. Applying deductive and inductive reasoning patterns.
+Grammar: Grammar analysis: 3 words, 1 sentences, simple complexity. Symbolic patterns detected.
