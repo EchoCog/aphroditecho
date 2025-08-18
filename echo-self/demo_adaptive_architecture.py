@@ -143,7 +143,7 @@ async def simulate_inference_workload(integration: AphroditeAdaptiveIntegration,
         }
         
         # Hook post-inference
-        hooked_response = await integration.hook_inference_response(hooked_request, response_data)
+        await integration.hook_inference_response(hooked_request, response_data)
         
         print(f"   Request {i+1:2d}: {inference_time:6.1f}ms latency, {tokens_generated:2d} tokens")
         
@@ -301,7 +301,9 @@ async def demonstrate_adaptive_architecture():
             confidence=0.8
         )
         
-        attention_success = await integration.apply_architecture_adaptation(attention_mutation)
+        attention_success = await integration.apply_architecture_adaptation(
+            attention_mutation
+        )
         if attention_success:
             print("   ✅ Attention head optimization applied")
         
@@ -311,9 +313,18 @@ async def demonstrate_adaptive_architecture():
         original_config = final_status['original_config']
         
         print(f"   • Total adaptations: {final_status['modification_count']}")
-        print(f"   • Hidden size: {original_config['hidden_size']} → {final_config['hidden_size']}")
-        print(f"   • Attention heads: {original_config['num_attention_heads']} → {final_config['num_attention_heads']}")
-        print(f"   • Hidden layers: {original_config['num_hidden_layers']} → {final_config['num_hidden_layers']}")
+        print(
+            f"   • Hidden size: {original_config['hidden_size']} → "
+            f"{final_config['hidden_size']}"
+        )
+        print(
+            f"   • Attention heads: {original_config['num_attention_heads']} → "
+            f"{final_config['num_attention_heads']}"
+        )
+        print(
+            f"   • Hidden layers: {original_config['num_hidden_layers']} → "
+            f"{final_config['num_hidden_layers']}"
+        )
         
         print("\n📚 Adaptation History:")
         adaptation_history = adaptive_framework.get_adaptation_history()
@@ -321,18 +332,27 @@ async def demonstrate_adaptive_architecture():
         
         if adaptation_history:
             for i, record in enumerate(adaptation_history[-3:], 1):  # Show last 3
-                print(f"   {i}. {record['mutation_type']} (impact: {record['expected_impact']:.2f})")
+                print(
+                    f"   {i}. {record['mutation_type']} "
+                    f"(impact: {record['expected_impact']:.2f})"
+                )
         
         if modification_history:
             for i, record in enumerate(modification_history[-3:], 1):  # Show last 3
-                print(f"   {i}. Applied {record['mutation_type']} at {time.strftime('%H:%M:%S', time.localtime(record['timestamp']))}")
+                print(
+                    f"   {i}. Applied {record['mutation_type']} at "
+                    f"{time.strftime('%H:%M:%S', time.localtime(record['timestamp']))}"
+                )
         
         print("\n🧠 Evolution Engine Status:")
         best_individual = evolution_engine.get_best_individual()
         if best_individual:
             print(f"   • Best individual fitness: {best_individual.fitness:.3f}")
             print(f"   • Current generation: {evolution_engine.generation}")
-            print(f"   • Population size: {evolution_engine.current_population.size() if evolution_engine.current_population else 0}")
+            print(
+                f"   • Population size: "
+                f"{evolution_engine.current_population.size() if evolution_engine.current_population else 0}"
+            )
         
         print("\n🎯 Validation: Models can self-modify during inference ✅")
         print("   • Dynamic topology adjustment: ✅")
@@ -392,7 +412,9 @@ async def demonstrate_evolution_run():
 def main():
     """Main demonstration runner."""
     print("🎉 Welcome to the Adaptive Architecture Framework Demo!")
-    print("This demonstration shows how models can self-modify during inference.")
+    print(
+        "This demonstration shows how models can self-modify during inference."
+    )
     print()
     
     try:

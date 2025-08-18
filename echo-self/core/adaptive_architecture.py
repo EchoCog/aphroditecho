@@ -13,6 +13,7 @@ from dataclasses import dataclass, field
 import threading
 from collections import deque
 import statistics
+import contextlib
 
 # Handle both absolute and relative imports
 try:
@@ -148,14 +149,17 @@ class ArchitectureMutation:
                 'type': 'direct'
             })
     
-    def _update_connections_after_layer_removal(self, genome: Dict[str, Any], removed_pos: int) -> None:
+    def _update_connections_after_layer_removal(
+        self, genome: Dict[str, Any], removed_pos: int
+    ) -> None:
         """Update connections after removing a layer."""
         connections = genome.get('connections', [])
         
         # Remove connections involving the removed layer
         connections[:] = [
             conn for conn in connections 
-            if conn.get('from', 0) != removed_pos and conn.get('to', 0) != removed_pos
+            if (conn.get('from', 0) != removed_pos and 
+                conn.get('to', 0) != removed_pos)
         ]
         
         # Shift connections that reference layers after the removal point
@@ -193,11 +197,21 @@ class PerformanceMonitor:
             recent_metrics = list(self.metrics_history)[-10:]  # Last 10 measurements
             
             return {
-                'avg_latency_ms': statistics.mean([m.latency_ms for m in recent_metrics]),
-                'avg_throughput': statistics.mean([m.throughput_tokens_per_sec for m in recent_metrics]),
-                'avg_memory_mb': statistics.mean([m.memory_usage_mb for m in recent_metrics]),
-                'avg_accuracy': statistics.mean([m.accuracy_score for m in recent_metrics]),
-                'avg_overall_score': statistics.mean([m.overall_score() for m in recent_metrics])
+                'avg_latency_ms': statistics.mean(
+                    [m.latency_ms for m in recent_metrics]
+                ),
+                'avg_throughput': statistics.mean(
+                    [m.throughput_tokens_per_sec for m in recent_metrics]
+                ),
+                'avg_memory_mb': statistics.mean(
+                    [m.memory_usage_mb for m in recent_metrics]
+                ),
+                'avg_accuracy': statistics.mean(
+                    [m.accuracy_score for m in recent_metrics]
+                ),
+                'avg_overall_score': statistics.mean(
+                    [m.overall_score() for m in recent_metrics]
+                )
             }
     
     def detect_performance_degradation(self, threshold: float = 0.1) -> bool:
@@ -267,7 +281,9 @@ class ArchitectureOptimizer:
         
         # Apply general optimization strategies
         for strategy_name, strategy_func in self.mutation_strategies.items():
-            strategy_mutations = strategy_func(current_genome, performance_metrics)
+            strategy_mutations = strategy_func(
+                current_genome, performance_metrics
+            )
             mutations.extend(strategy_mutations)
         
         # Rank mutations by expected impact
@@ -356,7 +372,9 @@ class ArchitectureOptimizer:
         
         return mutations
     
-    def _suggest_layer_scaling(self, genome: Dict[str, Any], metrics: PerformanceMetrics) -> List[ArchitectureMutation]:
+    def _suggest_layer_scaling(
+        self, genome: Dict[str, Any], metrics: PerformanceMetrics
+    ) -> List[ArchitectureMutation]:
         """Suggest layer size scaling based on performance."""
         mutations = []
         
@@ -376,7 +394,9 @@ class ArchitectureOptimizer:
         
         return mutations
     
-    def _suggest_depth_adjustment(self, genome: Dict[str, Any], metrics: PerformanceMetrics) -> List[ArchitectureMutation]:
+    def _suggest_depth_adjustment(
+        self, genome: Dict[str, Any], metrics: PerformanceMetrics
+    ) -> List[ArchitectureMutation]:
         """Suggest depth adjustments based on performance."""
         mutations = []
         layers = genome.get('layers', [])
@@ -407,7 +427,9 @@ class ArchitectureOptimizer:
         
         return mutations
     
-    def _suggest_connection_optimization(self, genome: Dict[str, Any], metrics: PerformanceMetrics) -> List[ArchitectureMutation]:
+    def _suggest_connection_optimization(
+        self, genome: Dict[str, Any], metrics: PerformanceMetrics
+    ) -> List[ArchitectureMutation]:
         """Suggest connection weight adjustments."""
         mutations = []
         
@@ -422,7 +444,9 @@ class ArchitectureOptimizer:
         
         return mutations
     
-    def _suggest_parameter_tuning(self, genome: Dict[str, Any], metrics: PerformanceMetrics) -> List[ArchitectureMutation]:
+    def _suggest_parameter_tuning(
+        self, genome: Dict[str, Any], metrics: PerformanceMetrics
+    ) -> List[ArchitectureMutation]:
         """Suggest parameter tuning mutations."""
         mutations = []
         
@@ -430,8 +454,9 @@ class ArchitectureOptimizer:
         current_params = genome.get('parameters', {})
         current_lr = current_params.get('learning_rate', 0.001)
         
-        if metrics.overall_score() < 0.5:  # Poor performance, try different learning rate
-            new_lr = current_lr * 0.5 if current_lr > 0.0001 else current_lr * 2.0
+        if metrics.overall_score() < 0.5:  # Poor performance, try different lr
+            new_lr = (current_lr * 0.5 if current_lr > 0.0001 
+                     else current_lr * 2.0)
             mutations.append(ArchitectureMutation(
                 mutation_type='modify_layer',  # Using modify_layer for simplicity
                 parameters={'learning_rate': new_lr},
@@ -493,10 +518,8 @@ class AdaptiveArchitectureFramework:
         
         if self._adaptation_task and not self._adaptation_task.done():
             self._adaptation_task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await self._adaptation_task
-            except asyncio.CancelledError:
-                pass
         
         logger.info("Adaptive monitoring stopped")
     
@@ -530,7 +553,7 @@ class AdaptiveArchitectureFramework:
             current_time = time.time()
             
             # Rate limiting check
-            if current_time - self.last_adaptation_time < 600:  # 10 minutes minimum between adaptations
+            if current_time - self.last_adaptation_time < 600:  # 10 min min
                 return False
             
             # Hour-based rate limiting
@@ -551,7 +574,9 @@ class AdaptiveArchitectureFramework:
             # Performance trend check
             trend = self.performance_monitor.get_performance_trend()
             if trend < -0.3:  # Strongly negative trend
-                logger.info(f"Negative performance trend detected: {trend:.3f}")
+                logger.info(
+                    f"Negative performance trend detected: {trend:.3f}"
+                )
                 return True
             
             return False
@@ -573,14 +598,20 @@ class AdaptiveArchitectureFramework:
                 # Get current performance metrics
                 current_performance = self.performance_monitor.get_current_performance()
                 if not current_performance:
-                    logger.warning("No performance metrics available for adaptation")
+                    logger.warning(
+                        "No performance metrics available for adaptation"
+                    )
                     return
                 
                 # Create performance metrics object
                 metrics = PerformanceMetrics(
                     latency_ms=current_performance.get('avg_latency_ms', 100.0),
-                    throughput_tokens_per_sec=current_performance.get('avg_throughput', 50.0),
-                    memory_usage_mb=current_performance.get('avg_memory_mb', 1024.0),
+                    throughput_tokens_per_sec=current_performance.get(
+                        'avg_throughput', 50.0
+                    ),
+                    memory_usage_mb=current_performance.get(
+                        'avg_memory_mb', 1024.0
+                    ),
                     accuracy_score=current_performance.get('avg_accuracy', 0.8)
                 )
                 
@@ -597,7 +628,10 @@ class AdaptiveArchitectureFramework:
                 
                 # Apply the best mutation
                 best_mutation = mutations[0]
-                logger.info(f"Applying mutation: {best_mutation.mutation_type} with expected impact: {best_mutation.expected_impact:.3f}")
+                logger.info(
+                    f"Applying mutation: {best_mutation.mutation_type} "
+                    f"with expected impact: {best_mutation.expected_impact:.3f}"
+                )
                 
                 # Create mutated genome
                 mutated_genome = best_mutation.apply_to_genome(best_individual.genome)
@@ -608,13 +642,21 @@ class AdaptiveArchitectureFramework:
                 
                 # Add to population for evaluation
                 if self.evolution_engine.current_population is not None:
-                    self.evolution_engine.current_population.add_individual(mutated_individual)
+                    self.evolution_engine.current_population.add_individual(
+                        mutated_individual
+                    )
                     
                     # Trim population to maintain size
-                    if self.evolution_engine.current_population.size() > self.evolution_engine.config.population_size:
-                        worst_individual = self.evolution_engine.current_population.get_worst_individual()
+                    if (self.evolution_engine.current_population.size() > 
+                        self.evolution_engine.config.population_size):
+                        worst_individual = (
+                            self.evolution_engine.current_population
+                            .get_worst_individual()
+                        )
                         if worst_individual:
-                            self.evolution_engine.current_population.remove_individual(worst_individual)
+                            self.evolution_engine.current_population.remove_individual(
+                                worst_individual
+                            )
                 
                 # Record adaptation
                 adaptation_record = {
@@ -623,7 +665,7 @@ class AdaptiveArchitectureFramework:
                     'expected_impact': best_mutation.expected_impact,
                     'confidence': best_mutation.confidence,
                     'pre_adaptation_performance': current_performance,
-                    'genome_hash': hash(str(best_individual.genome))  # Simple genome identifier
+                    'genome_hash': hash(str(best_individual.genome))  # Simple id
                 }
                 
                 self.adaptation_history.append(adaptation_record)
@@ -652,7 +694,9 @@ class AdaptiveArchitectureFramework:
                 'current_performance': current_performance,
                 'performance_trend': self.performance_monitor.get_performance_trend(),
                 'adaptation_interval': self.adaptation_interval,
-                'next_adaptation_check': self.last_adaptation_time + self.adaptation_interval
+                'next_adaptation_check': (
+                    self.last_adaptation_time + self.adaptation_interval
+                )
             }
     
     def get_adaptation_history(self) -> List[Dict[str, Any]]:
@@ -677,5 +721,8 @@ class AdaptiveArchitectureFramework:
             if max_per_hour is not None:
                 self.max_adaptations_per_hour = max(1, min(20, max_per_hour))
         
-        logger.info(f"Adaptation configured: interval={self.adaptation_interval}s, "
-                   f"threshold={self.min_adaptation_threshold}, max_per_hour={self.max_adaptations_per_hour}")
+        logger.info(
+            f"Adaptation configured: interval={self.adaptation_interval}s, "
+            f"threshold={self.min_adaptation_threshold}, "
+            f"max_per_hour={self.max_adaptations_per_hour}"
+        )

@@ -5,14 +5,12 @@ Implements fundamental genetic algorithm operations: mutation, selection, and cr
 """
 
 import random
-import math
-from typing import List, Tuple
 
 # Handle both absolute and relative imports
 try:
     from core.interfaces import Individual, Population, EvolutionConfig, EvolutionaryOperator
 except ImportError:
-    from .interfaces import Individual, Population, EvolutionConfig, EvolutionaryOperator
+    from .interfaces import Population, EvolutionConfig, EvolutionaryOperator
 
 
 class MutationOperator(EvolutionaryOperator):

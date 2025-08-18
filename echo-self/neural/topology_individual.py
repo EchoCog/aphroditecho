@@ -6,8 +6,7 @@ enabling the Echo-Self system to optimize network architectures.
 """
 
 import random
-import math
-from typing import Dict, Any, List, Tuple, Set
+from typing import Dict, Any, Tuple
 from copy import deepcopy
 
 # Import interfaces - handle both absolute and relative imports
@@ -47,13 +46,19 @@ class NeuralTopologyIndividual(Individual):
             mutated_genome = self._mutate_layers(mutated_genome, mutation_rate)
         
         if random.random() < mutation_rate:
-            mutated_genome = self._mutate_connections(mutated_genome, mutation_rate)
+            mutated_genome = self._mutate_connections(
+                mutated_genome, mutation_rate
+            )
         
         if random.random() < mutation_rate:
-            mutated_genome = self._mutate_activations(mutated_genome, mutation_rate)
+            mutated_genome = self._mutate_activations(
+                mutated_genome, mutation_rate
+            )
         
         if random.random() < mutation_rate:
-            mutated_genome = self._mutate_parameters(mutated_genome, mutation_rate)
+            mutated_genome = self._mutate_parameters(
+                mutated_genome, mutation_rate
+            )
         
         # Create new individual
         mutated = NeuralTopologyIndividual(mutated_genome)
@@ -61,12 +66,16 @@ class NeuralTopologyIndividual(Individual):
         
         return mutated
     
-    def _mutate_layers(self, genome: Dict[str, Any], mutation_rate: float) -> Dict[str, Any]:
+    def _mutate_layers(
+        self, genome: Dict[str, Any], mutation_rate: float
+    ) -> Dict[str, Any]:
         """Mutate layer structure."""
         layers = genome.get("layers", []).copy()
         
         # Mutation types for layers
-        mutation_type = random.choice(["add", "remove", "modify", "split", "merge"])
+        mutation_type = random.choice(
+            ["add", "remove", "modify", "split", "merge"]
+        )
         
         if mutation_type == "add" and len(layers) < 20:  # Max layers limit
             # Add a new layer
@@ -99,7 +108,9 @@ class NeuralTopologyIndividual(Individual):
             if layer["type"] in ["dense", "conv1d", "lstm"]:
                 # Modify size
                 current_size = layer.get("size", 64)
-                size_change = random.randint(-current_size // 4, current_size // 4)
+                size_change = random.randint(
+                    -current_size // 4, current_size // 4
+                )
                 layer["size"] = max(8, current_size + size_change)
             
             if layer["type"] == "conv1d":
@@ -132,14 +143,18 @@ class NeuralTopologyIndividual(Individual):
             
             if layer1["type"] == layer2["type"]:
                 merged_layer = layer1.copy()
-                merged_layer["size"] = layer1.get("size", 64) + layer2.get("size", 64)
+                merged_layer["size"] = (
+                    layer1.get("size", 64) + layer2.get("size", 64)
+                )
                 layers[layer_idx] = merged_layer
                 layers.pop(layer_idx + 1)
         
         genome["layers"] = layers
         return genome
     
-    def _mutate_connections(self, genome: Dict[str, Any], mutation_rate: float) -> Dict[str, Any]:
+    def _mutate_connections(
+        self, genome: Dict[str, Any], mutation_rate: float
+    ) -> Dict[str, Any]:
         """Mutate connection structure."""
         connections = genome.get("connections", []).copy()
         layers = genome.get("layers", [])
@@ -172,12 +187,16 @@ class NeuralTopologyIndividual(Individual):
         genome["connections"] = connections
         return genome
     
-    def _mutate_activations(self, genome: Dict[str, Any], mutation_rate: float) -> Dict[str, Any]:
+    def _mutate_activations(
+        self, genome: Dict[str, Any], mutation_rate: float
+    ) -> Dict[str, Any]:
         """Mutate activation functions."""
         activations = genome.get("activation_functions", {}).copy()
         layers = genome.get("layers", [])
         
-        activation_choices = ["relu", "tanh", "sigmoid", "leaky_relu", "elu", "swish", "gelu"]
+        activation_choices = [
+            "relu", "tanh", "sigmoid", "leaky_relu", "elu", "swish", "gelu"
+        ]
         
         for i, layer in enumerate(layers):
             if random.random() < mutation_rate:
@@ -186,7 +205,9 @@ class NeuralTopologyIndividual(Individual):
         genome["activation_functions"] = activations
         return genome
     
-    def _mutate_parameters(self, genome: Dict[str, Any], mutation_rate: float) -> Dict[str, Any]:
+    def _mutate_parameters(
+        self, genome: Dict[str, Any], mutation_rate: float
+    ) -> Dict[str, Any]:
         """Mutate network parameters."""
         params = genome.get("parameters", {}).copy()
         
@@ -194,7 +215,9 @@ class NeuralTopologyIndividual(Individual):
         if random.random() < mutation_rate:
             current_lr = params.get("learning_rate", 0.001)
             lr_factor = random.uniform(0.5, 2.0)
-            params["learning_rate"] = max(1e-6, min(1.0, current_lr * lr_factor))
+            params["learning_rate"] = max(
+                1e-6, min(1.0, current_lr * lr_factor)
+            )
         
         # Batch size
         if random.random() < mutation_rate:
@@ -203,7 +226,9 @@ class NeuralTopologyIndividual(Individual):
         
         # Optimization parameters
         if random.random() < mutation_rate:
-            params["optimizer"] = random.choice(["adam", "sgd", "rmsprop", "adamw"])
+            params["optimizer"] = random.choice(
+                ["adam", "sgd", "rmsprop", "adamw"]
+            )
         
         # Regularization
         if random.random() < mutation_rate:
@@ -212,7 +237,9 @@ class NeuralTopologyIndividual(Individual):
         genome["parameters"] = params
         return genome
     
-    def crossover(self, other: 'NeuralTopologyIndividual') -> Tuple['NeuralTopologyIndividual', 'NeuralTopologyIndividual']:
+    def crossover(
+        self, other: 'NeuralTopologyIndividual'
+    ) -> Tuple['NeuralTopologyIndividual', 'NeuralTopologyIndividual']:
         """Perform crossover with another neural topology individual."""
         child1_genome = deepcopy(self.genome)
         child2_genome = deepcopy(other.genome)
@@ -237,7 +264,9 @@ class NeuralTopologyIndividual(Individual):
         
         return child1, child2
     
-    def _crossover_layers(self, genome1: Dict, genome2: Dict, other_genome: Dict) -> Tuple[Dict, Dict]:
+    def _crossover_layers(
+        self, genome1: Dict, genome2: Dict, other_genome: Dict
+    ) -> Tuple[Dict, Dict]:
         """Perform crossover on layer structures."""
         layers1 = genome1.get("layers", [])
         layers2 = other_genome.get("layers", [])
@@ -256,7 +285,9 @@ class NeuralTopologyIndividual(Individual):
         
         return genome1, genome2
     
-    def _crossover_connections(self, genome1: Dict, genome2: Dict, other_genome: Dict) -> Tuple[Dict, Dict]:
+    def _crossover_connections(
+        self, genome1: Dict, genome2: Dict, other_genome: Dict
+    ) -> Tuple[Dict, Dict]:
         """Perform crossover on connection structures."""
         connections1 = genome1.get("connections", [])
         connections2 = other_genome.get("connections", [])
@@ -288,7 +319,9 @@ class NeuralTopologyIndividual(Individual):
         
         return genome1, genome2
     
-    def _crossover_parameters(self, genome1: Dict, genome2: Dict, other_genome: Dict) -> Tuple[Dict, Dict]:
+    def _crossover_parameters(
+        self, genome1: Dict, genome2: Dict, other_genome: Dict
+    ) -> Tuple[Dict, Dict]:
         """Perform crossover on parameters."""
         params1 = genome1.get("parameters", {})
         params2 = other_genome.get("parameters", {})
@@ -355,12 +388,19 @@ class NeuralTopologyIndividual(Individual):
             size2 = layers2[i].get("size", 0)
             size_sum_diff += abs(size1 - size2)
         
-        return (size_diff + size_sum_diff / 100.0) / max(1, max(len(layers1), len(layers2)))
+        return (
+            (size_diff + size_sum_diff / 100.0) / 
+            max(1, max(len(layers1), len(layers2)))
+        )
     
     def _connection_distance(self, other: 'NeuralTopologyIndividual') -> float:
         """Calculate distance between connection structures."""
-        connections1 = set((c["from"], c["to"]) for c in self.genome.get("connections", []))
-        connections2 = set((c["from"], c["to"]) for c in other.genome.get("connections", []))
+        connections1 = set(
+            (c["from"], c["to"]) for c in self.genome.get("connections", [])
+        )
+        connections2 = set(
+            (c["from"], c["to"]) for c in other.genome.get("connections", [])
+        )
         
         union_size = len(connections1 | connections2)
         if union_size == 0:
@@ -384,7 +424,9 @@ class NeuralTopologyIndividual(Individual):
             val2 = params2.get(key, 0)
             
             if isinstance(val1, (int, float)) and isinstance(val2, (int, float)):
-                distance_sum += abs(val1 - val2) / max(abs(val1), abs(val2), 1.0)
+                distance_sum += abs(val1 - val2) / max(
+                    abs(val1), abs(val2), 1.0
+                )
             elif val1 != val2:
                 distance_sum += 1.0
         

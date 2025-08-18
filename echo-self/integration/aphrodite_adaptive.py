@@ -140,7 +140,7 @@ class ModelTopologyAdapter:
         """Adjust number of attention heads."""
         new_heads = mutation.parameters.get('num_heads')
         if new_heads and 'num_attention_heads' in config:
-            original_heads = config['num_attention_heads']
+            config['num_attention_heads']
             
             # Ensure head dimension remains reasonable
             if 'hidden_size' in config:
@@ -292,11 +292,17 @@ class InferenceHookManager:
             for hook_name, hook_func in self.active_hooks.items():
                 try:
                     if asyncio.iscoroutinefunction(hook_func):
-                        inference_result = await hook_func(inference_result) or inference_result
+                        inference_result = (
+                            await hook_func(inference_result) or inference_result
+                        )
                     else:
-                        inference_result = hook_func(inference_result) or inference_result
+                        inference_result = (
+                            hook_func(inference_result) or inference_result
+                        )
                 except Exception as e:
-                    logger.error(f"Error in post-inference hook {hook_name}: {e}")
+                    logger.error(
+                        f"Error in post-inference hook {hook_name}: {e}"
+                    )
         
         # Periodic performance check
         if time.time() - self.last_performance_check > 30:  # Every 30 seconds
@@ -354,7 +360,9 @@ class AphroditeAdaptiveIntegration:
         
         logger.info("AphroditeAdaptiveIntegration initialized")
     
-    async def integrate_with_aphrodite(self, model_config: Dict[str, Any]) -> bool:
+    async def integrate_with_aphrodite(
+        self, model_config: Dict[str, Any]
+    ) -> bool:
         """Integrate adaptive architecture with Aphrodite Engine."""
         with self._integration_lock:
             if self.is_integrated:
@@ -367,16 +375,26 @@ class AphroditeAdaptiveIntegration:
                 self.current_model_config = model_config.copy()
                 
                 # Check if model can be adapted
-                if not self.topology_adapter.can_modify_architecture(model_config):
-                    logger.warning("Model architecture cannot be modified - limited functionality")
+                if not self.topology_adapter.can_modify_architecture(
+                    model_config
+                ):
+                    logger.warning(
+                        "Model architecture cannot be modified - limited functionality"
+                    )
                 
                 # Initialize Aphrodite bridge - required for real functionality
                 if not self.aphrodite_bridge.is_initialized():
                     model_name = model_config.get('model_name', 'default')
-                    bridge_initialized = self.aphrodite_bridge.initialize(model_name)
+                    bridge_initialized = self.aphrodite_bridge.initialize(
+                        model_name
+                    )
                     if not bridge_initialized:
-                        logger.error("Aphrodite bridge initialization failed - cannot proceed with real integration")
-                        raise RuntimeError("Failed to initialize real Aphrodite Engine components")
+                        logger.error(
+                            "Aphrodite bridge initialization failed - cannot proceed with real integration"
+                        )
+                        raise RuntimeError(
+                            "Failed to initialize real Aphrodite Engine components"
+                        )
                 
                 # Set up inference hooks
                 await self._setup_inference_hooks()
@@ -395,7 +413,9 @@ class AphroditeAdaptiveIntegration:
     async def _setup_inference_hooks(self) -> None:
         """Set up inference hooks for performance monitoring."""
         
-        async def performance_monitoring_hook(data: Dict[str, Any]) -> Dict[str, Any]:
+        async def performance_monitoring_hook(
+            data: Dict[str, Any]
+        ) -> Dict[str, Any]:
             """Hook to monitor inference performance."""
             # Add timestamp for latency tracking
             data['performance_start_time'] = time.time()
@@ -403,8 +423,10 @@ class AphroditeAdaptiveIntegration:
         
         def metrics_collector(metrics: InferenceMetrics) -> None:
             """Collect and log inference metrics."""
-            logger.debug(f"Inference metrics: latency={metrics.request_latency_ms:.2f}ms, "
-                        f"throughput={metrics.tokens_generated / (metrics.generation_time_ms / 1000.0):.1f} tokens/s")
+            logger.debug(
+                f"Inference metrics: latency={metrics.request_latency_ms:.2f}ms, "
+                f"throughput={metrics.tokens_generated / (metrics.generation_time_ms / 1000.0):.1f} tokens/s"
+            )
         
         # Register hooks
         self.hook_manager.register_inference_hook(
@@ -415,7 +437,9 @@ class AphroditeAdaptiveIntegration:
         
         logger.debug("Inference hooks set up")
     
-    async def apply_architecture_adaptation(self, mutation: ArchitectureMutation) -> bool:
+    async def apply_architecture_adaptation(
+        self, mutation: ArchitectureMutation
+    ) -> bool:
         """Apply architecture adaptation during runtime."""
         with self._integration_lock:
             if not self.is_integrated:
@@ -428,13 +452,16 @@ class AphroditeAdaptiveIntegration:
             
             try:
                 # Apply mutation to model configuration
-                new_config = self.topology_adapter.apply_mutation_to_model_config(
-                    self.current_model_config, 
-                    mutation
+                new_config = (
+                    self.topology_adapter.apply_mutation_to_model_config(
+                        self.current_model_config, mutation
+                    )
                 )
                 
                 if new_config == self.current_model_config:
-                    logger.warning("Mutation resulted in no configuration change")
+                    logger.warning(
+                        "Mutation resulted in no configuration change"
+                    )
                     return False
                 
                 # Update current configuration
@@ -442,9 +469,11 @@ class AphroditeAdaptiveIntegration:
                 self.model_modification_count += 1
                 
                 # TODO: Apply configuration changes to running Aphrodite Engine
-                # This would require deeper integration with Aphrodite's model loading system
-                logger.info(f"Architecture adaptation applied (#{self.model_modification_count}): "
-                           f"{mutation.mutation_type}")
+                # This would require deeper integration with Aphrodite's model loading
+                logger.info(
+                    f"Architecture adaptation applied (#{self.model_modification_count}): "
+                    f"{mutation.mutation_type}"
+                )
                 
                 return True
                 
@@ -464,14 +493,18 @@ class AphroditeAdaptiveIntegration:
                     self.topology_adapter.can_modify_architecture(self.current_model_config)
                     if self.current_model_config else False
                 ),
-                'adaptation_status': self.adaptive_framework.get_adaptation_status()
+                'adaptation_status': (
+                    self.adaptive_framework.get_adaptation_status()
+                )
             }
     
     def get_modification_history(self) -> List[Dict[str, Any]]:
         """Get history of model modifications."""
         return self.topology_adapter.modification_history.copy()
     
-    async def hook_inference_request(self, request_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def hook_inference_request(
+        self, request_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Hook into inference request processing."""
         return await self.hook_manager.pre_inference_hook(request_data)
     
@@ -481,7 +514,9 @@ class AphroditeAdaptiveIntegration:
         response_data: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Hook into inference response processing."""
-        return await self.hook_manager.post_inference_hook(request_data, response_data)
+        return await self.hook_manager.post_inference_hook(
+            request_data, response_data
+        )
     
     async def shutdown_integration(self) -> None:
         """Shutdown the integration and clean up resources."""
@@ -538,9 +573,13 @@ class AdaptiveModelLoader:
                 
                 # Integrate with Aphrodite if adaptation is enabled
                 if enable_adaptation:
-                    integration_success = await self.integration.integrate_with_aphrodite(model_config)
+                    integration_success = await self.integration.integrate_with_aphrodite(
+                        model_config
+                    )
                     if not integration_success:
-                        logger.warning(f"Adaptation integration failed for model {model_name}")
+                        logger.warning(
+                            f"Adaptation integration failed for model {model_name}"
+                        )
                 
                 logger.info(f"Adaptive model loaded: {model_name}")
                 return True
@@ -565,9 +604,10 @@ class AdaptiveModelLoader:
                 current_config = model_info['config']
                 
                 # Apply mutation to configuration
-                adapted_config = self.integration.topology_adapter.apply_mutation_to_model_config(
-                    current_config, 
-                    mutation
+                adapted_config = (
+                    self.integration.topology_adapter.apply_mutation_to_model_config(
+                        current_config, mutation
+                    )
                 )
                 
                 # Update model configuration
@@ -575,7 +615,9 @@ class AdaptiveModelLoader:
                 model_info['modification_count'] += 1
                 
                 # Apply adaptation through integration
-                success = await self.integration.apply_architecture_adaptation(mutation)
+                success = await self.integration.apply_architecture_adaptation(
+                    mutation
+                )
                 
                 if success:
                     logger.info(f"Model {model_name} reloaded with adaptation")
@@ -585,7 +627,9 @@ class AdaptiveModelLoader:
                 return success
                 
             except Exception as e:
-                logger.error(f"Failed to reload model {model_name} with adaptation: {e}")
+                logger.error(
+                    f"Failed to reload model {model_name} with adaptation: {e}"
+                )
                 return False
     
     def get_loaded_models(self) -> Dict[str, Dict[str, Any]]:

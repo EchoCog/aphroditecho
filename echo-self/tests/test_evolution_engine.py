@@ -1,24 +1,24 @@
 """
 Tests for the Echo-Self AI Evolution Engine.
 
-Validates the basic functionality of evolutionary operators and neural topology evolution.
+Validates the basic functionality of evolutionary operators and neural topology 
+evolution.
 """
 
 import asyncio
 import unittest
 import logging
+import sys
+import os
 from typing import Dict, Any, List
 
 # Import Echo-Self components
-import sys
-import os
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 from core.interfaces import Individual, FitnessEvaluator, EvolutionConfig
 from core.evolution_engine import EchoSelfEvolutionEngine
 from core.operators import MutationOperator, SelectionOperator, CrossoverOperator
 from neural.topology_individual import NeuralTopologyIndividual
-from integration.aphrodite_bridge import AphroditeFitnessEvaluator
 
 
 class SimpleFitnessEvaluator(FitnessEvaluator):
@@ -257,9 +257,11 @@ class TestEvolutionIntegration(unittest.TestCase):
         stats = engine.get_evolution_statistics()
         self.assertGreater(len(stats), 0)
         
-        print(f"\nEvolution completed:")
+        print("\nEvolution completed:")
         print(f"Final best fitness: {best_individual.fitness:.4f}")
-        print(f"Best individual summary: {best_individual.get_network_summary()}")
+        print(
+            f"Best individual summary: {best_individual.get_network_summary()}"
+        )
 
 
 async def run_async_tests():
