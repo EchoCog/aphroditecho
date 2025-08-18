@@ -8,7 +8,7 @@ Aphrodite Engine is a high-performance LLM inference engine built on vLLM's Page
 
 ---
 
-**ALWAYS reference these instructions first and fallback to search or bash commands only when you encounter unexpected information that does not match the information here.**
+**ALWAYS reference these instructions first and fallback to search or bash commands only when you encounter unexpected information that does not match the information here. The single most important thing is to only allow REAL, functionally complete implemetations to be added to the codebase. NEVER implement any mock/placeholder/simulated/prototype or otherwise ambiguously named FAKE implementation of anything, at any time, for any reason, ever.. ONLY TRUE PRODUCTION-READY SOLUTIONS!!!**
 
 ## Working Effectively
 
