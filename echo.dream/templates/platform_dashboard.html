@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platform Dashboard | Deep Tree Echo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .dashboard-card {
+            border-radius: 10px;
+            margin-bottom: 20px;
+            transition: transform 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .platform-card {
+            background-color: #181818;
+            border: 1px solid #444;
+            color: #ffffff;
+        }
+        
+        .platform-card .card-header {
+            background-color: #2a2a2a;
+            color: #ffffff;
+            border-bottom: 1px solid #444;
+        }
+        
+        .platform-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: #ce93d8;
+        }
+        
+        .platform-stats {
+            border-left: 3px solid #ce93d8;
+            padding-left: 10px;
+            margin: 15px 0;
+            color: #e6e6e6;
+        }
+        
+        .metrics-container {
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #181818;
+            margin-bottom: 20px;
+            color: #ffffff;
+        }
+        
+        .metrics-title {
+            color: #ce93d8;
+            margin-bottom: 20px;
+            font-weight: 300;
+        }
+        
+        .metric-item {
+            background-color: #222;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            color: #ffffff;
+        }
+        
+        .metric-icon {
+            font-size: 1.8rem;
+            margin-right: 15px;
+            color: #ce93d8;
+        }
+        
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ffffff;
+        }
+        
+        .metric-label {
+            font-size: 0.9rem;
+            color: #cccccc;
+        }
+        
+        .system-health {
+            height: 8px;
+            border-radius: 4px;
+            background-color: #444;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        
+        .health-indicator {
+            height: 100%;
+            background: linear-gradient(to right, #4cd964, #ce93d8);
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">Platform Dashboard <small class="ms-1 text-muted">(Unconscious)</small></h2>
+                <div class="d-flex gap-2">
+                    <!-- Platform Level Navigation - Unconscious/System Foundation (Arena) -->
+                    <div class="btn-group me-2">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-stack"></i> Platform <small class="ms-1 text-muted">(Unconscious)</small>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li class="dropdown-header">Core Components</li>
+                            <li><a class="dropdown-item" href="/platform-dashboard"><i class="bi bi-speedometer2"></i> Dashboard <small class="text-muted">(Overview)</small></a></li>
+                            <li><a class="dropdown-item" href="/core"><i class="bi bi-cpu"></i> Core</a></li>
+                            <li><a class="dropdown-item" href="/memory"><i class="bi bi-memory"></i> Memory <small class="text-muted">(System Storage)</small></a></li>
+                            <li class="dropdown-header">I/O Components</li>
+                            <li><a class="dropdown-item" href="/console"><i class="bi bi-terminal"></i> Console <small class="text-muted">(System I/O)</small></a></li>
+                            <li><a class="dropdown-item" href="/streamio"><i class="bi bi-arrow-left-right"></i> StreamIO</a></li>
+                            <li class="dropdown-header">Dimensional Components</li>
+                            <li><a class="dropdown-item" href="/topology"><i class="bi bi-diagram-3"></i> Topology <small class="text-muted">(Spatial/Structure)</small></a></li>
+                            <li><a class="dropdown-item" href="/orchestra"><i class="bi bi-music-note-beamed"></i> Orchestra <small class="text-muted">(Temporal/Process)</small></a></li>
+                            <li><a class="dropdown-item" href="/entelecho"><i class="bi bi-infinity"></i> Entelecho <small class="text-muted">(Causal/Telos)</small></a></li>
+                            <li class="dropdown-header">Security</li>
+                            <li><a class="dropdown-item" href="/self-promise"><i class="bi bi-shield-lock"></i> self.promise</a></li>
+                            <li class="dropdown-divider"></li>
+                            <li><a class="dropdown-item disabled text-muted"><small><i class="bi bi-info-circle"></i> Platform layer serves as arena for Workspace agency</small></a></li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Workspaces Navigation - Subconscious/Cognitive Layer (Agency in Platform Arena) -->
+                    <div class="btn-group me-2">
+                        <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-grid-3x3-gap"></i> Workspaces <small class="ms-1 text-muted">(Subconscious)</small>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li class="dropdown-header">Core Components</li>
+                            <li><a class="dropdown-item" href="/workspace-dashboard"><i class="bi bi-speedometer2"></i> Dashboard <small class="text-muted">(Overview)</small></a></li>
+                            <li><a class="dropdown-item" href="/configuration"><i class="bi bi-gear"></i> Configuration</a></li>
+                            <li><a class="dropdown-item" href="/workspace-memory"><i class="bi bi-hdd-stack"></i> Memory <small class="text-muted">(DTE Storage)</small></a></li>
+                            <li class="dropdown-header">I/O Components</li>
+                            <li><a class="dropdown-item" href="/diagnostics"><i class="bi bi-clipboard-data"></i> Diagnostics <small class="text-muted">(DTE Logs)</small></a></li>
+                            <li><a class="dropdown-item" href="/thought-process"><i class="bi bi-lightbulb"></i> Thought Process <small class="text-muted">(DTE Cognition)</small></a></li>
+                            <li class="dropdown-header">Cognitive Components</li>
+                            <li><a class="dropdown-item" href="/fractal-explorer"><i class="bi bi-bezier"></i> Fractal Explorer</a></li>
+                            <li><a class="dropdown-item" href="/aar-simulator"><i class="bi bi-triangle"></i> AAR Simulator</a></li>
+                            <li class="dropdown-header">Dimensional Components</li>
+                            <li><a class="dropdown-item" href="/architecture"><i class="bi bi-building"></i> Architecture <small class="text-muted">(Spatial/Structure)</small></a></li>
+                            <li><a class="dropdown-item" href="/scheduling"><i class="bi bi-calendar-week"></i> Scheduling <small class="text-muted">(Temporal/Process)</small></a></li>
+                            <li><a class="dropdown-item" href="/diary"><i class="bi bi-journal-text"></i> Diary <small class="text-muted">(Causal/Telos)</small></a></li>
+                            <li class="dropdown-divider"></li>
+                            <li><a class="dropdown-item disabled text-muted"><small><i class="bi bi-info-circle"></i> Workspace layer serves as arena for Account agency</small></a></li>
+                        </ul>
+                    </div>
+                    
+                    <!-- User Accounts - Conscious/Interface Layer (Agency in Workspace Arena) -->
+                    <div class="btn-group me-2">
+                        <button class="btn btn-outline-info dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle"></i> Account <small class="ms-1 text-muted">(Conscious)</small>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li class="dropdown-header">Core Components</li>
+                            <li><a class="dropdown-item" href="/user-dashboard"><i class="bi bi-speedometer2"></i> Dashboard <small class="text-muted">(Overview)</small></a></li>
+                            <li><a class="dropdown-item" href="/profile"><i class="bi bi-person"></i> Profile</a></li>
+                            <li><a class="dropdown-item" href="/user-memory"><i class="bi bi-archive"></i> Memory <small class="text-muted">(User Storage)</small></a></li>
+                            <li class="dropdown-header">I/O Components</li>
+                            <li><a class="dropdown-item" href="/chat"><i class="bi bi-chat-dots"></i> Chat <small class="text-muted">(User Interface)</small></a></li>
+                            <li><a class="dropdown-item" href="/settings"><i class="bi bi-gear-wide"></i> Settings</a></li>
+                            <li class="dropdown-header">Dimensional Components</li>
+                            <li><a class="dropdown-item" href="/projects"><i class="bi bi-folder"></i> Projects <small class="text-muted">(Spatial/Structure)</small></a></li>
+                            <li><a class="dropdown-item" href="/timelines"><i class="bi bi-clock-history"></i> Timelines <small class="text-muted">(Temporal/Process)</small></a></li>
+                            <li><a class="dropdown-item" href="/topics"><i class="bi bi-chat-square-text"></i> Topics <small class="text-muted">(Causal/Telos)</small></a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/logout"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <p class="text-light mb-0">System foundation layer providing core infrastructure for Deep Tree Echo</p>
+        </div>
+        
+        <div class="dashboard-content mt-4">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="metrics-container">
+                        <h3 class="metrics-title"><i class="bi bi-speedometer2"></i> System Performance</h3>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="metric-item">
+                                    <div class="metric-icon">
+                                        <i class="bi bi-cpu"></i>
+                                    </div>
+                                    <div class="metric-info">
+                                        <div class="metric-value">78%</div>
+                                        <div class="metric-label">CPU Utilization</div>
+                                        <div class="system-health">
+                                            <div class="health-indicator" style="width: 78%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="metric-item">
+                                    <div class="metric-icon">
+                                        <i class="bi bi-memory"></i>
+                                    </div>
+                                    <div class="metric-info">
+                                        <div class="metric-value">63%</div>
+                                        <div class="metric-label">Memory Usage</div>
+                                        <div class="system-health">
+                                            <div class="health-indicator" style="width: 63%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="metric-item">
+                                    <div class="metric-icon">
+                                        <i class="bi bi-database"></i>
+                                    </div>
+                                    <div class="metric-info">
+                                        <div class="metric-value">45%</div>
+                                        <div class="metric-label">Storage Usage</div>
+                                        <div class="system-health">
+                                            <div class="health-indicator" style="width: 45%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="metric-item">
+                                    <div class="metric-icon">
+                                        <i class="bi bi-arrow-left-right"></i>
+                                    </div>
+                                    <div class="metric-info">
+                                        <div class="metric-value">12 ms</div>
+                                        <div class="metric-label">Average Response Time</div>
+                                        <div class="system-health">
+                                            <div class="health-indicator" style="width: 85%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card dashboard-card platform-card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0"><i class="bi bi-diagram-3"></i> Topology</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="platform-icon text-center">
+                                        <i class="bi bi-diagram-3"></i>
+                                    </div>
+                                    <p>Spatial dimension of the platform layer providing structural organization of system components.</p>
+                                    <div class="platform-stats">
+                                        <div>Nodes: 256</div>
+                                        <div>Connections: 1,024</div>
+                                        <div>Clusters: 16</div>
+                                    </div>
+                                    <div class="text-center mt-3">
+                                        <a href="/topology" class="btn btn-outline-secondary">Open Topology</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card dashboard-card platform-card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0"><i class="bi bi-music-note-beamed"></i> Orchestra</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="platform-icon text-center">
+                                        <i class="bi bi-music-note-beamed"></i>
+                                    </div>
+                                    <p>Temporal dimension of the platform layer coordinating process execution and timing.</p>
+                                    <div class="platform-stats">
+                                        <div>Active Processes: 18</div>
+                                        <div>Scheduled Tasks: 7</div>
+                                        <div>Process Groups: 4</div>
+                                    </div>
+                                    <div class="text-center mt-3">
+                                        <a href="/orchestra" class="btn btn-outline-secondary">Open Orchestra</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card dashboard-card platform-card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0"><i class="bi bi-infinity"></i> Entelecho</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="platform-icon text-center">
+                                        <i class="bi bi-infinity"></i>
+                                    </div>
+                                    <p>Causal dimension of the platform layer handling purpose, goals, and system intention.</p>
+                                    <div class="platform-stats">
+                                        <div>Active Goals: 3</div>
+                                        <div>Purposive Chains: 12</div>
+                                        <div>Priority Score: 87%</div>
+                                    </div>
+                                    <div class="text-center mt-3">
+                                        <a href="/entelecho" class="btn btn-outline-secondary">Open Entelecho</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card dashboard-card platform-card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0"><i class="bi bi-shield-lock"></i> Self.Promise</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="platform-icon text-center">
+                                        <i class="bi bi-shield-lock"></i>
+                                    </div>
+                                    <p>Security layer ensuring system integrity and maintaining trust bonds with users.</p>
+                                    <div class="platform-stats">
+                                        <div>Security Score: 92%</div>
+                                        <div>Trust Chain: Intact</div>
+                                        <div>Promise Fulfillment: 100%</div>
+                                    </div>
+                                    <div class="text-center mt-3">
+                                        <a href="/self-promise" class="btn btn-outline-secondary">Open Self.Promise</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card dashboard-card platform-card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0"><i class="bi bi-clipboard-data"></i> System Status</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-success">
+                                <i class="bi bi-check-circle-fill"></i> All systems operational
+                            </div>
+                            <div class="platform-stats">
+                                <div>Uptime: 12 days, 4 hours</div>
+                                <div>Current Users: 3</div>
+                                <div>Active Workspaces: 2</div>
+                            </div>
+                            <hr>
+                            <h6><i class="bi bi-clock-history"></i> Recent Events</h6>
+                            <div class="event-list mt-3">
+                                <div class="event-item d-flex align-items-start mb-3">
+                                    <div class="event-time me-2 text-muted" style="min-width: 50px;">12:42</div>
+                                    <div>
+                                        <div class="event-title">Memory subsystem optimized</div>
+                                        <div class="event-details text-muted">Freed 24MB unused cache</div>
+                                    </div>
+                                </div>
+                                <div class="event-item d-flex align-items-start mb-3">
+                                    <div class="event-time me-2 text-muted" style="min-width: 50px;">11:15</div>
+                                    <div>
+                                        <div class="event-title">Database connection pool expanded</div>
+                                        <div class="event-details text-muted">Increased to 12 connections</div>
+                                    </div>
+                                </div>
+                                <div class="event-item d-flex align-items-start mb-3">
+                                    <div class="event-time me-2 text-muted" style="min-width: 50px;">09:03</div>
+                                    <div>
+                                        <div class="event-title">New workspace created</div>
+                                        <div class="event-details text-muted">Workspace ID: WS-2804</div>
+                                    </div>
+                                </div>
+                                <div class="event-item d-flex align-items-start">
+                                    <div class="event-time me-2 text-muted" style="min-width: 50px;">08:27</div>
+                                    <div>
+                                        <div class="event-title">System backup completed</div>
+                                        <div class="event-details text-muted">Total size: 1.2GB</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card dashboard-card platform-card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0"><i class="bi bi-stack"></i> Platform Resources</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="resource-item d-flex justify-content-between align-items-center mb-3">
+                                <div>Memory Storage</div>
+                                <div class="badge bg-success">Healthy</div>
+                            </div>
+                            <div class="resource-item d-flex justify-content-between align-items-center mb-3">
+                                <div>Core Processing</div>
+                                <div class="badge bg-success">Healthy</div>
+                            </div>
+                            <div class="resource-item d-flex justify-content-between align-items-center mb-3">
+                                <div>Database Connection</div>
+                                <div class="badge bg-success">Healthy</div>
+                            </div>
+                            <div class="resource-item d-flex justify-content-between align-items-center mb-3">
+                                <div>Recursive Engine</div>
+                                <div class="badge bg-success">Healthy</div>
+                            </div>
+                            <div class="resource-item d-flex justify-content-between align-items-center mb-3">
+                                <div>Console Interface</div>
+                                <div class="badge bg-success">Healthy</div>
+                            </div>
+                            <div class="resource-item d-flex justify-content-between align-items-center">
+                                <div>Security Module</div>
+                                <div class="badge bg-success">Healthy</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS for dropdown menu and other interactive elements -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deep Tree Echo Diagnostics</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .diagnostic-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #444;
+        }
+        
+        .nav-tab {
+            padding: 8px 20px;
+            margin-right: 5px;
+            cursor: pointer;
+            background-color: #333;
+            border: 1px solid #444;
+            border-bottom: none;
+            border-radius: 4px 4px 0 0;
+        }
+        
+        .nav-tab.active {
+            background-color: #2d2d2d;
+            border-bottom: 2px solid #3498db;
+        }
+        
+        .tab-content {
+            display: none;
+            flex: 1;
+            overflow: auto;
+            background-color: #2d2d2d;
+            border: 1px solid #444;
+            border-radius: 0 0 4px 4px;
+            padding: 20px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .filters {
+            display: flex;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .filter-item {
+            display: flex;
+            align-items: center;
+        }
+        
+        .filter-item label {
+            margin-right: 10px;
+        }
+        
+        .filter-item select, .filter-item input {
+            padding: 5px;
+            background-color: #333;
+            color: #eee;
+            border: 1px solid #555;
+            border-radius: 3px;
+        }
+        
+        .log-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .log-table th, .log-table td {
+            padding: 8px 12px;
+            border: 1px solid #444;
+            text-align: left;
+        }
+        
+        .log-table th {
+            background-color: #222;
+            position: sticky;
+            top: 0;
+        }
+        
+        .log-table tr:nth-child(even) {
+            background-color: #333;
+        }
+        
+        .log-row {
+            cursor: pointer;
+        }
+        
+        .log-row:hover {
+            background-color: #444 !important;
+        }
+        
+        .log-row.flagged {
+            background-color: rgba(236, 112, 99, 0.2) !important;
+        }
+        
+        .log-detail {
+            display: none;
+            padding: 10px;
+            margin: 5px 0;
+            background-color: #333;
+            border-radius: 4px;
+            border-left: 3px solid #3498db;
+        }
+        
+        .log-detail pre {
+            white-space: pre-wrap;
+            margin: 0;
+        }
+        
+        .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            margin: 2px;
+            background-color: #2980b9;
+            border-radius: 10px;
+            font-size: 0.8em;
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .stat-card {
+            background-color: #333;
+            border-radius: 5px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .stat-header {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #444;
+            padding-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #3498db;
+            margin: 10px 0;
+        }
+        
+        .chart-container {
+            height: 300px;
+            margin-top: 20px;
+        }
+        
+        .config-form {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            background-color: #333;
+            color: #eee;
+            border: 1px solid #555;
+            border-radius: 3px;
+            box-sizing: border-box;
+        }
+        
+        .form-check {
+            margin: 10px 0;
+        }
+        
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        
+        .memory-type-semantic { background-color: rgba(52, 152, 219, 0.7); }
+        .memory-type-episodic { background-color: rgba(46, 204, 113, 0.7); }
+        .memory-type-procedural { background-color: rgba(230, 126, 34, 0.7); }
+        .memory-type-working { background-color: rgba(142, 68, 173, 0.7); }
+        .memory-type-sensory { background-color: rgba(231, 76, 60, 0.7); }
+        
+        .thought-type-thought { background-color: rgba(52, 152, 219, 0.3); }
+        .thought-type-dream { background-color: rgba(142, 68, 173, 0.3); }
+        .thought-type-insight { background-color: rgba(46, 204, 113, 0.3); }
+        .thought-type-system { background-color: rgba(230, 126, 34, 0.3); }
+        
+        .chart-legend {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 10px;
+            gap: 10px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-right: 15px;
+        }
+        
+        .legend-color {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            margin-right: 5px;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="diagnostic-container">
+        <h1>Deep Tree Echo Diagnostics</h1>
+        
+        <div class="nav-tabs">
+            <div class="nav-tab active" data-tab="thoughts">Thoughts</div>
+            <div class="nav-tab" data-tab="dreams">Dreams</div>
+            <div class="nav-tab" data-tab="chats">Chats</div>
+            <div class="nav-tab" data-tab="stats">Statistics</div>
+            <div class="nav-tab" data-tab="config">Configuration</div>
+        </div>
+        
+        <div class="tab-content active" id="thoughts-tab">
+            <div class="filters">
+                <div class="filter-item">
+                    <label for="thought-type-filter">Type:</label>
+                    <select id="thought-type-filter">
+                        <option value="">All</option>
+                        <option value="thought">Thought</option>
+                        <option value="insight">Insight</option>
+                        <option value="system">System</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label for="thought-since-filter">Since:</label>
+                    <input type="datetime-local" id="thought-since-filter">
+                </div>
+                <div class="filter-item">
+                    <label for="thought-limit-filter">Limit:</label>
+                    <select id="thought-limit-filter">
+                        <option value="50">50</option>
+                        <option value="100" selected>100</option>
+                        <option value="200">200</option>
+                        <option value="500">500</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label for="thought-flagged-filter">Flagged only:</label>
+                    <input type="checkbox" id="thought-flagged-filter">
+                </div>
+                <button id="thought-refresh-btn" class="btn-primary">Refresh</button>
+            </div>
+            
+            <table class="log-table" id="thoughts-table">
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Type</th>
+                        <th>Content</th>
+                        <th>Source</th>
+                        <th>Tags</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Thought logs will be populated here -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="tab-content" id="dreams-tab">
+            <div class="filters">
+                <div class="filter-item">
+                    <label for="dream-type-filter">Type:</label>
+                    <select id="dream-type-filter">
+                        <option value="">All</option>
+                        <option value="simulation">Simulation</option>
+                        <option value="rem">REM</option>
+                        <option value="consolidation">Consolidation</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label for="dream-since-filter">Since:</label>
+                    <input type="datetime-local" id="dream-since-filter">
+                </div>
+                <div class="filter-item">
+                    <label for="dream-limit-filter">Limit:</label>
+                    <select id="dream-limit-filter">
+                        <option value="50">50</option>
+                        <option value="100" selected>100</option>
+                        <option value="200">200</option>
+                        <option value="500">500</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label for="dream-flagged-filter">Flagged only:</label>
+                    <input type="checkbox" id="dream-flagged-filter">
+                </div>
+                <button id="dream-refresh-btn" class="btn-primary">Refresh</button>
+            </div>
+            
+            <table class="log-table" id="dreams-table">
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Title</th>
+                        <th>Type</th>
+                        <th>Content</th>
+                        <th>Emotions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Dream logs will be populated here -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="tab-content" id="chats-tab">
+            <div class="filters">
+                <div class="filter-item">
+                    <label for="chat-type-filter">Type:</label>
+                    <select id="chat-type-filter">
+                        <option value="">All</option>
+                        <option value="user">User</option>
+                        <option value="assistant">Assistant</option>
+                        <option value="system">System</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label for="chat-conversation-filter">Conversation:</label>
+                    <input type="text" id="chat-conversation-filter" placeholder="Conversation ID">
+                </div>
+                <div class="filter-item">
+                    <label for="chat-since-filter">Since:</label>
+                    <input type="datetime-local" id="chat-since-filter">
+                </div>
+                <div class="filter-item">
+                    <label for="chat-limit-filter">Limit:</label>
+                    <select id="chat-limit-filter">
+                        <option value="50">50</option>
+                        <option value="100" selected>100</option>
+                        <option value="200">200</option>
+                        <option value="500">500</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label for="chat-flagged-filter">Flagged only:</label>
+                    <input type="checkbox" id="chat-flagged-filter">
+                </div>
+                <button id="chat-refresh-btn" class="btn-primary">Refresh</button>
+            </div>
+            
+            <table class="log-table" id="chats-table">
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Type</th>
+                        <th>Content</th>
+                        <th>Conversation</th>
+                        <th>Processing Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Chat logs will be populated here -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="tab-content" id="stats-tab">
+            <h2>Diagnostic Statistics</h2>
+            
+            <div class="stats-container" id="diagnostic-stats">
+                <!-- Statistics will be populated here -->
+            </div>
+            
+            <h3>Thought Types Distribution</h3>
+            <div class="chart-container">
+                <canvas id="thought-types-chart"></canvas>
+            </div>
+            <div class="chart-legend" id="thought-types-legend">
+                <!-- Legend will be populated here -->
+            </div>
+            
+            <h3>Dream Types Distribution</h3>
+            <div class="chart-container">
+                <canvas id="dream-types-chart"></canvas>
+            </div>
+            <div class="chart-legend" id="dream-types-legend">
+                <!-- Legend will be populated here -->
+            </div>
+            
+            <h3>Message Types Distribution</h3>
+            <div class="chart-container">
+                <canvas id="message-types-chart"></canvas>
+            </div>
+            <div class="chart-legend" id="message-types-legend">
+                <!-- Legend will be populated here -->
+            </div>
+        </div>
+        
+        <div class="tab-content" id="config-tab">
+            <h2>Diagnostic Configuration</h2>
+            
+            <form class="config-form" id="diagnostic-config-form">
+                <div class="form-group">
+                    <div class="form-check">
+                        <input type="checkbox" id="diagnostic-enabled" class="form-check-input">
+                        <label for="diagnostic-enabled" class="form-check-label">Enable Diagnostic Logging</label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Log Types:</label>
+                    <div class="form-check">
+                        <input type="checkbox" id="log-thoughts" class="form-check-input">
+                        <label for="log-thoughts" class="form-check-label">Log Thoughts</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" id="log-dreams" class="form-check-input">
+                        <label for="log-dreams" class="form-check-label">Log Dreams</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" id="log-chats" class="form-check-input">
+                        <label for="log-chats" class="form-check-label">Log Chats</label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="retention-days">Retention Period (days):</label>
+                    <input type="number" id="retention-days" class="form-control" min="1" step="1">
+                    <small>Set to 0 for indefinite retention</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="thought-sampling-rate">Thought Sampling Rate:</label>
+                    <input type="range" id="thought-sampling-rate" class="form-control" min="0" max="1" step="0.1">
+                    <small>1.0 = log all thoughts, 0.5 = log 50% of thoughts, etc.</small>
+                </div>
+                
+                <div class="form-group">
+                    <div class="form-check">
+                        <input type="checkbox" id="perform-analysis" class="form-check-input">
+                        <label for="perform-analysis" class="form-check-label">Perform Analysis on Logs</label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="analysis-delay">Analysis Delay (seconds):</label>
+                    <input type="number" id="analysis-delay" class="form-control" min="0" step="1">
+                </div>
+                
+                <div class="form-group">
+                    <div class="form-check">
+                        <input type="checkbox" id="flagging-enabled" class="form-check-input">
+                        <label for="flagging-enabled" class="form-check-label">Enable Automatic Flagging</label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="flagging-criteria">Flagging Criteria:</label>
+                    <textarea id="flagging-criteria" class="form-control" rows="5" placeholder='Enter JSON flagging criteria, e.g. {"keywords": ["error", "warning"], "threshold": 0.8}'></textarea>
+                </div>
+                
+                <button type="submit" class="btn-primary">Save Configuration</button>
+            </form>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab navigation
+            const tabs = document.querySelectorAll('.nav-tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs
+                    tabs.forEach(t => t.classList.remove('active'));
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    
+                    // Hide all tab content
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    // Show selected tab content
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(`${tabId}-tab`).classList.add('active');
+                    
+                    // Load data for selected tab
+                    if (tabId === 'thoughts') {
+                        loadThoughts();
+                    } else if (tabId === 'dreams') {
+                        loadDreams();
+                    } else if (tabId === 'chats') {
+                        loadChats();
+                    } else if (tabId === 'stats') {
+                        loadStatistics();
+                    } else if (tabId === 'config') {
+                        loadConfiguration();
+                    }
+                });
+            });
+            
+            // Load initial data
+            loadThoughts();
+            
+            // Set up refresh buttons
+            document.getElementById('thought-refresh-btn').addEventListener('click', loadThoughts);
+            document.getElementById('dream-refresh-btn').addEventListener('click', loadDreams);
+            document.getElementById('chat-refresh-btn').addEventListener('click', loadChats);
+            
+            // Set up config form
+            document.getElementById('diagnostic-config-form').addEventListener('submit', saveConfiguration);
+        });
+        
+        // Load thought logs
+        function loadThoughts() {
+            const typeFilter = document.getElementById('thought-type-filter').value;
+            const sinceFilter = document.getElementById('thought-since-filter').value;
+            const limitFilter = document.getElementById('thought-limit-filter').value;
+            const flaggedFilter = document.getElementById('thought-flagged-filter').checked;
+            
+            let url = '/api/diagnostics/thoughts?limit=' + limitFilter;
+            if (typeFilter) url += '&type=' + typeFilter;
+            if (sinceFilter) url += '&since=' + new Date(sinceFilter).toISOString();
+            if (flaggedFilter) url += '&flagged=true';
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(thoughts => {
+                    const tbody = document.querySelector('#thoughts-table tbody');
+                    tbody.innerHTML = '';
+                    
+                    thoughts.forEach(thought => {
+                        const row = document.createElement('tr');
+                        row.className = 'log-row thought-type-' + thought.thought_type;
+                        if (thought.flagged) row.classList.add('flagged');
+                        
+                        const timestamp = new Date(thought.timestamp);
+                        const formattedTime = timestamp.toLocaleString();
+                        
+                        row.innerHTML = `
+                            <td>${formattedTime}</td>
+                            <td>${thought.thought_type}</td>
+                            <td>${thought.content}</td>
+                            <td>${thought.source}</td>
+                            <td>${thought.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</td>
+                        `;
+                        
+                        row.addEventListener('click', function() {
+                            // Toggle detail view
+                            if (this.nextSibling && this.nextSibling.className === 'log-detail') {
+                                this.nextSibling.style.display = this.nextSibling.style.display === 'none' ? 'block' : 'none';
+                            } else {
+                                const detail = document.createElement('tr');
+                                detail.className = 'log-detail';
+                                detail.innerHTML = `
+                                    <td colspan="5">
+                                        <h4>Thought Details</h4>
+                                        <p><strong>ID:</strong> ${thought.id}</p>
+                                        <p><strong>Recursive Depth:</strong> ${thought.recursive_depth}</p>
+                                        <p><strong>Flagged:</strong> ${thought.flagged ? 'Yes - ' + thought.flag_reason : 'No'}</p>
+                                        <p><strong>Full Content:</strong></p>
+                                        <pre>${thought.content}</pre>
+                                    </td>
+                                `;
+                                this.parentNode.insertBefore(detail, this.nextSibling);
+                            }
+                        });
+                        
+                        tbody.appendChild(row);
+                    });
+                })
+                .catch(error => console.error('Error loading thoughts:', error));
+        }
+        
+        // Load dream logs
+        function loadDreams() {
+            const typeFilter = document.getElementById('dream-type-filter').value;
+            const sinceFilter = document.getElementById('dream-since-filter').value;
+            const limitFilter = document.getElementById('dream-limit-filter').value;
+            const flaggedFilter = document.getElementById('dream-flagged-filter').checked;
+            
+            let url = '/api/diagnostics/dreams?limit=' + limitFilter;
+            if (typeFilter) url += '&type=' + typeFilter;
+            if (sinceFilter) url += '&since=' + new Date(sinceFilter).toISOString();
+            if (flaggedFilter) url += '&flagged=true';
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(dreams => {
+                    const tbody = document.querySelector('#dreams-table tbody');
+                    tbody.innerHTML = '';
+                    
+                    dreams.forEach(dream => {
+                        const row = document.createElement('tr');
+                        row.className = 'log-row';
+                        if (dream.flagged) row.classList.add('flagged');
+                        
+                        const timestamp = new Date(dream.timestamp);
+                        const formattedTime = timestamp.toLocaleString();
+                        
+                        row.innerHTML = `
+                            <td>${formattedTime}</td>
+                            <td>${dream.title}</td>
+                            <td>${dream.dream_type}</td>
+                            <td>${dream.content.substring(0, 100)}${dream.content.length > 100 ? '...' : ''}</td>
+                            <td>Tone: ${dream.emotional_tone.toFixed(2)}, Coherence: ${dream.coherence.toFixed(2)}</td>
+                        `;
+                        
+                        row.addEventListener('click', function() {
+                            // Toggle detail view
+                            if (this.nextSibling && this.nextSibling.className === 'log-detail') {
+                                this.nextSibling.style.display = this.nextSibling.style.display === 'none' ? 'block' : 'none';
+                            } else {
+                                const detail = document.createElement('tr');
+                                detail.className = 'log-detail';
+                                detail.innerHTML = `
+                                    <td colspan="5">
+                                        <h4>Dream Details</h4>
+                                        <p><strong>ID:</strong> ${dream.id}</p>
+                                        <p><strong>Emotional Tone:</strong> ${dream.emotional_tone.toFixed(2)}</p>
+                                        <p><strong>Coherence:</strong> ${dream.coherence.toFixed(2)}</p>
+                                        <p><strong>Flagged:</strong> ${dream.flagged ? 'Yes - ' + dream.flag_reason : 'No'}</p>
+                                        <p><strong>Insights:</strong></p>
+                                        <ul>
+                                            ${dream.insights.map(insight => `<li>${insight}</li>`).join('')}
+                                        </ul>
+                                        <p><strong>Full Content:</strong></p>
+                                        <pre>${dream.content}</pre>
+                                    </td>
+                                `;
+                                this.parentNode.insertBefore(detail, this.nextSibling);
+                            }
+                        });
+                        
+                        tbody.appendChild(row);
+                    });
+                })
+                .catch(error => console.error('Error loading dreams:', error));
+        }
+        
+        // Load chat logs
+        function loadChats() {
+            const typeFilter = document.getElementById('chat-type-filter').value;
+            const conversationFilter = document.getElementById('chat-conversation-filter').value;
+            const sinceFilter = document.getElementById('chat-since-filter').value;
+            const limitFilter = document.getElementById('chat-limit-filter').value;
+            const flaggedFilter = document.getElementById('chat-flagged-filter').checked;
+            
+            let url = '/api/diagnostics/chats?limit=' + limitFilter;
+            if (typeFilter) url += '&type=' + typeFilter;
+            if (conversationFilter) url += '&conversation_id=' + conversationFilter;
+            if (sinceFilter) url += '&since=' + new Date(sinceFilter).toISOString();
+            if (flaggedFilter) url += '&flagged=true';
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(chats => {
+                    const tbody = document.querySelector('#chats-table tbody');
+                    tbody.innerHTML = '';
+                    
+                    chats.forEach(chat => {
+                        const row = document.createElement('tr');
+                        row.className = 'log-row';
+                        if (chat.flagged) row.classList.add('flagged');
+                        
+                        const timestamp = new Date(chat.timestamp);
+                        const formattedTime = timestamp.toLocaleString();
+                        
+                        row.innerHTML = `
+                            <td>${formattedTime}</td>
+                            <td>${chat.message_type}</td>
+                            <td>${chat.content.substring(0, 100)}${chat.content.length > 100 ? '...' : ''}</td>
+                            <td>${chat.conversation_id}</td>
+                            <td>${chat.processing_time_ms ? chat.processing_time_ms.toFixed(2) + ' ms' : 'N/A'}</td>
+                        `;
+                        
+                        row.addEventListener('click', function() {
+                            // Toggle detail view
+                            if (this.nextSibling && this.nextSibling.className === 'log-detail') {
+                                this.nextSibling.style.display = this.nextSibling.style.display === 'none' ? 'block' : 'none';
+                            } else {
+                                const detail = document.createElement('tr');
+                                detail.className = 'log-detail';
+                                detail.innerHTML = `
+                                    <td colspan="5">
+                                        <h4>Chat Message Details</h4>
+                                        <p><strong>ID:</strong> ${chat.id}</p>
+                                        <p><strong>Conversation ID:</strong> ${chat.conversation_id}</p>
+                                        <p><strong>Parent Message ID:</strong> ${chat.parent_message_id || 'None'}</p>
+                                        <p><strong>User ID:</strong> ${chat.user_id || 'System'}</p>
+                                        <p><strong>Processing Time:</strong> ${chat.processing_time_ms ? chat.processing_time_ms.toFixed(2) + ' ms' : 'N/A'}</p>
+                                        <p><strong>Flagged:</strong> ${chat.flagged ? 'Yes - ' + chat.flag_reason : 'No'}</p>
+                                        <p><strong>Full Content:</strong></p>
+                                        <pre>${chat.content}</pre>
+                                    </td>
+                                `;
+                                this.parentNode.insertBefore(detail, this.nextSibling);
+                            }
+                        });
+                        
+                        tbody.appendChild(row);
+                    });
+                })
+                .catch(error => console.error('Error loading chats:', error));
+        }
+        
+        // Load statistics
+        function loadStatistics() {
+            fetch('/api/diagnostics/statistics')
+                .then(response => response.json())
+                .then(stats => {
+                    // Populate statistics cards
+                    const statsContainer = document.getElementById('diagnostic-stats');
+                    statsContainer.innerHTML = `
+                        <div class="stat-card">
+                            <div class="stat-header">Total Logs</div>
+                            <div class="stat-value">${stats.total_logs.total}</div>
+                            <div>Thoughts: ${stats.total_logs.thoughts}</div>
+                            <div>Dreams: ${stats.total_logs.dreams}</div>
+                            <div>Chats: ${stats.total_logs.chats}</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-header">Last 24 Hours</div>
+                            <div class="stat-value">${stats.last_24h_logs.total}</div>
+                            <div>Thoughts: ${stats.last_24h_logs.thoughts}</div>
+                            <div>Dreams: ${stats.last_24h_logs.dreams}</div>
+                            <div>Chats: ${stats.last_24h_logs.chats}</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-header">Flagged Items</div>
+                            <div class="stat-value">${stats.flagged_logs.total}</div>
+                            <div>Thoughts: ${stats.flagged_logs.thoughts}</div>
+                            <div>Dreams: ${stats.flagged_logs.dreams}</div>
+                            <div>Chats: ${stats.flagged_logs.chats}</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-header">Configuration Status</div>
+                            <div class="stat-value">${stats.config.enabled ? 'Enabled' : 'Disabled'}</div>
+                            <div>Thought Sampling: ${(stats.config.thought_sampling_rate * 100).toFixed(0)}%</div>
+                            <div>Retention: ${stats.config.retention_days > 0 ? stats.config.retention_days + ' days' : 'Indefinite'}</div>
+                            <div>Last Updated: ${stats.config.last_updated ? new Date(stats.config.last_updated).toLocaleString() : 'Never'}</div>
+                        </div>
+                    `;
+                    
+                    // Create thought types chart
+                    const thoughtTypesData = {
+                        labels: Object.keys(stats.thought_types),
+                        datasets: [{
+                            data: Object.values(stats.thought_types),
+                            backgroundColor: [
+                                'rgba(52, 152, 219, 0.7)', // Blue
+                                'rgba(46, 204, 113, 0.7)', // Green
+                                'rgba(230, 126, 34, 0.7)', // Orange
+                                'rgba(142, 68, 173, 0.7)'  // Purple
+                            ]
+                        }]
+                    };
+                    
+                    const thoughtTypesChart = new Chart(
+                        document.getElementById('thought-types-chart'),
+                        {
+                            type: 'pie',
+                            data: thoughtTypesData,
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: {
+                                        display: false
+                                    }
+                                }
+                            }
+                        }
+                    );
+                    
+                    // Create thought types legend
+                    const thoughtTypesLegend = document.getElementById('thought-types-legend');
+                    thoughtTypesLegend.innerHTML = '';
+                    Object.keys(stats.thought_types).forEach((type, index) => {
+                        const legendItem = document.createElement('div');
+                        legendItem.className = 'legend-item';
+                        legendItem.innerHTML = `
+                            <span class="legend-color" style="background-color: ${thoughtTypesData.datasets[0].backgroundColor[index % 4]}"></span>
+                            <span>${type}: ${stats.thought_types[type]}</span>
+                        `;
+                        thoughtTypesLegend.appendChild(legendItem);
+                    });
+                    
+                    // Create dream types chart
+                    const dreamTypesData = {
+                        labels: Object.keys(stats.dream_types),
+                        datasets: [{
+                            data: Object.values(stats.dream_types),
+                            backgroundColor: [
+                                'rgba(142, 68, 173, 0.7)',  // Purple
+                                'rgba(41, 128, 185, 0.7)',  // Dark Blue
+                                'rgba(39, 174, 96, 0.7)'    // Dark Green
+                            ]
+                        }]
+                    };
+                    
+                    const dreamTypesChart = new Chart(
+                        document.getElementById('dream-types-chart'),
+                        {
+                            type: 'pie',
+                            data: dreamTypesData,
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: {
+                                        display: false
+                                    }
+                                }
+                            }
+                        }
+                    );
+                    
+                    // Create dream types legend
+                    const dreamTypesLegend = document.getElementById('dream-types-legend');
+                    dreamTypesLegend.innerHTML = '';
+                    Object.keys(stats.dream_types).forEach((type, index) => {
+                        const legendItem = document.createElement('div');
+                        legendItem.className = 'legend-item';
+                        legendItem.innerHTML = `
+                            <span class="legend-color" style="background-color: ${dreamTypesData.datasets[0].backgroundColor[index % 3]}"></span>
+                            <span>${type}: ${stats.dream_types[type]}</span>
+                        `;
+                        dreamTypesLegend.appendChild(legendItem);
+                    });
+                    
+                    // Create message types chart
+                    const messageTypesData = {
+                        labels: Object.keys(stats.message_types),
+                        datasets: [{
+                            data: Object.values(stats.message_types),
+                            backgroundColor: [
+                                'rgba(52, 152, 219, 0.7)', // Blue
+                                'rgba(46, 204, 113, 0.7)', // Green
+                                'rgba(230, 126, 34, 0.7)'  // Orange
+                            ]
+                        }]
+                    };
+                    
+                    const messageTypesChart = new Chart(
+                        document.getElementById('message-types-chart'),
+                        {
+                            type: 'pie',
+                            data: messageTypesData,
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: {
+                                        display: false
+                                    }
+                                }
+                            }
+                        }
+                    );
+                    
+                    // Create message types legend
+                    const messageTypesLegend = document.getElementById('message-types-legend');
+                    messageTypesLegend.innerHTML = '';
+                    Object.keys(stats.message_types).forEach((type, index) => {
+                        const legendItem = document.createElement('div');
+                        legendItem.className = 'legend-item';
+                        legendItem.innerHTML = `
+                            <span class="legend-color" style="background-color: ${messageTypesData.datasets[0].backgroundColor[index % 3]}"></span>
+                            <span>${type}: ${stats.message_types[type]}</span>
+                        `;
+                        messageTypesLegend.appendChild(legendItem);
+                    });
+                })
+                .catch(error => console.error('Error loading statistics:', error));
+        }
+        
+        // Load configuration
+        function loadConfiguration() {
+            fetch('/api/diagnostics/config')
+                .then(response => response.json())
+                .then(config => {
+                    document.getElementById('diagnostic-enabled').checked = config.enabled;
+                    document.getElementById('log-thoughts').checked = config.log_thoughts;
+                    document.getElementById('log-dreams').checked = config.log_dreams;
+                    document.getElementById('log-chats').checked = config.log_chats;
+                    document.getElementById('retention-days').value = config.retention_days;
+                    document.getElementById('thought-sampling-rate').value = config.thought_sampling_rate;
+                    document.getElementById('perform-analysis').checked = config.perform_analysis;
+                    document.getElementById('analysis-delay').value = config.analysis_delay_seconds;
+                    document.getElementById('flagging-enabled').checked = config.flagging_enabled;
+                    document.getElementById('flagging-criteria').value = JSON.stringify(config.flagging_criteria, null, 2);
+                })
+                .catch(error => console.error('Error loading configuration:', error));
+        }
+        
+        // Save configuration
+        function saveConfiguration(event) {
+            event.preventDefault();
+            
+            let flaggingCriteria;
+            try {
+                flaggingCriteria = JSON.parse(document.getElementById('flagging-criteria').value);
+            } catch (error) {
+                alert('Invalid JSON format for flagging criteria. Please correct and try again.');
+                return;
+            }
+            
+            const config = {
+                enabled: document.getElementById('diagnostic-enabled').checked,
+                log_thoughts: document.getElementById('log-thoughts').checked,
+                log_dreams: document.getElementById('log-dreams').checked,
+                log_chats: document.getElementById('log-chats').checked,
+                retention_days: parseInt(document.getElementById('retention-days').value, 10),
+                thought_sampling_rate: parseFloat(document.getElementById('thought-sampling-rate').value),
+                perform_analysis: document.getElementById('perform-analysis').checked,
+                analysis_delay_seconds: parseInt(document.getElementById('analysis-delay').value, 10),
+                flagging_enabled: document.getElementById('flagging-enabled').checked,
+                flagging_criteria: flaggingCriteria
+            };
+            
+            fetch('/api/diagnostics/config', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(config)
+            })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.error) {
+                        alert('Error saving configuration: ' + result.error);
+                    } else {
+                        alert('Configuration saved successfully!');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error saving configuration:', error);
+                    alert('Error saving configuration. Please try again.');
+                });
+        }
+    </script>
+</body>
+</html>

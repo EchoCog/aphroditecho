@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html data-bs-theme="dark">
+<head>
+    <title>Deep Tree Echo - Web IDE</title>
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.10/codemirror.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.10/theme/monokai.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row py-3">
+            <div class="col-12 mb-3">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Recursion Engine</h5>
+                        <div class="d-flex gap-2">
+                            <div class="btn-group me-2">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-diagram-3"></i> Root
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="/core"><i class="bi bi-cpu"></i> Core</a></li>
+                                    <li><a class="dropdown-item" href="/console"><i class="bi bi-terminal"></i> Console</a></li>
+                                    <li><a class="dropdown-item" href="/streamio"><i class="bi bi-arrow-left-right"></i> streamIO</a></li>
+                                    <li><a class="dropdown-item" href="/memory"><i class="bi bi-memory"></i> Memory</a></li>
+                                    <li><a class="dropdown-item" href="/topology"><i class="bi bi-diagram-3"></i> Topology</a></li>
+                                    <li><a class="dropdown-item" href="/orchestra"><i class="bi bi-music-note-beamed"></i> Orchestra</a></li>
+                                    <li><a class="dropdown-item" href="/entelecho"><i class="bi bi-infinity"></i> Entelecho</a></li>
+                                    <li><a class="dropdown-item" href="/self-promise"><i class="bi bi-shield-lock"></i> self.promise</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="/recursive-distinction"><i class="bi bi-braces"></i> Recursive Distinction</a></li>
+                                </ul>
+                            </div>
+                            <div class="btn-group me-2">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-person-circle"></i> Account
+                                </button>
+                                <ul class="dropdown-menu">
+                                    {% if current_user.is_authenticated %}
+                                        <li><a class="dropdown-item" href="{{ url_for('profile') }}"><i class="bi bi-person"></i> My Profile</a></li>
+                                        <li><a class="dropdown-item" href="{{ url_for('admin_dashboard') }}"><i class="bi bi-speedometer2"></i> Admin Dashboard</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+                                    {% else %}
+                                        <li><a class="dropdown-item" href="{{ url_for('login') }}"><i class="bi bi-box-arrow-in-right"></i> Login</a></li>
+                                        <li><a class="dropdown-item" href="{{ url_for('register') }}"><i class="bi bi-person-plus"></i> Register</a></li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                            <div class="btn-group me-2">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-grid-3x3-gap-fill"></i> Workspaces
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="/architecture"><i class="bi bi-buildings"></i> Architecture</a></li>
+                                    <li><a class="dropdown-item" href="/scheduling"><i class="bi bi-calendar-week"></i> Scheduling</a></li>
+                                    <li><a class="dropdown-item" href="/diary"><i class="bi bi-journal-text"></i> Diary</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="/configuration"><i class="bi bi-gear"></i> DTE Configuration</a></li>
+                                    <li><a class="dropdown-item" href="/diagnostics"><i class="bi bi-graph-up"></i> Diagnostics</a></li>
+                                    <li><a class="dropdown-item" href="/thought-process"><i class="bi bi-lightning-charge"></i> Thought Process</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="/fractal-explorer"><i class="bi bi-braces"></i> Fractal Explorer</a></li>
+                                    <li><a class="dropdown-item" href="/aar-simulator"><i class="bi bi-circle-square"></i> AAR Simulator</a></li>
+                                </ul>
+                            </div>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#wizardModal">
+                                <i class="bi bi-magic"></i> Generate Code
+                            </button>
+                            <select id="engine-selector" class="form-select" style="width: auto;">
+                                <option value="dte">Deep Tree Echo</option>
+                                <option value="fractal">Fractal Recursion</option>
+                                <option value="recursive_distinction">Recursive Distinction</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-body p-2">
+                        <p class="text-center mb-0">Welcome to Deep Tree Echo, an AI system with recursive intelligence capabilities</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Deep Tree Echo Consciousness Stream</h5>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="autoScrollToggle" checked>
+                            <label class="form-check-label" for="autoScrollToggle">Auto-scroll</label>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="thought-stream" class="consciousness-stream"></div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="btn-group">
+                            <button id="step-simulation" class="btn btn-sm btn-outline-primary">Step Forward</button>
+                            <button id="reset-simulation" class="btn btn-sm btn-outline-danger">Reset</button>
+                        </div>
+                        <div class="btn-group ms-2">
+                            <button id="filter-all" class="btn btn-sm btn-outline-dark active" data-filter="all">All</button>
+                            <button id="filter-thoughts" class="btn btn-sm btn-outline-info" data-filter="thought">Thoughts</button>
+                            <button id="filter-dreams" class="btn btn-sm btn-outline-primary" data-filter="dream">Dreams</button>
+                            <button id="filter-insights" class="btn btn-sm btn-outline-success" data-filter="insight">Insights</button>
+                            <button id="filter-system" class="btn btn-sm btn-outline-secondary" data-filter="system">System</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Recursion Visualization</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="visualization"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Chatbot Interface</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="chat-messages" class="mb-3"></div>
+                        <div class="input-group">
+                            <input type="text" id="chat-input" class="form-control" placeholder="Ask Deep Tree Echo something...">
+                            <button class="btn btn-primary" id="send-message">Send</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Code Editor</h5>
+                    </div>
+                    <div class="card-body">
+                        <textarea id="code-editor"># Deep Tree Echo Self-Modifying Code
+result = "Hello from DTE!"</textarea>
+                        <button class="btn btn-primary mt-3" id="run-code">Run Code</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Code Generation Wizard Modal -->
+    <div class="modal fade" id="wizardModal" tabindex="-1" aria-labelledby="wizardModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="wizardModalLabel">Recursive Pattern Creator</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Step 1: Select Pattern -->
+                    <div class="wizard-step" id="wizard-step-1">
+                        <h4>Select a Pattern Type</h4>
+                        <div id="pattern-selection" class="d-flex flex-wrap gap-3 my-3">
+                            <!-- Pattern tiles will be generated here -->
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Configure Pattern -->
+                    <div class="wizard-step" id="wizard-step-2" style="display: none;">
+                        <h4>Configure Pattern</h4>
+                        <form id="recursion-config" class="my-3">
+                            <!-- Configuration form will be generated here -->
+                        </form>
+                    </div>
+
+                    <!-- Step 3: Preview Pattern -->
+                    <div class="wizard-step" id="wizard-step-3" style="display: none;">
+                        <h4>Pattern Preview</h4>
+                        <div class="form-group">
+                            <label for="preview-code">Generated Code:</label>
+                            <textarea id="preview-code" class="form-control" rows="10" readonly></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="wizard-prev" style="display: none;">Previous</button>
+                    <button type="button" class="btn btn-primary" id="wizard-next">Next</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.10/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.10/mode/python/python.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="{{ url_for('static', filename='js/editor.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/visualization.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/chatbot.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/wizard.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/thought-stream.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html data-bs-theme="dark">
+<head>
+    <title>Profile - Deep Tree Echo</title>
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <style>
+        .profile-container {
+            max-width: 800px;
+            margin: 30px auto;
+        }
+        .profile-header {
+            margin-bottom: 30px;
+        }
+        .profile-header h2 {
+            color: #4a7feb;
+            margin-bottom: 5px;
+        }
+        .profile-header p {
+            color: #999;
+        }
+        .card {
+            margin-bottom: 20px;
+            border: none;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background-color: #1e1e2f;
+        }
+        .card-header {
+            background-color: #2d2d44;
+            font-weight: bold;
+            color: #fff;
+        }
+        .stats-card {
+            text-align: center;
+            padding: 15px;
+        }
+        .stats-card h3 {
+            font-size: 2rem;
+            color: #4a7feb;
+            margin-bottom: 5px;
+        }
+        .stats-card p {
+            margin: 0;
+            color: #999;
+        }
+        .form-control {
+            background-color: #2d2d44;
+            border-color: #444;
+            color: #ddd;
+        }
+        .form-floating > label {
+            color: #999;
+        }
+        .alert {
+            margin-bottom: 20px;
+        }
+        .btn-primary {
+            background-color: #4a7feb;
+            border-color: #4a7feb;
+        }
+        .table {
+            margin-bottom: 0;
+        }
+        .table thead th {
+            border-bottom: 1px solid #444;
+            background-color: #2d2d44;
+        }
+        .nav-pills .nav-link.active {
+            background-color: #4a7feb;
+        }
+        .nav-pills .nav-link {
+            color: #ddd;
+        }
+        .tab-content {
+            background-color: #1e1e2f;
+            border-radius: 0 0 5px 5px;
+            padding: 20px;
+            border: 1px solid #2d2d44;
+            border-top: none;
+        }
+        .nav-tabs {
+            border-bottom: 1px solid #2d2d44;
+        }
+        .nav-tabs .nav-link.active {
+            background-color: #1e1e2f;
+            border-color: #2d2d44 #2d2d44 #1e1e2f;
+            color: #fff;
+        }
+        .nav-tabs .nav-link {
+            color: #bbb;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('index') }}">Deep Tree Echo</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('fractal_explorer') }}">Fractal Explorer</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('aar_simulator') }}">AAR Simulator</a>
+                    </li>
+                    {% if current_user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
+                    </li>
+                    {% endif %}
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle active" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle"></i> {{ current_user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{{ url_for('profile') }}">Profile</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container profile-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <div class="profile-header">
+            <h2>User Profile</h2>
+            <p>Manage your account and view your projects</p>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        Account Information
+                    </div>
+                    <div class="card-body">
+                        <form id="profileForm" method="POST" action="{{ url_for('profile') }}">
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Username</label>
+                                <input type="text" class="form-control" id="username" value="{{ current_user.username }}" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" value="{{ current_user.email }}" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Update Profile</button>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="card mt-3">
+                    <div class="card-header">
+                        Change Password
+                    </div>
+                    <div class="card-body">
+                        <form id="passwordForm" method="POST" action="{{ url_for('profile') }}">
+                            <input type="hidden" name="form_type" value="password_change">
+                            <div class="mb-3">
+                                <label for="current_password" class="form-label">Current Password</label>
+                                <input type="password" class="form-control" id="current_password" name="current_password" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="new_password" class="form-label">New Password</label>
+                                <input type="password" class="form-control" id="new_password" name="new_password" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="confirm_password" class="form-label">Confirm New Password</label>
+                                <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Change Password</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-8">
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="card stats-card">
+                            <h3>{{ projects|length }}</h3>
+                            <p>Projects</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card stats-card">
+                            <h3>{{ simulations|length }}</h3>
+                            <p>Simulations</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card stats-card">
+                            <h3>{{ patterns|length }}</h3>
+                            <p>Patterns</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="projects-tab" data-bs-toggle="tab" data-bs-target="#projects" type="button" role="tab">My Projects</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="simulations-tab" data-bs-toggle="tab" data-bs-target="#simulations" type="button" role="tab">My Simulations</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="patterns-tab" data-bs-toggle="tab" data-bs-target="#patterns" type="button" role="tab">My Patterns</button>
+                    </li>
+                </ul>
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="projects" role="tabpanel">
+                        {% if projects %}
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Namespace</th>
+                                    <th>Created</th>
+                                    <th>Simulations</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for project in projects %}
+                                <tr>
+                                    <td>{{ project.name }}</td>
+                                    <td>{{ project.namespace }}</td>
+                                    <td>{{ project.created_at.strftime('%Y-%m-%d') }}</td>
+                                    <td>{{ project.simulations.count() }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <p class="text-muted">You haven't created any projects yet.</p>
+                            <a href="#" class="btn btn-primary">Create Project</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="tab-pane fade" id="simulations" role="tabpanel">
+                        {% if simulations %}
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Engine Type</th>
+                                    <th>Project</th>
+                                    <th>Created</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for simulation in simulations %}
+                                <tr>
+                                    <td>{{ simulation.name }}</td>
+                                    <td>{{ simulation.engine_type }}</td>
+                                    <td>{{ simulation.project.name if simulation.project else 'None' }}</td>
+                                    <td>{{ simulation.created_at.strftime('%Y-%m-%d') }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <p class="text-muted">You haven't created any simulations yet.</p>
+                            <a href="#" class="btn btn-primary">Create Simulation</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="tab-pane fade" id="patterns" role="tabpanel">
+                        {% if patterns %}
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Type</th>
+                                    <th>Created</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pattern in patterns %}
+                                <tr>
+                                    <td>{{ pattern.name }}</td>
+                                    <td>{{ pattern.pattern_type }}</td>
+                                    <td>{{ pattern.created_at.strftime('%Y-%m-%d') }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <p class="text-muted">You haven't created any recursive patterns yet.</p>
+                            <a href="#" class="btn btn-primary">Create Pattern</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,194 @@
+
+<!DOCTYPE html>
+<html data-bs-theme="dark">
+<head>
+    <title>Deep Tree Echo - streamIO</title>
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <style>
+        .stream-container {
+            display: flex;
+            height: calc(100vh - 150px);
+            background-color: #1a1a2e;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .stream-column {
+            flex: 1;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+        .stream-column + .stream-column {
+            border-left: 1px solid #2a2a4a;
+        }
+        .stream-header {
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #2a2a4a;
+        }
+        .stream-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            padding: 10px;
+        }
+        .stream-event {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 4px;
+            background-color: rgba(30, 30, 60, 0.5);
+            border-left: 3px solid #3a86ff;
+            font-size: 0.9rem;
+        }
+        .stream-input {
+            margin-top: 10px;
+        }
+        .input-stream {
+            border-left-color: #3a86ff;
+        }
+        .process-stream {
+            border-left-color: #ff9e00;
+        }
+        .output-stream {
+            border-left-color: #4cc9f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <div class="row mb-3">
+            <div class="col-12">
+                <h1><i class="bi bi-arrow-left-right"></i> streamIO</h1>
+                <p class="lead">Data stream processing and transformation interface</p>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Stream Control</h5>
+                        <div>
+                            <button class="btn btn-success btn-sm">
+                                <i class="bi bi-play-fill"></i> Start Streams
+                            </button>
+                            <button class="btn btn-warning btn-sm">
+                                <i class="bi bi-pause-fill"></i> Pause
+                            </button>
+                            <button class="btn btn-danger btn-sm">
+                                <i class="bi bi-stop-fill"></i> Stop
+                            </button>
+                            <button class="btn btn-info btn-sm">
+                                <i class="bi bi-plus-lg"></i> New Stream
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="stream-container">
+                    <!-- Input Stream -->
+                    <div class="stream-column">
+                        <div class="stream-header">
+                            <h5><i class="bi bi-arrow-right-circle"></i> Input Stream</h5>
+                        </div>
+                        <div class="stream-content" id="input-stream">
+                            <div class="stream-event input-stream">
+                                <div><strong>Event ID:</strong> in-42731</div>
+                                <div><strong>Type:</strong> text/data</div>
+                                <div><strong>Content:</strong> "Initialize pattern recognition"</div>
+                                <div><small class="text-muted">12:45:32</small></div>
+                            </div>
+                            <div class="stream-event input-stream">
+                                <div><strong>Event ID:</strong> in-42732</div>
+                                <div><strong>Type:</strong> command</div>
+                                <div><strong>Content:</strong> "echo.analyze(recursive)"</div>
+                                <div><small class="text-muted">12:45:36</small></div>
+                            </div>
+                            <div class="stream-event input-stream">
+                                <div><strong>Event ID:</strong> in-42733</div>
+                                <div><strong>Type:</strong> data/array</div>
+                                <div><strong>Content:</strong> [1, 1, 2, 3, 5, 8, 13]</div>
+                                <div><small class="text-muted">12:45:40</small></div>
+                            </div>
+                        </div>
+                        <div class="stream-input">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Send to input stream...">
+                                <button class="btn btn-primary">Send</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Process Stream -->
+                    <div class="stream-column">
+                        <div class="stream-header">
+                            <h5><i class="bi bi-gear"></i> Process Stream</h5>
+                        </div>
+                        <div class="stream-content" id="process-stream">
+                            <div class="stream-event process-stream">
+                                <div><strong>Process ID:</strong> p-8426</div>
+                                <div><strong>Input:</strong> in-42731</div>
+                                <div><strong>Operation:</strong> InitPatternRecognizer</div>
+                                <div><strong>Status:</strong> <span class="badge bg-success">completed</span></div>
+                                <div><small class="text-muted">12:45:33</small></div>
+                            </div>
+                            <div class="stream-event process-stream">
+                                <div><strong>Process ID:</strong> p-8427</div>
+                                <div><strong>Input:</strong> in-42732</div>
+                                <div><strong>Operation:</strong> RecursiveAnalyzer</div>
+                                <div><strong>Status:</strong> <span class="badge bg-success">completed</span></div>
+                                <div><small class="text-muted">12:45:37</small></div>
+                            </div>
+                            <div class="stream-event process-stream">
+                                <div><strong>Process ID:</strong> p-8428</div>
+                                <div><strong>Input:</strong> in-42733</div>
+                                <div><strong>Operation:</strong> FibonacciDetector</div>
+                                <div><strong>Status:</strong> <span class="badge bg-primary">processing</span></div>
+                                <div><small class="text-muted">12:45:41</small></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Output Stream -->
+                    <div class="stream-column">
+                        <div class="stream-header">
+                            <h5><i class="bi bi-arrow-left-circle"></i> Output Stream</h5>
+                        </div>
+                        <div class="stream-content" id="output-stream">
+                            <div class="stream-event output-stream">
+                                <div><strong>Result ID:</strong> out-3871</div>
+                                <div><strong>From Process:</strong> p-8426</div>
+                                <div><strong>Type:</strong> system/confirmation</div>
+                                <div><strong>Content:</strong> "Pattern recognition initialized"</div>
+                                <div><small class="text-muted">12:45:33</small></div>
+                            </div>
+                            <div class="stream-event output-stream">
+                                <div><strong>Result ID:</strong> out-3872</div>
+                                <div><strong>From Process:</strong> p-8427</div>
+                                <div><strong>Type:</strong> analysis/result</div>
+                                <div><strong>Content:</strong> "Recursive patterns identified: 3"</div>
+                                <div><small class="text-muted">12:45:38</small></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // StreamIO functionality would be implemented here
+            console.log("StreamIO interface loaded");
+        });
+    </script>
+</body>
+</html>

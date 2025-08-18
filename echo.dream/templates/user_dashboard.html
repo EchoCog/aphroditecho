@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard | Deep Tree Echo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .dashboard-card {
+            border-radius: 10px;
+            margin-bottom: 20px;
+            transition: transform 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .user-card {
+            background-color: #18303b;
+            border: 1px solid #444;
+        }
+        
+        .user-card .card-header {
+            background-color: #203b48;
+            color: #ccc;
+            border-bottom: 1px solid #444;
+        }
+        
+        .user-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: #2ecc71;
+        }
+        
+        .user-stats {
+            border-left: 3px solid #2ecc71;
+            padding-left: 10px;
+            margin: 15px 0;
+        }
+        
+        .metrics-container {
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #18303b;
+            margin-bottom: 20px;
+        }
+        
+        .metrics-title {
+            color: #2ecc71;
+            margin-bottom: 20px;
+            font-weight: 300;
+        }
+        
+        .metric-item {
+            background-color: #223c48;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .metric-icon {
+            font-size: 1.8rem;
+            margin-right: 15px;
+            color: #2ecc71;
+        }
+        
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #eee;
+        }
+        
+        .metric-label {
+            font-size: 0.9rem;
+            color: #999;
+        }
+        
+        .progress-container {
+            height: 8px;
+            border-radius: 4px;
+            background-color: #444;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        
+        .progress-indicator {
+            height: 100%;
+            background: linear-gradient(to right, #2ecc71, #3498db);
+            transition: width 0.3s;
+        }
+        
+        .project-item {
+            background-color: #223c48;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 3px solid #2ecc71;
+        }
+        
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        .project-title {
+            font-weight: bold;
+            color: #2ecc71;
+        }
+        
+        .project-date {
+            color: #999;
+            font-size: 0.8rem;
+        }
+        
+        .project-description {
+            color: #ddd;
+            margin-bottom: 10px;
+        }
+        
+        .project-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        
+        .project-tag {
+            background-color: #2c4d5c;
+            color: #aaa;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+        }
+        
+        .profile-summary {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #2ecc71;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            color: #fff;
+            font-size: 2rem;
+        }
+        
+        .profile-info h4 {
+            margin-bottom: 5px;
+            color: #eee;
+        }
+        
+        .profile-info p {
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">User Dashboard <small class="ms-1 text-muted">(Conscious)</small></h2>
+                <div class="d-flex gap-2">
+                    <!-- Platform Level Navigation - Unconscious/System Foundation (Arena) -->
+                    <div class="btn-group me-2">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-stack"></i> Platform <small class="ms-1 text-muted">(Unconscious)</small>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li class="dropdown-header">Core Components</li>
+                            <li><a class="dropdown-item" href="/platform-dashboard"><i class="bi bi-speedometer2"></i> Dashboard <small class="text-muted">(Overview)</small></a></li>
+                            <li><a class="dropdown-item" href="/core"><i class="bi bi-cpu"></i> Core</a></li>
+                            <li><a class="dropdown-item" href="/memory"><i class="bi bi-memory"></i> Memory <small class="text-muted">(System Storage)</small></a></li>
+                            <li class="dropdown-header">I/O Components</li>
+                            <li><a class="dropdown-item" href="/console"><i class="bi bi-terminal"></i> Console <small class="text-muted">(System I/O)</small></a></li>
+                            <li><a class="dropdown-item" href="/streamio"><i class="bi bi-arrow-left-right"></i> StreamIO</a></li>
+                            <li class="dropdown-header">Dimensional Components</li>
+                            <li><a class="dropdown-item" href="/topology"><i class="bi bi-diagram-3"></i> Topology <small class="text-muted">(Spatial/Structure)</small></a></li>
+                            <li><a class="dropdown-item" href="/orchestra"><i class="bi bi-music-note-beamed"></i> Orchestra <small class="text-muted">(Temporal/Process)</small></a></li>
+                            <li><a class="dropdown-item" href="/entelecho"><i class="bi bi-infinity"></i> Entelecho <small class="text-muted">(Causal/Telos)</small></a></li>
+                            <li class="dropdown-header">Security</li>
+                            <li><a class="dropdown-item" href="/self-promise"><i class="bi bi-shield-lock"></i> self.promise</a></li>
+                            <li class="dropdown-divider"></li>
+                            <li><a class="dropdown-item disabled text-muted"><small><i class="bi bi-info-circle"></i> Platform layer serves as arena for Workspace agency</small></a></li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Workspaces Navigation - Subconscious/Cognitive Layer (Agency in Platform Arena) -->
+                    <div class="btn-group me-2">
+                        <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-grid-3x3-gap"></i> Workspaces <small class="ms-1 text-muted">(Subconscious)</small>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li class="dropdown-header">Core Components</li>
+                            <li><a class="dropdown-item" href="/workspace-dashboard"><i class="bi bi-speedometer2"></i> Dashboard <small class="text-muted">(Overview)</small></a></li>
+                            <li><a class="dropdown-item" href="/configuration"><i class="bi bi-gear"></i> Configuration</a></li>
+                            <li><a class="dropdown-item" href="/workspace-memory"><i class="bi bi-hdd-stack"></i> Memory <small class="text-muted">(DTE Storage)</small></a></li>
+                            <li class="dropdown-header">I/O Components</li>
+                            <li><a class="dropdown-item" href="/diagnostics"><i class="bi bi-clipboard-data"></i> Diagnostics <small class="text-muted">(DTE Logs)</small></a></li>
+                            <li><a class="dropdown-item" href="/thought-process"><i class="bi bi-lightbulb"></i> Thought Process <small class="text-muted">(DTE Cognition)</small></a></li>
+                            <li class="dropdown-header">Cognitive Components</li>
+                            <li><a class="dropdown-item" href="/fractal-explorer"><i class="bi bi-bezier"></i> Fractal Explorer</a></li>
+                            <li><a class="dropdown-item" href="/aar-simulator"><i class="bi bi-triangle"></i> AAR Simulator</a></li>
+                            <li class="dropdown-header">Dimensional Components</li>
+                            <li><a class="dropdown-item" href="/architecture"><i class="bi bi-building"></i> Architecture <small class="text-muted">(Spatial/Structure)</small></a></li>
+                            <li><a class="dropdown-item" href="/scheduling"><i class="bi bi-calendar-week"></i> Scheduling <small class="text-muted">(Temporal/Process)</small></a></li>
+                            <li><a class="dropdown-item" href="/diary"><i class="bi bi-journal-text"></i> Diary <small class="text-muted">(Causal/Telos)</small></a></li>
+                            <li class="dropdown-divider"></li>
+                            <li><a class="dropdown-item disabled text-muted"><small><i class="bi bi-info-circle"></i> Workspace layer serves as arena for Account agency</small></a></li>
+                        </ul>
+                    </div>
+                    
+                    <!-- User Accounts - Conscious/Interface Layer (Agency in Workspace Arena) -->
+                    <div class="btn-group me-2">
+                        <button class="btn btn-outline-info dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle"></i> Account <small class="ms-1 text-muted">(Conscious)</small>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li class="dropdown-header">Core Components</li>
+                            <li><a class="dropdown-item" href="/user-dashboard"><i class="bi bi-speedometer2"></i> Dashboard <small class="text-muted">(Overview)</small></a></li>
+                            <li><a class="dropdown-item" href="/profile"><i class="bi bi-person"></i> Profile</a></li>
+                            <li><a class="dropdown-item" href="/user-memory"><i class="bi bi-archive"></i> Memory <small class="text-muted">(User Storage)</small></a></li>
+                            <li class="dropdown-header">I/O Components</li>
+                            <li><a class="dropdown-item" href="/chat"><i class="bi bi-chat-dots"></i> Chat <small class="text-muted">(User Interface)</small></a></li>
+                            <li><a class="dropdown-item" href="/settings"><i class="bi bi-gear-wide"></i> Settings</a></li>
+                            <li class="dropdown-header">Dimensional Components</li>
+                            <li><a class="dropdown-item" href="/projects"><i class="bi bi-folder"></i> Projects <small class="text-muted">(Spatial/Structure)</small></a></li>
+                            <li><a class="dropdown-item" href="/timelines"><i class="bi bi-clock-history"></i> Timelines <small class="text-muted">(Temporal/Process)</small></a></li>
+                            <li><a class="dropdown-item" href="/topics"><i class="bi bi-chat-square-text"></i> Topics <small class="text-muted">(Causal/Telos)</small></a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/logout"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <p class="text-light mb-0">User interface layer providing direct interaction with Deep Tree Echo</p>
+        </div>
+        
+        <div class="dashboard-content mt-4">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card dashboard-card user-card mb-4">
+                        <div class="card-body">
+                            <div class="profile-summary">
+                                <div class="profile-avatar">
+                                    <i class="bi bi-person"></i>
+                                </div>
+                                <div class="profile-info">
+                                    <h4>
+                                        {% if current_user.is_authenticated %}
+                                            {{ current_user.username }}
+                                        {% else %}
+                                            Guest User
+                                        {% endif %}
+                                    </h4>
+                                    <p>
+                                        {% if current_user.is_authenticated %}
+                                            {{ current_user.email }}
+                                        {% else %}
+                                            Not logged in
+                                        {% endif %}
+                                    </p>
+                                    <p>Member since: 
+                                        {% if current_user.is_authenticated and current_user.created_at %}
+                                            {{ current_user.created_at.strftime('%B %d, %Y') }}
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div class="row mt-4">
+                                <div class="col-md-4">
+                                    <div class="metric-item">
+                                        <div class="metric-icon">
+                                            <i class="bi bi-folder"></i>
+                                        </div>
+                                        <div class="metric-info">
+                                            <div class="metric-value">8</div>
+                                            <div class="metric-label">Projects</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="metric-item">
+                                        <div class="metric-icon">
+                                            <i class="bi bi-clock-history"></i>
+                                        </div>
+                                        <div class="metric-info">
+                                            <div class="metric-value">12</div>
+                                            <div class="metric-label">Timeline Events</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="metric-item">
+                                        <div class="metric-icon">
+                                            <i class="bi bi-chat-square-text"></i>
+                                        </div>
+                                        <div class="metric-info">
+                                            <div class="metric-value">23</div>
+                                            <div class="metric-label">Discussion Topics</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-center mt-4">
+                                <a href="/profile" class="btn btn-outline-info me-2">Edit Profile</a>
+                                <a href="/settings" class="btn btn-outline-info">Account Settings</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="metrics-container">
+                        <h3 class="metrics-title"><i class="bi bi-graph-up"></i> Learning Progress</h3>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="metric-item">
+                                    <div class="metric-icon">
+                                        <i class="bi bi-code-square"></i>
+                                    </div>
+                                    <div class="metric-info">
+                                        <div class="metric-value">76%</div>
+                                        <div class="metric-label">Recursive Programming</div>
+                                        <div class="progress-container">
+                                            <div class="progress-indicator" style="width: 76%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="metric-item">
+                                    <div class="metric-icon">
+                                        <i class="bi bi-triangle"></i>
+                                    </div>
+                                    <div class="metric-info">
+                                        <div class="metric-value">62%</div>
+                                        <div class="metric-label">Fractal Geometry</div>
+                                        <div class="progress-container">
+                                            <div class="progress-indicator" style="width: 62%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="metric-item">
+                                    <div class="metric-icon">
+                                        <i class="bi bi-diagram-3"></i>
+                                    </div>
+                                    <div class="metric-info">
+                                        <div class="metric-value">84%</div>
+                                        <div class="metric-label">Systems Thinking</div>
+                                        <div class="progress-container">
+                                            <div class="progress-indicator" style="width: 84%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="metric-item">
+                                    <div class="metric-icon">
+                                        <i class="bi bi-infinity"></i>
+                                    </div>
+                                    <div class="metric-info">
+                                        <div class="metric-value">55%</div>
+                                        <div class="metric-label">Recursive Distinction</div>
+                                        <div class="progress-container">
+                                            <div class="progress-indicator" style="width: 55%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card dashboard-card user-card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0"><i class="bi bi-folder"></i> Projects</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="user-icon text-center">
+                                        <i class="bi bi-folder"></i>
+                                    </div>
+                                    <p>Spatial dimension of the user layer organizing work and resources.</p>
+                                    <div class="user-stats">
+                                        <div>Active Projects: 4</div>
+                                        <div>Completed Projects: 4</div>
+                                        <div>Shared Projects: 2</div>
+                                    </div>
+                                    <div class="text-center mt-3">
+                                        <a href="/projects" class="btn btn-outline-info">Manage Projects</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card dashboard-card user-card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0"><i class="bi bi-clock-history"></i> Timelines</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="user-icon text-center">
+                                        <i class="bi bi-clock-history"></i>
+                                    </div>
+                                    <p>Temporal dimension of the user layer tracking events and progress.</p>
+                                    <div class="user-stats">
+                                        <div>Timeline Events: 12</div>
+                                        <div>Active Reminders: 3</div>
+                                        <div>Upcoming Deadlines: 2</div>
+                                    </div>
+                                    <div class="text-center mt-3">
+                                        <a href="/timelines" class="btn btn-outline-info">View Timelines</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card dashboard-card user-card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0"><i class="bi bi-chat-square-text"></i> Topics</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="user-icon text-center">
+                                        <i class="bi bi-chat-square-text"></i>
+                                    </div>
+                                    <p>Causal dimension of the user layer organizing discussions and insights.</p>
+                                    <div class="user-stats">
+                                        <div>Active Topics: 23</div>
+                                        <div>Favorite Topics: 5</div>
+                                        <div>Recent Activity: 7 topics</div>
+                                    </div>
+                                    <div class="text-center mt-3">
+                                        <a href="/topics" class="btn btn-outline-info">Explore Topics</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card dashboard-card user-card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0"><i class="bi bi-chat-dots"></i> Chat</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="user-icon text-center">
+                                        <i class="bi bi-chat-dots"></i>
+                                    </div>
+                                    <p>Direct interface for communication with the Deep Tree Echo system.</p>
+                                    <div class="user-stats">
+                                        <div>Total Interactions: 147</div>
+                                        <div>Saved Conversations: 12</div>
+                                        <div>Engagement Score: High</div>
+                                    </div>
+                                    <div class="text-center mt-3">
+                                        <a href="/chat" class="btn btn-outline-info">Open Chat</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card dashboard-card user-card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0"><i class="bi bi-folder"></i> Recent Projects</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="project-list">
+                                <div class="project-item">
+                                    <div class="project-header">
+                                        <div class="project-title">Recursive Pattern Explorer</div>
+                                        <div class="project-date">2 days ago</div>
+                                    </div>
+                                    <div class="project-description">
+                                        Interactive tool for exploring self-similar patterns across multiple dimensions.
+                                    </div>
+                                    <div class="project-tags">
+                                        <div class="project-tag">Fractals</div>
+                                        <div class="project-tag">Interactive</div>
+                                        <div class="project-tag">Visualization</div>
+                                    </div>
+                                </div>
+                                <div class="project-item">
+                                    <div class="project-header">
+                                        <div class="project-title">Cognitive Architecture</div>
+                                        <div class="project-date">5 days ago</div>
+                                    </div>
+                                    <div class="project-description">
+                                        Multi-layered cognitive architecture design incorporating recursive principles.
+                                    </div>
+                                    <div class="project-tags">
+                                        <div class="project-tag">Architecture</div>
+                                        <div class="project-tag">Design</div>
+                                        <div class="project-tag">Cognitive</div>
+                                    </div>
+                                </div>
+                                <div class="project-item">
+                                    <div class="project-header">
+                                        <div class="project-title">Temporal Recursion</div>
+                                        <div class="project-date">1 week ago</div>
+                                    </div>
+                                    <div class="project-description">
+                                        Study of temporal patterns in recursive systems with feedback loops.
+                                    </div>
+                                    <div class="project-tags">
+                                        <div class="project-tag">Temporal</div>
+                                        <div class="project-tag">Research</div>
+                                        <div class="project-tag">Feedback</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-center mt-3">
+                                <a href="/projects" class="btn btn-outline-info">View All Projects</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card dashboard-card user-card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0"><i class="bi bi-star"></i> Recommended Topics</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="list-group">
+                                <a href="/topics/fractal-recursion" class="list-group-item list-group-item-action bg-transparent text-light border-secondary">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">Fractal Recursion</h6>
+                                        <small class="text-muted">93% match</small>
+                                    </div>
+                                    <small class="text-muted">Based on your interest in recursive patterns</small>
+                                </a>
+                                <a href="/topics/self-reference" class="list-group-item list-group-item-action bg-transparent text-light border-secondary">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">Self-Reference</h6>
+                                        <small class="text-muted">87% match</small>
+                                    </div>
+                                    <small class="text-muted">Related to your systems thinking exploration</small>
+                                </a>
+                                <a href="/topics/dimensional-mapping" class="list-group-item list-group-item-action bg-transparent text-light border-secondary">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">Dimensional Mapping</h6>
+                                        <small class="text-muted">82% match</small>
+                                    </div>
+                                    <small class="text-muted">Complements your Cognitive Architecture project</small>
+                                </a>
+                                <a href="/topics/hypergraph-theory" class="list-group-item list-group-item-action bg-transparent text-light border-secondary">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">Hypergraph Theory</h6>
+                                        <small class="text-muted">78% match</small>
+                                    </div>
+                                    <small class="text-muted">Next step in your network analysis learning</small>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card dashboard-card user-card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0"><i class="bi bi-clock"></i> Upcoming Events</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="event-list">
+                                <div class="event-item d-flex align-items-start mb-3">
+                                    <div class="event-time me-2 text-muted" style="min-width: 75px;">Tomorrow</div>
+                                    <div>
+                                        <div class="event-title">Project Milestone</div>
+                                        <div class="event-details text-muted">Recursive Pattern Explorer v0.2</div>
+                                    </div>
+                                </div>
+                                <div class="event-item d-flex align-items-start mb-3">
+                                    <div class="event-time me-2 text-muted" style="min-width: 75px;">Apr 20</div>
+                                    <div>
+                                        <div class="event-title">Research Review</div>
+                                        <div class="event-details text-muted">Temporal recursion findings</div>
+                                    </div>
+                                </div>
+                                <div class="event-item d-flex align-items-start">
+                                    <div class="event-time me-2 text-muted" style="min-width: 75px;">Apr 23</div>
+                                    <div>
+                                        <div class="event-title">Project Deadline</div>
+                                        <div class="event-details text-muted">Cognitive Architecture draft</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-center mt-3">
+                                <a href="/timelines" class="btn btn-outline-info">View All Events</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS for dropdown menu and other interactive elements -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

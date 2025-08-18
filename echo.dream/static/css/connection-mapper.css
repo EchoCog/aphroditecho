@@ -1,0 +1,238 @@
+/* 
+ * Connection Mapper Styles 
+ * CSS for the Dynamic Interdisciplinary Connection Mapper
+ */
+
+.mapper-container {
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.mapper-header {
+    margin-bottom: 2rem;
+}
+
+.mapper-header h1 {
+    margin-bottom: 0.5rem;
+}
+
+.mapper-header .description {
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+    color: var(--text-secondary);
+}
+
+.mapper-controls {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1.5rem;
+}
+
+.control-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.view-btn {
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+.view-btn.active {
+    background-color: var(--accent-primary);
+    color: white;
+}
+
+.mapper-content {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.mapper-visualization {
+    position: relative;
+    height: 700px;
+}
+
+.mapper-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.details-panel {
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px var(--shadow-color);
+    padding: 1.5rem;
+    overflow: auto;
+    max-height: 500px;
+}
+
+.details-panel h3 {
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.details-panel h4 {
+    margin-bottom: 0.5rem;
+}
+
+.details-panel h5 {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+}
+
+.info-section {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.connections-list {
+    list-style: none;
+    margin: 0.5rem 0;
+    padding: 0;
+}
+
+.connections-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    background-color: var(--bg-tertiary);
+    border-radius: 4px;
+}
+
+.connection-type {
+    font-size: 0.8rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 12px;
+    background-color: var(--accent-primary);
+    color: white;
+}
+
+.connection-name {
+    flex-grow: 1;
+    margin-right: 0.5rem;
+}
+
+.btn-small {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+.paths-form {
+    margin-top: 1rem;
+}
+
+.paths-list {
+    margin-top: 1rem;
+}
+
+.path-item {
+    background-color: var(--bg-tertiary);
+    border-radius: 4px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.path-steps {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 0.5rem;
+}
+
+.path-node {
+    background-color: var(--accent-primary);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    margin-right: 0.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.path-arrow {
+    font-size: 1.2rem;
+    margin: 0 0.25rem;
+    color: var(--text-secondary);
+}
+
+/* Visualization specific styles */
+.visualization-container {
+    height: 100%;
+    background-color: var(--bg-tertiary);
+    border-radius: 8px;
+    position: relative;
+}
+
+.connection-mapper-vis {
+    background-color: var(--bg-tertiary);
+}
+
+.connection-mapper-vis .node {
+    cursor: pointer;
+}
+
+.connection-mapper-vis .node:hover {
+    stroke-width: 2;
+    stroke: #ff0000;
+}
+
+.connection-mapper-vis .link {
+    fill: none;
+    stroke-opacity: 0.6;
+}
+
+.vis-tooltip {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    border-radius: 5px;
+    padding: 10px;
+    pointer-events: none;
+    z-index: 100;
+}
+
+/* Range input styling */
+.range-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.25rem;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+/* Media Queries */
+@media (max-width: 992px) {
+    .mapper-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .mapper-visualization {
+        height: 500px;
+    }
+}
+
+@media (max-width: 768px) {
+    .mapper-container {
+        padding: 1rem;
+    }
+    
+    .mapper-controls {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .control-group {
+        flex-wrap: wrap;
+    }
+}

@@ -1,0 +1,629 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AAR Triad Simulator - Deep Tree Echo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #0d1117;
+            color: #c9d1d9;
+        }
+        .navbar {
+            background-color: #161b22;
+        }
+        .card {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+        }
+        .form-control, .form-select {
+            background-color: #0d1117;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+        }
+        .btn-primary {
+            background-color: #238636;
+            border-color: #238636;
+        }
+        .btn-primary:hover {
+            background-color: #2ea043;
+            border-color: #2ea043;
+        }
+        .aar-canvas {
+            background-color: #0d1117;
+            border: 1px solid #30363d;
+            width: 100%;
+            height: 400px;
+        }
+        .card-header {
+            background-color: #21262d;
+            border-bottom: 1px solid #30363d;
+        }
+        .info-panel {
+            height: 200px;
+            overflow-y: auto;
+        }
+        .agent-node {
+            fill: #238636;
+        }
+        .arena-node {
+            fill: #1f6feb;
+        }
+        .relation-link {
+            stroke: #c9d1d9;
+            stroke-opacity: 0.6;
+        }
+        .active-element {
+            stroke: #ff7b72;
+            stroke-width: 2px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">Deep Tree Echo</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/fractal-explorer">Fractal Explorer</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/aar-simulator">AAR Simulator</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h1 class="mb-4">Agent-Arena-Relation (AAR) Triad Simulator</h1>
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">AAR Visualization</h5>
+                    </div>
+                    <div class="card-body">
+                        <svg id="aar-canvas" class="aar-canvas"></svg>
+                    </div>
+                    <div class="card-footer">
+                        <div class="d-flex justify-content-between">
+                            <button id="step-button" class="btn btn-primary">Step Forward</button>
+                            <button id="auto-step-button" class="btn btn-outline-primary">Auto-Step</button>
+                            <button id="reset-button" class="btn btn-secondary">Reset Simulation</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h5 class="mb-0">Triad Controls</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="add-component-form">
+                            <div class="mb-3">
+                                <label for="component-type" class="form-label">Component Type</label>
+                                <select class="form-select" id="component-type">
+                                    <option value="agent">Agent</option>
+                                    <option value="arena">Arena</option>
+                                    <option value="relation">Relation</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="component-name" class="form-label">Name</label>
+                                <input type="text" class="form-control" id="component-name" placeholder="Name">
+                            </div>
+                            <div id="agent-options" class="component-options">
+                                <div class="mb-3">
+                                    <label for="agent-capabilities" class="form-label">Capabilities (comma-separated)</label>
+                                    <input type="text" class="form-control" id="agent-capabilities" placeholder="observe,analyze,modify">
+                                </div>
+                            </div>
+                            <div id="arena-options" class="component-options d-none">
+                                <div class="mb-3">
+                                    <label for="arena-size" class="form-label">Size</label>
+                                    <input type="text" class="form-control" id="arena-size" placeholder="10,10">
+                                </div>
+                            </div>
+                            <div id="relation-options" class="component-options d-none">
+                                <div class="mb-3">
+                                    <label for="relation-source" class="form-label">Source</label>
+                                    <select class="form-select" id="relation-source"></select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="relation-target" class="form-label">Target</label>
+                                    <select class="form-select" id="relation-target"></select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="relation-type" class="form-label">Type</label>
+                                    <select class="form-select" id="relation-type">
+                                        <option value="bidirectional">Bidirectional</option>
+                                        <option value="directional">Directional</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Add Component</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">System State</h5>
+                    </div>
+                    <div class="card-body info-panel" id="system-info">
+                        <p class="text-muted">Select an element to see details</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Simulation Log</h5>
+                    </div>
+                    <div class="card-body info-panel" id="simulation-log">
+                        <p>Simulation initialized. Click "Step Forward" to begin.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const svg = d3.select("#aar-canvas");
+            const width = svg.node().getBoundingClientRect().width;
+            const height = svg.node().getBoundingClientRect().height;
+            
+            // Set up D3 simulation
+            const simulation = d3.forceSimulation()
+                .force("link", d3.forceLink().id(d => d.id).distance(100))
+                .force("charge", d3.forceManyBody().strength(-300))
+                .force("center", d3.forceCenter(width / 2, height / 2));
+            
+            // Initialize visualization elements
+            let nodes = [];
+            let links = [];
+            
+            let link = svg.append("g")
+                .attr("class", "links")
+                .selectAll("line");
+                
+            let node = svg.append("g")
+                .attr("class", "nodes")
+                .selectAll("circle");
+                
+            let text = svg.append("g")
+                .attr("class", "labels")
+                .selectAll("text");
+            
+            // Component-type toggle
+            const componentType = document.getElementById('component-type');
+            const agentOptions = document.getElementById('agent-options');
+            const arenaOptions = document.getElementById('arena-options');
+            const relationOptions = document.getElementById('relation-options');
+            
+            componentType.addEventListener('change', () => {
+                const type = componentType.value;
+                agentOptions.classList.add('d-none');
+                arenaOptions.classList.add('d-none');
+                relationOptions.classList.add('d-none');
+                
+                if (type === 'agent') {
+                    agentOptions.classList.remove('d-none');
+                } else if (type === 'arena') {
+                    arenaOptions.classList.remove('d-none');
+                } else if (type === 'relation') {
+                    relationOptions.classList.remove('d-none');
+                    updateRelationDropdowns();
+                }
+            });
+            
+            // Buttons
+            const stepButton = document.getElementById('step-button');
+            const autoStepButton = document.getElementById('auto-step-button');
+            const resetButton = document.getElementById('reset-button');
+            const addComponentForm = document.getElementById('add-component-form');
+            const systemInfo = document.getElementById('system-info');
+            const simulationLog = document.getElementById('simulation-log');
+            
+            let autoStepInterval = null;
+            let selectedElement = null;
+            
+            // Load initial state
+            fetchAARState();
+            
+            // Step button
+            stepButton.addEventListener('click', async () => {
+                try {
+                    const response = await fetch('/api/aar/step', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.error) {
+                        addLogMessage(`Error: ${data.error}`, 'danger');
+                    } else {
+                        updateVisualization(data.state);
+                        addLogMessage(`Simulation advanced to step ${data.state.timestamp}`);
+                    }
+                } catch (error) {
+                    addLogMessage(`Error: ${error.message}`, 'danger');
+                }
+            });
+            
+            // Auto-step toggle
+            autoStepButton.addEventListener('click', () => {
+                if (autoStepInterval) {
+                    clearInterval(autoStepInterval);
+                    autoStepInterval = null;
+                    autoStepButton.textContent = 'Auto-Step';
+                    autoStepButton.classList.remove('btn-danger');
+                    autoStepButton.classList.add('btn-outline-primary');
+                } else {
+                    autoStepInterval = setInterval(() => {
+                        stepButton.click();
+                    }, 2000);
+                    autoStepButton.textContent = 'Stop Auto-Step';
+                    autoStepButton.classList.remove('btn-outline-primary');
+                    autoStepButton.classList.add('btn-danger');
+                }
+            });
+            
+            // Reset button
+            resetButton.addEventListener('click', async () => {
+                if (autoStepInterval) {
+                    autoStepButton.click(); // Stop auto-stepping
+                }
+                
+                try {
+                    // Reset by fetching fresh state
+                    fetchAARState();
+                    addLogMessage('Simulation reset');
+                } catch (error) {
+                    addLogMessage(`Error: ${error.message}`, 'danger');
+                }
+            });
+            
+            // Add component form
+            addComponentForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const type = componentType.value;
+                const name = document.getElementById('component-name').value;
+                
+                if (!name) {
+                    addLogMessage('Please enter a name', 'warning');
+                    return;
+                }
+                
+                try {
+                    let data = {};
+                    
+                    if (type === 'agent') {
+                        const capabilities = document.getElementById('agent-capabilities').value
+                            .split(',')
+                            .map(cap => cap.trim())
+                            .filter(cap => cap);
+                        
+                        data = {
+                            action: 'create_agent',
+                            name,
+                            capabilities
+                        };
+                    } else if (type === 'arena') {
+                        const sizeStr = document.getElementById('arena-size').value;
+                        let size = [10, 10];
+                        
+                        if (sizeStr) {
+                            const parts = sizeStr.split(',').map(part => parseInt(part.trim()));
+                            if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+                                size = parts;
+                            }
+                        }
+                        
+                        data = {
+                            action: 'create_arena',
+                            name,
+                            size
+                        };
+                    } else if (type === 'relation') {
+                        const source = document.getElementById('relation-source').value;
+                        const target = document.getElementById('relation-target').value;
+                        const relationType = document.getElementById('relation-type').value;
+                        
+                        if (!source || !target) {
+                            addLogMessage('Please select source and target', 'warning');
+                            return;
+                        }
+                        
+                        data = {
+                            action: 'create_relation',
+                            name,
+                            source,
+                            target,
+                            relation_type: relationType
+                        };
+                    }
+                    
+                    // This would be a real API endpoint in production
+                    // Here we're just simulating by refreshing the state
+                    addLogMessage(`Added ${type}: ${name}`);
+                    fetchAARState();
+                    
+                    // Clear form
+                    document.getElementById('component-name').value = '';
+                    if (type === 'agent') {
+                        document.getElementById('agent-capabilities').value = '';
+                    } else if (type === 'arena') {
+                        document.getElementById('arena-size').value = '';
+                    }
+                    
+                } catch (error) {
+                    addLogMessage(`Error: ${error.message}`, 'danger');
+                }
+            });
+            
+            async function fetchAARState() {
+                try {
+                    const response = await fetch('/api/aar/state');
+                    const state = await response.json();
+                    updateVisualization(state);
+                } catch (error) {
+                    addLogMessage(`Error fetching state: ${error.message}`, 'danger');
+                }
+            }
+            
+            function updateVisualization(state) {
+                // Convert state to D3 format
+                nodes = [];
+                links = [];
+                
+                // Add agents
+                Object.entries(state.agents).forEach(([name, agent]) => {
+                    nodes.push({
+                        id: name,
+                        type: 'agent',
+                        state: agent
+                    });
+                });
+                
+                // Add arenas
+                Object.entries(state.arenas).forEach(([name, arena]) => {
+                    nodes.push({
+                        id: name,
+                        type: 'arena',
+                        state: arena
+                    });
+                });
+                
+                // Add relations
+                Object.entries(state.relations).forEach(([name, relation]) => {
+                    const sourceId = relation.source?.name || '';
+                    const targetId = relation.target?.name || '';
+                    
+                    if (sourceId && targetId) {
+                        links.push({
+                            id: name,
+                            source: sourceId,
+                            target: targetId,
+                            type: 'relation',
+                            state: relation
+                        });
+                    }
+                });
+                
+                // Update the visualization
+                link = link.data(links, d => d.id);
+                link.exit().remove();
+                
+                const newLink = link.enter().append("line")
+                    .attr("class", "relation-link")
+                    .attr("stroke-width", d => d.state.strength * 2);
+                    
+                link = newLink.merge(link);
+                
+                node = node.data(nodes, d => d.id);
+                node.exit().remove();
+                
+                const newNode = node.enter().append("circle")
+                    .attr("r", 10)
+                    .attr("class", d => `${d.type}-node`)
+                    .on("click", handleNodeClick)
+                    .call(d3.drag()
+                        .on("start", dragstarted)
+                        .on("drag", dragged)
+                        .on("end", dragended));
+                
+                node = newNode.merge(node);
+                
+                text = text.data(nodes, d => d.id);
+                text.exit().remove();
+                
+                const newText = text.enter().append("text")
+                    .attr("dx", 12)
+                    .attr("dy", ".35em")
+                    .text(d => d.id)
+                    .style("fill", "#c9d1d9");
+                
+                text = newText.merge(text);
+                
+                // Update simulation
+                simulation.nodes(nodes).on("tick", ticked);
+                simulation.force("link").links(links);
+                simulation.alpha(1).restart();
+                
+                // Update relation dropdowns
+                updateRelationDropdowns();
+                
+                // If an element was selected, try to reselect it
+                if (selectedElement) {
+                    const reselected = nodes.find(n => n.id === selectedElement.id) || 
+                                       links.find(l => l.id === selectedElement.id);
+                    
+                    if (reselected) {
+                        showElementDetails(reselected);
+                    } else {
+                        selectedElement = null;
+                        systemInfo.innerHTML = '<p class="text-muted">Select an element to see details</p>';
+                    }
+                }
+            }
+            
+            function ticked() {
+                link
+                    .attr("x1", d => d.source.x)
+                    .attr("y1", d => d.source.y)
+                    .attr("x2", d => d.target.x)
+                    .attr("y2", d => d.target.y);
+                
+                node
+                    .attr("cx", d => d.x = Math.max(10, Math.min(width - 10, d.x)))
+                    .attr("cy", d => d.y = Math.max(10, Math.min(height - 10, d.y)));
+                
+                text
+                    .attr("x", d => d.x)
+                    .attr("y", d => d.y);
+            }
+            
+            function dragstarted(event, d) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+            }
+            
+            function dragged(event, d) {
+                d.fx = event.x;
+                d.fy = event.y;
+            }
+            
+            function dragended(event, d) {
+                if (!event.active) simulation.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+            }
+            
+            function handleNodeClick(event, d) {
+                // Remove highlight from previous selection
+                if (selectedElement) {
+                    d3.select(this.parentNode).selectAll('circle').classed('active-element', false);
+                    d3.select(this.parentNode.parentNode).selectAll('line').classed('active-element', false);
+                }
+                
+                // Highlight this element
+                d3.select(this).classed('active-element', true);
+                selectedElement = d;
+                
+                showElementDetails(d);
+            }
+            
+            function showElementDetails(element) {
+                let html = '';
+                
+                if (element.type === 'agent') {
+                    html = `<h6>Agent: ${element.id}</h6>`;
+                    html += `<p><strong>Active:</strong> ${element.state.active ? 'Yes' : 'No'}</p>`;
+                    html += `<p><strong>Energy:</strong> ${element.state.energy}</p>`;
+                    
+                    if (element.state.memory && element.state.memory.length > 0) {
+                        html += '<p><strong>Last Memory:</strong></p>';
+                        const lastMemory = element.state.memory[element.state.memory.length - 1];
+                        html += `<pre class="bg-dark p-2"><code>${JSON.stringify(lastMemory, null, 2)}</code></pre>`;
+                    }
+                } else if (element.type === 'arena') {
+                    html = `<h6>Arena: ${element.id}</h6>`;
+                    
+                    const entityCount = Object.keys(element.state.entities || {}).length;
+                    const resourceCount = Object.keys(element.state.resources || {}).length;
+                    
+                    html += `<p><strong>Entities:</strong> ${entityCount}</p>`;
+                    html += `<p><strong>Resources:</strong> ${resourceCount}</p>`;
+                    
+                    if (element.state.grid) {
+                        const gridSize = element.state.grid.length;
+                        html += `<p><strong>Grid Size:</strong> ${gridSize}x${gridSize}</p>`;
+                    }
+                } else if (element.type === 'relation') {
+                    html = `<h6>Relation: ${element.id}</h6>`;
+                    html += `<p><strong>Source:</strong> ${element.source.id}</p>`;
+                    html += `<p><strong>Target:</strong> ${element.target.id}</p>`;
+                    html += `<p><strong>Type:</strong> ${element.state.type}</p>`;
+                    html += `<p><strong>Strength:</strong> ${element.state.strength.toFixed(2)}</p>`;
+                    html += `<p><strong>Active:</strong> ${element.state.active ? 'Yes' : 'No'}</p>`;
+                }
+                
+                systemInfo.innerHTML = html;
+            }
+            
+            function updateRelationDropdowns() {
+                const sourceSelect = document.getElementById('relation-source');
+                const targetSelect = document.getElementById('relation-target');
+                
+                // Save current selections
+                const currentSource = sourceSelect.value;
+                const currentTarget = targetSelect.value;
+                
+                // Clear options
+                sourceSelect.innerHTML = '';
+                targetSelect.innerHTML = '';
+                
+                // Add current nodes as options
+                nodes.forEach(node => {
+                    const sourceOption = document.createElement('option');
+                    sourceOption.value = node.id;
+                    sourceOption.textContent = `${node.id} (${node.type})`;
+                    sourceSelect.appendChild(sourceOption);
+                    
+                    const targetOption = document.createElement('option');
+                    targetOption.value = node.id;
+                    targetOption.textContent = `${node.id} (${node.type})`;
+                    targetSelect.appendChild(targetOption);
+                });
+                
+                // Restore selections if possible
+                if (currentSource && [...sourceSelect.options].some(opt => opt.value === currentSource)) {
+                    sourceSelect.value = currentSource;
+                }
+                
+                if (currentTarget && [...targetSelect.options].some(opt => opt.value === currentTarget)) {
+                    targetSelect.value = currentTarget;
+                }
+            }
+            
+            function addLogMessage(message, type = 'info') {
+                const timestamp = new Date().toLocaleTimeString();
+                const classMap = {
+                    'info': 'text-info',
+                    'success': 'text-success',
+                    'warning': 'text-warning',
+                    'danger': 'text-danger'
+                };
+                
+                const logEntry = document.createElement('p');
+                logEntry.className = classMap[type] || 'text-info';
+                logEntry.innerHTML = `<strong>[${timestamp}]</strong> ${message}`;
+                
+                simulationLog.appendChild(logEntry);
+                simulationLog.scrollTop = simulationLog.scrollHeight;
+            }
+        });
+    </script>
+</body>
+</html>

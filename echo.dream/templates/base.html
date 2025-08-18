@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Deep Tree Echo{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body class="dark-theme">
+    <header class="main-header">
+        <div class="header-container">
+            <div class="logo">
+                <a href="/">Deep Tree Echo</a>
+            </div>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle">Platform</a>
+                        <div class="dropdown-menu">
+                            <a href="/platform-dashboard">Dashboard</a>
+                            <a href="/topology">Topology</a>
+                            <a href="/orchestra">Orchestra</a>
+                            <a href="/entelecho">Entelecho</a>
+                            <a href="/connection-mapper">Connection Mapper</a>
+                        </div>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle">Workspace</a>
+                        <div class="dropdown-menu">
+                            <a href="/workspace-dashboard">Dashboard</a>
+                            <a href="/architecture">Architecture</a>
+                            <a href="/scheduling">Scheduling</a>
+                            <a href="/diary">Diary</a>
+                        </div>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle">User</a>
+                        <div class="dropdown-menu">
+                            <a href="/user-dashboard">Dashboard</a>
+                            <a href="/projects">Projects</a>
+                            <a href="/timelines">Timelines</a>
+                            <a href="/topics">Topics</a>
+                        </div>
+                    </li>
+                    <li><a href="/chat">Chat</a></li>
+                    <li><a href="/wiki">Wiki</a></li>
+                </ul>
+            </nav>
+            <div class="user-actions">
+                <button id="toggle-theme-btn" title="Toggle theme">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+                <a href="/profile" class="profile-link">Profile</a>
+                <a href="/logout" class="logout-btn">Logout</a>
+            </div>
+        </div>
+    </header>
+    
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section">
+                <h4>Deep Tree Echo</h4>
+                <p>Exploring recursive computational thinking through multi-layered design</p>
+            </div>
+            <div class="footer-section">
+                <h4>Navigation</h4>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/platform-dashboard">Platform</a></li>
+                    <li><a href="/workspace-dashboard">Workspace</a></li>
+                    <li><a href="/user-dashboard">User</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Resources</h4>
+                <ul>
+                    <li><a href="/wiki">Wiki</a></li>
+                    <li><a href="/wiki/aar">AAR System</a></li>
+                    <li><a href="/fractal-explorer">Fractal Explorer</a></li>
+                    <li><a href="/connection-mapper">Connection Mapper</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2025 Deep Tree Echo. All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <script>
+        // Theme toggle functionality
+        document.getElementById('toggle-theme-btn').addEventListener('click', function() {
+            document.body.classList.toggle('light-theme');
+            document.body.classList.toggle('dark-theme');
+        });
+        
+        // Dropdown functionality
+        document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
+            toggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                this.parentElement.classList.toggle('active');
+            });
+        });
+        
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.matches('.dropdown-toggle')) {
+                document.querySelectorAll('.dropdown.active').forEach(dropdown => {
+                    if (!dropdown.contains(e.target)) {
+                        dropdown.classList.remove('active');
+                    }
+                });
+            }
+        });
+    </script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

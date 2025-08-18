@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html data-bs-theme="dark">
+<head>
+    <title>Admin Dashboard - Deep Tree Echo</title>
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <style>
+        .dashboard-container {
+            padding: 20px;
+        }
+        .stats-card {
+            transition: all 0.3s ease;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background-color: #1e1e2f;
+        }
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+        }
+        .stats-card .card-body {
+            padding: 20px;
+            text-align: center;
+        }
+        .stats-card .stats-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: #4a7feb;
+        }
+        .stats-card .stats-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #fff;
+        }
+        .stats-card .stats-title {
+            font-size: 1rem;
+            color: #aaa;
+            text-transform: uppercase;
+        }
+        .tab-content {
+            background-color: #1e1e2f;
+            border-radius: 0 0 5px 5px;
+            padding: 20px;
+            border: 1px solid #2d2d44;
+            border-top: none;
+        }
+        .nav-tabs {
+            border-bottom: 1px solid #2d2d44;
+        }
+        .nav-tabs .nav-link.active {
+            background-color: #1e1e2f;
+            border-color: #2d2d44 #2d2d44 #1e1e2f;
+            color: #fff;
+        }
+        .nav-tabs .nav-link {
+            color: #bbb;
+        }
+        .table {
+            margin-bottom: 0;
+        }
+        .table thead th {
+            border-bottom: 1px solid #444;
+            background-color: #2d2d44;
+        }
+        .card {
+            margin-bottom: 20px;
+            border: none;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background-color: #1e1e2f;
+        }
+        .card-header {
+            background-color: #2d2d44;
+            font-weight: bold;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .card-header .btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+        .action-column {
+            width: 150px;
+            text-align: center;
+        }
+        .action-btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+        }
+        .form-control {
+            background-color: #2d2d44;
+            border-color: #444;
+            color: #ddd;
+        }
+        .form-floating > label {
+            color: #999;
+        }
+        .alert {
+            margin-bottom: 20px;
+        }
+        .section-title {
+            color: #4a7feb;
+            margin-bottom: 20px;
+            font-weight: 300;
+        }
+        .action-panel {
+            background-color: #2d2d44;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .backup-history {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('index') }}">Deep Tree Echo</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('fractal_explorer') }}">Fractal Explorer</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('aar_simulator') }}">AAR Simulator</a>
+                    </li>
+                    {% if current_user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
+                    </li>
+                    {% endif %}
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle"></i> {{ current_user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{{ url_for('profile') }}">Profile</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid dashboard-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <h2 class="section-title">Admin Dashboard</h2>
+        
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card stats-card">
+                    <div class="card-body">
+                        <div class="stats-icon">
+                            <i class="bi bi-people"></i>
+                        </div>
+                        <div class="stats-number">{{ stats.user_count }}</div>
+                        <div class="stats-title">Users</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card">
+                    <div class="card-body">
+                        <div class="stats-icon">
+                            <i class="bi bi-folder"></i>
+                        </div>
+                        <div class="stats-number">{{ stats.project_count }}</div>
+                        <div class="stats-title">Projects</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card">
+                    <div class="card-body">
+                        <div class="stats-icon">
+                            <i class="bi bi-diagram-3"></i>
+                        </div>
+                        <div class="stats-number">{{ stats.simulation_count }}</div>
+                        <div class="stats-title">Simulations</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card">
+                    <div class="card-body">
+                        <div class="stats-icon">
+                            <i class="bi bi-braces"></i>
+                        </div>
+                        <div class="stats-number">{{ stats.pattern_count }}</div>
+                        <div class="stats-title">Patterns</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Activity Cards -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        Recent Users
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Created</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in recent_users %}
+                                <tr>
+                                    <td>{{ user.username }}</td>
+                                    <td>{{ user.email }}</td>
+                                    <td>{{ user.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        Recent Projects
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Namespace</th>
+                                    <th>Created By</th>
+                                    <th>Created</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for project in recent_projects %}
+                                <tr>
+                                    <td>{{ project.name }}</td>
+                                    <td>{{ project.namespace }}</td>
+                                    <td>{{ project.creator.username if project.creator else 'Unknown' }}</td>
+                                    <td>{{ project.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tabs Navigation -->
+        <ul class="nav nav-tabs" id="adminTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button" role="tab">Users</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="projects-tab" data-bs-toggle="tab" data-bs-target="#projects" type="button" role="tab">Projects</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="simulations-tab" data-bs-toggle="tab" data-bs-target="#simulations" type="button" role="tab">Simulations</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="patterns-tab" data-bs-toggle="tab" data-bs-target="#patterns" type="button" role="tab">Recursive Patterns</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings" type="button" role="tab">Settings</button>
+            </li>
+        </ul>
+        
+        <!-- Tab Contents -->
+        <div class="tab-content" id="adminTabContent">
+            <!-- Users Tab -->
+            <div class="tab-pane fade show active" id="users" role="tabpanel">
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <div class="action-panel">
+                            <h5>Create New User</h5>
+                            <form id="create-user-form" class="row g-3" method="POST" action="{{ url_for('admin_create_user') }}">
+                                <div class="col-md-4">
+                                    <input type="text" class="form-control" id="new-username" name="username" placeholder="Username" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="email" class="form-control" id="new-email" name="email" placeholder="Email" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <input type="password" class="form-control" id="new-password" name="password" placeholder="Password" required>
+                                </div>
+                                <div class="col-md-1">
+                                    <button type="submit" class="btn btn-primary w-100">Create</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        All Users
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Created</th>
+                                    <th>Last Login</th>
+                                    <th class="action-column">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in all_users %}
+                                <tr>
+                                    <td>{{ user.id }}</td>
+                                    <td>{{ user.username }}</td>
+                                    <td>{{ user.email }}</td>
+                                    <td>{{ user.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td>{{ user.last_login.strftime('%Y-%m-%d %H:%M') if user.last_login else 'Never' }}</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <button class="btn btn-info btn-sm action-btn">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            <button class="btn btn-warning btn-sm action-btn">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <form method="POST" action="{{ url_for('admin_delete_user', user_id=user.id) }}" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this user?');">
+                                                <button type="submit" class="btn btn-danger btn-sm action-btn">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Projects Tab -->
+            <div class="tab-pane fade" id="projects" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">
+                        All Projects
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Namespace</th>
+                                    <th>Created By</th>
+                                    <th>Created</th>
+                                    <th>Updated</th>
+                                    <th class="action-column">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for project in all_projects %}
+                                <tr>
+                                    <td>{{ project.id }}</td>
+                                    <td>{{ project.name }}</td>
+                                    <td>{{ project.namespace }}</td>
+                                    <td>{{ project.creator.username if project.creator else 'Unknown' }}</td>
+                                    <td>{{ project.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td>{{ project.updated_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <button class="btn btn-info btn-sm action-btn">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            <button class="btn btn-warning btn-sm action-btn">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <form method="POST" action="{{ url_for('admin_delete_project', project_id=project.id) }}" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this project?');">
+                                                <button type="submit" class="btn btn-danger btn-sm action-btn">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Simulations Tab -->
+            <div class="tab-pane fade" id="simulations" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">
+                        All Simulations
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Engine Type</th>
+                                    <th>Project</th>
+                                    <th>Created By</th>
+                                    <th>Created</th>
+                                    <th class="action-column">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for simulation in all_simulations %}
+                                <tr>
+                                    <td>{{ simulation.id }}</td>
+                                    <td>{{ simulation.name }}</td>
+                                    <td>{{ simulation.engine_type }}</td>
+                                    <td>{{ simulation.project.name if simulation.project else 'None' }}</td>
+                                    <td>{{ simulation.creator.username if simulation.creator else 'Unknown' }}</td>
+                                    <td>{{ simulation.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <button class="btn btn-info btn-sm action-btn">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            <button class="btn btn-warning btn-sm action-btn">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <form method="POST" action="{{ url_for('admin_delete_simulation', simulation_id=simulation.id) }}" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this simulation?');">
+                                                <button type="submit" class="btn btn-danger btn-sm action-btn">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Patterns Tab -->
+            <div class="tab-pane fade" id="patterns" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">
+                        All Recursive Patterns
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Type</th>
+                                    <th>Created By</th>
+                                    <th>Built-in</th>
+                                    <th>Created</th>
+                                    <th class="action-column">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pattern in all_patterns %}
+                                <tr>
+                                    <td>{{ pattern.id }}</td>
+                                    <td>{{ pattern.name }}</td>
+                                    <td>{{ pattern.pattern_type }}</td>
+                                    <td>{{ pattern.creator.username if pattern.user_id else 'System' }}</td>
+                                    <td>{{ 'Yes' if pattern.is_builtin else 'No' }}</td>
+                                    <td>{{ pattern.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <button class="btn btn-info btn-sm action-btn view-pattern-code" data-pattern-id="{{ pattern.id }}">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            <button class="btn btn-warning btn-sm action-btn">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <form method="POST" action="{{ url_for('admin_delete_pattern', pattern_id=pattern.id) }}" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this pattern?');">
+                                                <button type="submit" class="btn btn-danger btn-sm action-btn" {{ 'disabled' if pattern.is_builtin else '' }}>
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Settings Tab -->
+            <div class="tab-pane fade" id="settings" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                Application Settings
+                            </div>
+                            <div class="card-body">
+                                <form id="app-settings-form" method="POST" action="{{ url_for('admin_update_settings') }}">
+                                    <div class="mb-3">
+                                        <label for="debug-mode" class="form-label">Debug Mode</label>
+                                        <select class="form-select" id="debug-mode" name="debug">
+                                            <option value="true" {{ 'selected' if app_config.DEBUG else '' }}>Enabled</option>
+                                            <option value="false" {{ 'selected' if not app_config.DEBUG else '' }}>Disabled</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="max-content-length" class="form-label">Max Content Length (bytes)</label>
+                                        <input type="number" class="form-control" id="max-content-length" name="max_content_length" value="{{ app_config.MAX_CONTENT_LENGTH }}">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="session-lifetime" class="form-label">Session Lifetime (seconds)</label>
+                                        <input type="number" class="form-control" id="session-lifetime" name="session_lifetime" value="{{ app_config.PERMANENT_SESSION_LIFETIME }}">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Save Settings</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                Database Management
+                            </div>
+                            <div class="card-body">
+                                <div class="action-panel">
+                                    <h5>Backup Database</h5>
+                                    <form id="backup-db-form" method="POST" action="{{ url_for('admin_backup_database') }}" class="mb-3">
+                                        <div class="d-flex">
+                                            <input type="text" class="form-control me-2" id="backup-name" name="backup_name" placeholder="Backup name (optional)">
+                                            <button type="submit" class="btn btn-primary">Create Backup</button>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="backup-history">
+                                    <h5>Recent Backups</h5>
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Timestamp</th>
+                                                <th>Size</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Backup history would go here -->
+                                            <tr>
+                                                <td colspan="3" class="text-center text-muted">No backups available</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <hr>
+                                <div class="mt-3">
+                                    <h5>Maintenance</h5>
+                                    <form id="purge-temp-form" method="POST" action="{{ url_for('admin_purge_temp_data') }}" class="mt-3" onsubmit="return confirm('Are you sure you want to purge temporary data?');">
+                                        <button type="submit" class="btn btn-danger">Purge Temporary Data</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pattern Code Viewer Modal -->
+    <div class="modal fade" id="patternCodeModal" tabindex="-1" aria-labelledby="patternCodeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="patternCodeModalLabel">Pattern Code</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <pre id="pattern-code-display" class="p-3" style="background-color: #1a1a2e; color: #f0f0f0; border-radius: 4px; max-height: 400px; overflow-y: auto;"></pre>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Simple script to handle the pattern code viewer modal
+        document.addEventListener('DOMContentLoaded', function() {
+            const patternCodeModal = new bootstrap.Modal(document.getElementById('patternCodeModal'));
+            
+            document.querySelectorAll('.view-pattern-code').forEach(button => {
+                button.addEventListener('click', function() {
+                    const patternId = this.getAttribute('data-pattern-id');
+                    // Simulated code for now - in a real app, you'd fetch this via AJAX
+                    document.getElementById('pattern-code-display').textContent = 
+                        `# This is a simulated pattern code for ID: ${patternId}\n\n` +
+                        `def recursive_pattern(n, depth=0):\n` +
+                        `    if depth >= n:\n` +
+                        `        return 1\n` +
+                        `    else:\n` +
+                        `        return recursive_pattern(n, depth+1) + recursive_pattern(n, depth+1)\n`;
+                    
+                    patternCodeModal.show();
+                });
+            });
+        });
+    </script>
+</body>
+</html>

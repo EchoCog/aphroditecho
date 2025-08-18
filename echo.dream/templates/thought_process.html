@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deep Tree Echo - Thought Process Visualization</title>
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .header {
+            padding: 1rem;
+            background-color: #222;
+            border-bottom: 1px solid #444;
+        }
+        
+        .visualization-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+        
+        .controls {
+            width: 250px;
+            padding: 1rem;
+            background-color: #2a2a2a;
+            border-right: 1px solid #444;
+            overflow-y: auto;
+        }
+        
+        .visualization {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .details-panel {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            width: 300px;
+            background-color: rgba(40, 40, 40, 0.95);
+            border: 1px solid #555;
+            border-radius: 5px;
+            padding: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            display: none;
+            max-height: 80%;
+            overflow-y: auto;
+        }
+        
+        .details-header {
+            margin-top: 0;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #555;
+        }
+        
+        .details-content {
+            margin-top: 10px;
+        }
+        
+        .detail-item {
+            margin-bottom: 8px;
+        }
+        
+        .detail-label {
+            font-weight: bold;
+            color: #aaa;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #ffffff; /* Ensure label text is white for better contrast */
+            font-weight: 500; /* Make labels slightly bolder */
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 0.5rem;
+            background-color: #333;
+            color: #eee;
+            border: 1px solid #555;
+            border-radius: 3px;
+        }
+        
+        button {
+            padding: 0.5rem 1rem;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .node {
+            cursor: pointer;
+        }
+        
+        .link {
+            stroke-opacity: 0.6;
+            stroke-width: 1.5px;
+        }
+        
+        .node-label {
+            font-size: 12px;
+            pointer-events: none;
+            fill: #ffffff; /* White text for better visibility */
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8); /* Text shadow for better contrast */
+        }
+        
+        /* Link styles by type */
+        .sequence-link {
+            stroke: #888;
+        }
+        
+        .association-link {
+            stroke: #e74c3c; /* Red */
+        }
+        
+        .reference-link {
+            stroke: #3498db; /* Blue */
+        }
+        
+        .derivation-link {
+            stroke: #2ecc71; /* Green */
+        }
+        
+        .recursion-link {
+            stroke: #9b59b6; /* Purple */
+        }
+        
+        /* Node styles by type */
+        .thought-node {
+            fill: #3498db; /* Blue */
+        }
+        
+        .insight-node {
+            fill: #2ecc71; /* Green */
+        }
+        
+        .system-node {
+            fill: #e67e22; /* Orange */
+        }
+        
+        .dream-node {
+            fill: #9b59b6; /* Purple */
+        }
+        
+        .related-link {
+            stroke: #3498db;
+        }
+        
+
+        
+        .timeline-container {
+            height: 100px;
+            width: 100%;
+            overflow-x: hidden;
+            background-color: #222;
+            border-top: 1px solid #444;
+            position: relative;
+        }
+        
+        .timeline {
+            height: 50px;
+            margin-top: 25px;
+            position: relative;
+        }
+        
+        .timeline-event {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            top: 21px;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+        }
+        
+        .timeline-axis {
+            position: absolute;
+            height: 1px;
+            background-color: #555;
+            top: 25px;
+            left: 0;
+            right: 0;
+        }
+        
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+            gap: 10px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-right: 15px;
+            color: #ffffff; /* White text for better visibility */
+        }
+        
+        .legend-color {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            margin-right: 5px;
+            border-radius: 2px;
+        }
+        
+        .loader {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+        }
+        
+        .loader-text {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #aaa;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 3px;
+            background-color: #333;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+        
+        .progress-bar-fill {
+            height: 100%;
+            background-color: #3498db;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        /* Progress visualization styles */
+        .progress-indicators {
+            padding: 10px;
+            background-color: #1a1a1a;
+            border-top: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+        }
+        
+        .progress-stat {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #aaa;
+        }
+        
+        .stat-value {
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .stat-bar {
+            height: 6px;
+            background-color: #333;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .stat-bar-fill {
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+        
+        #complexity-bar {
+            background-color: #9b59b6; /* Purple */
+        }
+        
+        #insight-bar {
+            background-color: #2ecc71; /* Green */
+        }
+        
+        #convergence-bar {
+            background-color: #3498db; /* Blue */
+        }
+        
+        .growth-chart {
+            height: 50px;
+            background-color: #222;
+            border-radius: 3px;
+        }
+        
+        /* Emotional tone visualization styles */
+        .emotional-legend {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid #444;
+        }
+        
+        .emotional-gradient {
+            height: 20px;
+            width: 100%;
+            border-radius: 3px;
+            margin-bottom: 5px;
+        }
+        
+        .legend-line {
+            display: inline-block;
+            width: 30px;
+            height: 2px;
+            background-color: #888;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">Thought Process Visualization</h2>
+                <div class="d-flex gap-2">
+                    <!-- Platform Level Navigation - Unconscious/System Foundation (Arena) -->
+                    <div class="btn-group me-2">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-stack"></i> Platform <small class="ms-1 text-muted">(Unconscious)</small>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li class="dropdown-header">Core Components</li>
+                            <li><a class="dropdown-item" href="/platform-dashboard"><i class="bi bi-speedometer2"></i> Dashboard <small class="text-muted">(Overview)</small></a></li>
+                            <li><a class="dropdown-item" href="/core"><i class="bi bi-cpu"></i> Core</a></li>
+                            <li><a class="dropdown-item" href="/memory"><i class="bi bi-memory"></i> Memory <small class="text-muted">(System Storage)</small></a></li>
+                            <li class="dropdown-header">I/O Components</li>
+                            <li><a class="dropdown-item" href="/console"><i class="bi bi-terminal"></i> Console <small class="text-muted">(System I/O)</small></a></li>
+                            <li><a class="dropdown-item" href="/streamio"><i class="bi bi-arrow-left-right"></i> StreamIO</a></li>
+                            <li class="dropdown-header">Dimensional Components</li>
+                            <li><a class="dropdown-item" href="/topology"><i class="bi bi-diagram-3"></i> Topology <small class="text-muted">(Spatial/Structure)</small></a></li>
+                            <li><a class="dropdown-item" href="/orchestra"><i class="bi bi-music-note-beamed"></i> Orchestra <small class="text-muted">(Temporal/Process)</small></a></li>
+                            <li><a class="dropdown-item" href="/entelecho"><i class="bi bi-infinity"></i> Entelecho <small class="text-muted">(Causal/Telos)</small></a></li>
+                            <li class="dropdown-header">Security</li>
+                            <li><a class="dropdown-item" href="/self-promise"><i class="bi bi-shield-lock"></i> self.promise</a></li>
+                            <li class="dropdown-divider"></li>
+                            <li><a class="dropdown-item disabled text-muted"><small><i class="bi bi-info-circle"></i> Platform layer serves as arena for Workspace agency</small></a></li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Workspaces Navigation - Subconscious/Cognitive Layer (Agency in Platform Arena) -->
+                    <div class="btn-group me-2">
+                        <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-grid-3x3-gap"></i> Workspaces <small class="ms-1 text-muted">(Subconscious)</small>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li class="dropdown-header">Core Components</li>
+                            <li><a class="dropdown-item" href="/workspace-dashboard"><i class="bi bi-speedometer2"></i> Dashboard <small class="text-muted">(Overview)</small></a></li>
+                            <li><a class="dropdown-item" href="/configuration"><i class="bi bi-gear"></i> Configuration</a></li>
+                            <li><a class="dropdown-item" href="/workspace-memory"><i class="bi bi-hdd-stack"></i> Memory <small class="text-muted">(DTE Storage)</small></a></li>
+                            <li class="dropdown-header">I/O Components</li>
+                            <li><a class="dropdown-item" href="/diagnostics"><i class="bi bi-clipboard-data"></i> Diagnostics <small class="text-muted">(DTE Logs)</small></a></li>
+                            <li><a class="dropdown-item" href="/thought-process"><i class="bi bi-lightbulb"></i> Thought Process <small class="text-muted">(DTE Cognition)</small></a></li>
+                            <li class="dropdown-header">Cognitive Components</li>
+                            <li><a class="dropdown-item" href="/fractal-explorer"><i class="bi bi-bezier"></i> Fractal Explorer</a></li>
+                            <li><a class="dropdown-item" href="/aar-simulator"><i class="bi bi-triangle"></i> AAR Simulator</a></li>
+                            <li class="dropdown-header">Dimensional Components</li>
+                            <li><a class="dropdown-item" href="/architecture-workspace"><i class="bi bi-building"></i> Architecture <small class="text-muted">(Spatial/Structure)</small></a></li>
+                            <li><a class="dropdown-item" href="/scheduling-workspace"><i class="bi bi-calendar-week"></i> Scheduling <small class="text-muted">(Temporal/Process)</small></a></li>
+                            <li><a class="dropdown-item" href="/diary-workspace"><i class="bi bi-journal-text"></i> Diary <small class="text-muted">(Causal/Telos)</small></a></li>
+                            <li class="dropdown-divider"></li>
+                            <li><a class="dropdown-item disabled text-muted"><small><i class="bi bi-info-circle"></i> Workspace layer serves as arena for Account agency</small></a></li>
+                        </ul>
+                    </div>
+                    
+                    <!-- User Accounts - Conscious/Interface Layer (Agency in Workspace Arena) -->
+                    <div class="btn-group me-2">
+                        <button class="btn btn-outline-info dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle"></i> Account <small class="ms-1 text-muted">(Conscious)</small>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li class="dropdown-header">Core Components</li>
+                            <li><a class="dropdown-item" href="/user-dashboard"><i class="bi bi-speedometer2"></i> Dashboard <small class="text-muted">(Overview)</small></a></li>
+                            <li><a class="dropdown-item" href="/profile"><i class="bi bi-person"></i> Profile</a></li>
+                            <li><a class="dropdown-item" href="/user-memory"><i class="bi bi-archive"></i> Memory <small class="text-muted">(User Storage)</small></a></li>
+                            <li class="dropdown-header">I/O Components</li>
+                            <li><a class="dropdown-item" href="/chat"><i class="bi bi-chat-dots"></i> Chat <small class="text-muted">(User Interface)</small></a></li>
+                            <li><a class="dropdown-item" href="/settings"><i class="bi bi-gear-wide"></i> Settings</a></li>
+                            <li class="dropdown-header">Dimensional Components</li>
+                            <li><a class="dropdown-item" href="/projects"><i class="bi bi-folder"></i> Projects <small class="text-muted">(Spatial/Structure)</small></a></li>
+                            <li><a class="dropdown-item" href="/timelines"><i class="bi bi-clock-history"></i> Timelines <small class="text-muted">(Temporal/Process)</small></a></li>
+                            <li><a class="dropdown-item" href="/topics"><i class="bi bi-chat-square-text"></i> Topics <small class="text-muted">(Causal/Telos)</small></a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/logout"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <p class="text-light mb-0">Visualize and explore the thought processes of Deep Tree Echo's cognitive system</p>
+        </div>
+        
+        <div class="visualization-container">
+            <div class="controls">
+                <div class="form-group">
+                    <label for="time-range">Time Range:</label>
+                    <select id="time-range">
+                        <option value="1">Last hour</option>
+                        <option value="12">Last 12 hours</option>
+                        <option value="24" selected>Last 24 hours</option>
+                        <option value="72">Last 3 days</option>
+                        <option value="168">Last week</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="node-limit">Maximum Nodes:</label>
+                    <select id="node-limit">
+                        <option value="50">50 nodes</option>
+                        <option value="100" selected>100 nodes</option>
+                        <option value="200">200 nodes</option>
+                        <option value="500">500 nodes</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="thought-type">Thought Type:</label>
+                    <select id="thought-type">
+                        <option value="">All types</option>
+                        <option value="thought">Thoughts</option>
+                        <option value="insight">Insights</option>
+                        <option value="system">System</option>
+                        <option value="dream">Dreams</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="layout-type">Layout:</label>
+                    <select id="layout-type">
+                        <option value="force" selected>Force-directed</option>
+                        <option value="tree">Tree</option>
+                        <option value="radial">Radial</option>
+                        <option value="temporal">Temporal</option>
+                    </select>
+                </div>
+                
+                <button id="update-btn">Update Visualization</button>
+                
+                <div class="legend">
+                    <h3>Legend</h3>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background-color: #3498db;"></span>
+                        <span>Thought</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background-color: #2ecc71;"></span>
+                        <span>Insight</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background-color: #e67e22;"></span>
+                        <span>System</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background-color: #9b59b6;"></span>
+                        <span>Dream</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background-color: #888;"></span>
+                        <span>Sequence Link</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background-color: #e74c3c;"></span>
+                        <span>Association Link</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background-color: #3498db;"></span>
+                        <span>Reference Link</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background-color: #2ecc71;"></span>
+                        <span>Derivation Link</span>
+                    </div>
+                    
+                    <h3>Emotional Tone</h3>
+                    <div class="emotional-legend">
+                        <div style="margin-bottom: 10px;">
+                            <strong>Valence:</strong> (Negative to Positive)
+                        </div>
+                        <div class="emotional-gradient" style="height: 20px; width: 100%; background: linear-gradient(to right, #ff3333, #ff9900, #ffcc00, #33cc33); border-radius: 3px; margin-bottom: 5px;"></div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                            <span>Negative</span>
+                            <span>Neutral</span>
+                            <span>Positive</span>
+                        </div>
+                        
+                        <div style="margin-bottom: 10px;">
+                            <strong>Arousal:</strong> (Calm to Intense)
+                        </div>
+                        <div class="legend-item">
+                            <svg width="30" height="2" style="margin-right: 5px;">
+                                <line x1="0" y1="1" x2="30" y2="1" stroke="#888" stroke-width="2" stroke-dasharray="2,6"></line>
+                            </svg>
+                            <span>Calm</span>
+                        </div>
+                        <div class="legend-item">
+                            <svg width="30" height="2" style="margin-right: 5px;">
+                                <line x1="0" y1="1" x2="30" y2="1" stroke="#888" stroke-width="2" stroke-dasharray="4,4"></line>
+                            </svg>
+                            <span>Moderate</span>
+                        </div>
+                        <div class="legend-item">
+                            <svg width="30" height="2" style="margin-right: 5px;">
+                                <line x1="0" y1="1" x2="30" y2="1" stroke="#888" stroke-width="2" stroke-dasharray="6,2"></line>
+                            </svg>
+                            <span>Elevated</span>
+                        </div>
+                        <div class="legend-item">
+                            <svg width="30" height="2" style="margin-right: 5px;">
+                                <line x1="0" y1="1" x2="30" y2="1" stroke="#888" stroke-width="2"></line>
+                            </svg>
+                            <span>Intense</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="visualization">
+                <svg id="visualization-svg" width="100%" height="100%"></svg>
+                
+                <div class="details-panel" id="details-panel">
+                    <h3 class="details-header">Thought Details</h3>
+                    <div class="details-content" id="details-content">
+                        <!-- Details will be populated here -->
+                    </div>
+                    <button id="close-details">Close</button>
+                </div>
+                
+                <div class="loader" id="loader">
+                    <svg width="38" height="38" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg" stroke="#3498db">
+                        <g fill="none" fill-rule="evenodd">
+                            <g transform="translate(1 1)" stroke-width="2">
+                                <circle stroke-opacity=".5" cx="18" cy="18" r="18"/>
+                                <path d="M36 18c0-9.94-8.06-18-18-18">
+                                    <animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="1s" repeatCount="indefinite"/>
+                                </path>
+                            </g>
+                        </g>
+                    </svg>
+                    <div class="loader-text">Loading thought process data...</div>
+                    <div class="progress-bar">
+                        <div class="progress-bar-fill" id="progress-bar-fill"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="timeline-container">
+            <div class="timeline" id="timeline">
+                <div class="timeline-axis"></div>
+                <!-- Timeline events will be populated here -->
+            </div>
+            <div class="progress-indicators">
+                <div class="progress-stats">
+                    <div class="progress-stat">
+                        <span class="stat-label">Complexity Growth:</span>
+                        <div class="stat-value" id="complexity-value">0%</div>
+                        <div class="stat-bar">
+                            <div class="stat-bar-fill" id="complexity-bar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    <div class="progress-stat">
+                        <span class="stat-label">Insight Density:</span>
+                        <div class="stat-value" id="insight-value">0%</div>
+                        <div class="stat-bar">
+                            <div class="stat-bar-fill" id="insight-bar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    <div class="progress-stat">
+                        <span class="stat-label">Convergence Rate:</span>
+                        <div class="stat-value" id="convergence-value">0%</div>
+                        <div class="stat-bar">
+                            <div class="stat-bar-fill" id="convergence-bar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="growth-chart" id="growth-chart"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get DOM elements
+            const svg = d3.select('#visualization-svg');
+            const detailsPanel = document.getElementById('details-panel');
+            const detailsContent = document.getElementById('details-content');
+            const closeDetailsBtn = document.getElementById('close-details');
+            const timeRange = document.getElementById('time-range');
+            const nodeLimit = document.getElementById('node-limit');
+            const thoughtType = document.getElementById('thought-type');
+            const layoutType = document.getElementById('layout-type');
+            const updateBtn = document.getElementById('update-btn');
+            const loader = document.getElementById('loader');
+            const progressBar = document.getElementById('progress-bar-fill');
+            const timeline = document.getElementById('timeline');
+            
+            // Set up visualization dimensions
+            let width = svg.node().clientWidth;
+            let height = svg.node().clientHeight;
+            
+            // Initialize visualization
+            let simulation;
+            let nodes = [];
+            let links = [];
+            let currentLayout = 'force';
+            
+            // Set up initial D3 visualization
+            const g = svg.append('g');
+            
+            // Zoom behavior
+            const zoom = d3.zoom()
+                .scaleExtent([0.1, 10])
+                .on('zoom', function(event) {
+                    g.attr('transform', event.transform);
+                });
+            
+            svg.call(zoom);
+            
+            // Load data and create visualization
+            function loadData() {
+                // Show loader
+                loader.style.display = 'block';
+                progressBar.style.width = '10%';
+                
+                // Get filter values
+                const hours = timeRange.value;
+                const limit = nodeLimit.value;
+                const type = thoughtType.value;
+                currentLayout = layoutType.value;
+                
+                // Fetch data from API
+                fetch(`/api/thought-process?hours=${hours}&limit=${limit}${type ? '&type=' + type : ''}`)
+                    .then(response => {
+                        progressBar.style.width = '40%';
+                        return response.json();
+                    })
+                    .then(data => {
+                        progressBar.style.width = '70%';
+                        // Process and visualize data
+                        visualizeData(data);
+                        updateTimeline(data);
+                        progressBar.style.width = '100%';
+                        setTimeout(() => {
+                            loader.style.display = 'none';
+                        }, 300);
+                    })
+                    .catch(error => {
+                        console.error('Error loading thought process data:', error);
+                        loader.style.display = 'none';
+                        alert('Error loading thought process data. Please try again.');
+                    });
+            }
+            
+            function visualizeData(data) {
+                // Clear previous visualization
+                g.selectAll('*').remove();
+                
+                // Extract nodes and links from data
+                nodes = data.nodes;
+                
+                // Process links to ensure source and target are objects, not indices
+                links = data.links.map(link => {
+                    const processedLink = {...link};
+                    
+                    // Convert source index to object reference if needed
+                    if (typeof link.source === 'number') {
+                        processedLink.source = nodes[link.source];
+                    }
+                    
+                    // Convert target index to object reference if needed
+                    if (typeof link.target === 'number') {
+                        processedLink.target = nodes[link.target];
+                    }
+                    
+                    return processedLink;
+                });
+                
+                // Create node groups first (so they appear on top of links)
+                const node = g.append('g')
+                    .attr('class', 'nodes')
+                    .selectAll('g')
+                    .data(nodes)
+                    .enter().append('g')
+                    .attr('class', 'node')
+                    .on('click', showDetails)
+                    .call(d3.drag()
+                        .on('start', dragStarted)
+                        .on('drag', dragged)
+                        .on('end', dragEnded));
+                
+                // Add circles to nodes
+                node.append('circle')
+                    .attr('r', d => 5 + (d.recursive_depth || 0))
+                    .attr('class', d => {
+                        // Ensure type is a valid value for class assignment
+                        const validType = ['thought', 'insight', 'system', 'dream'].includes(d.type) ? 
+                            d.type : 'thought';
+                        return `${validType}-node`;
+                    });
+                
+                // Add labels to nodes
+                node.append('text')
+                    .attr('dx', 8)
+                    .attr('dy', '.35em')
+                    .attr('class', 'node-label')
+                    .text(d => d.label);
+                
+                // Create links with emotional tone visualization
+                const link = g.append('g')
+                    .attr('class', 'links')
+                    .selectAll('line')
+                    .data(links)
+                    .enter().append('line')
+                    .attr('class', d => `link ${d.type}-link`)
+                    .attr('stroke-width', d => d.value || 1)
+                    .style('stroke', d => {
+                        // Color based on emotional valence (if available)
+                        if (d.emotional_valence !== undefined) {
+                            // Convert from -1..1 scale to 0..1 for color interpolation
+                            const normalizedValence = (d.emotional_valence + 1) / 2;
+                            
+                            // Color scale from red (negative) to blue (neutral) to green (positive)
+                            if (normalizedValence < 0.4) {
+                                // Red to orange for negative emotions
+                                return d3.interpolateRgb('#ff3333', '#ff9900')(normalizedValence * 2.5);
+                            } else if (normalizedValence < 0.6) {
+                                // Orange to yellow for neutral emotions
+                                return d3.interpolateRgb('#ff9900', '#ffcc00')((normalizedValence - 0.4) * 5);
+                            } else {
+                                // Yellow to green for positive emotions
+                                return d3.interpolateRgb('#ffcc00', '#33cc33')((normalizedValence - 0.6) * 2.5);
+                            }
+                        }
+                        // Default color based on link type
+                        return null; 
+                    })
+                    .style('stroke-dasharray', d => {
+                        // Adjust line style based on emotional arousal/intensity
+                        if (d.emotional_arousal !== undefined) {
+                            // High arousal = solid line, low arousal = dashed line
+                            if (d.emotional_arousal < 0.3) return '2,6'; // Very dashed (calm)
+                            else if (d.emotional_arousal < 0.5) return '4,4'; // Medium dashed
+                            else if (d.emotional_arousal < 0.7) return '6,2'; // Lightly dashed
+                            else return 'none'; // Solid line (high intensity)
+                        }
+                        return null;
+                    });
+                
+                // Choose layout based on user selection
+                switch(currentLayout) {
+                    case 'tree':
+                        createTreeLayout(nodes, links);
+                        break;
+                    case 'radial':
+                        createRadialLayout(nodes, links);
+                        break;
+                    case 'temporal':
+                        createTemporalLayout(nodes, links);
+                        break;
+                    case 'force':
+                    default:
+                        createForceLayout(nodes, links);
+                        break;
+                }
+            }
+            
+            function createForceLayout(nodes, links) {
+                // Set up force simulation
+                simulation = d3.forceSimulation(nodes)
+                    .force('link', d3.forceLink(links).id(d => d.id).distance(100))
+                    .force('charge', d3.forceManyBody().strength(-100))
+                    .force('center', d3.forceCenter(width / 2, height / 2))
+                    .on('tick', ticked);
+                
+                function ticked() {
+                    g.selectAll('.link')
+                        .attr('x1', d => d.source.x)
+                        .attr('y1', d => d.source.y)
+                        .attr('x2', d => d.target.x)
+                        .attr('y2', d => d.target.y);
+                    
+                    g.selectAll('.node')
+                        .attr('transform', d => `translate(${d.x}, ${d.y})`);
+                }
+            }
+            
+            function createTreeLayout(nodes, links) {
+                // Stop any existing simulation
+                if (simulation) simulation.stop();
+                
+                // Create hierarchy
+                const stratify = d3.stratify()
+                    .id(d => d.id)
+                    .parentId(d => {
+                        // Find parent based on links
+                        const parentLink = links.find(link => {
+                            // Handle both object and direct ID reference
+                            const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+                            return targetId === d.id && link.type === 'sequence';
+                        });
+                        
+                        // Get source ID from the link
+                        if (!parentLink) return null;
+                        return typeof parentLink.source === 'object' ? parentLink.source.id : parentLink.source;
+                    });
+                
+                // Try to create hierarchy, fallback to force layout if it fails
+                try {
+                    const root = stratify(nodes);
+                    
+                    // Create tree layout
+                    const treeLayout = d3.tree()
+                        .size([width - 100, height - 100]);
+                    
+                    treeLayout(root);
+                    
+                    // Update node positions
+                    root.each(d => {
+                        const node = nodes.find(n => n.id === d.id);
+                        if (node) {
+                            node.x = d.x + 50;
+                            node.y = d.y + 50;
+                        }
+                    });
+                    
+                    // Update visualization with new positions
+                    g.selectAll('.link')
+                        .attr('x1', d => {
+                            const source = nodes.find(n => n.id === d.source.id || n.id === d.source);
+                            return source ? source.x : 0;
+                        })
+                        .attr('y1', d => {
+                            const source = nodes.find(n => n.id === d.source.id || n.id === d.source);
+                            return source ? source.y : 0;
+                        })
+                        .attr('x2', d => {
+                            const target = nodes.find(n => n.id === d.target.id || n.id === d.target);
+                            return target ? target.x : 0;
+                        })
+                        .attr('y2', d => {
+                            const target = nodes.find(n => n.id === d.target.id || n.id === d.target);
+                            return target ? target.y : 0;
+                        });
+                    
+                    g.selectAll('.node')
+                        .attr('transform', d => `translate(${d.x}, ${d.y})`);
+                } catch (e) {
+                    console.error('Tree layout failed, using force layout instead:', e);
+                    createForceLayout(nodes, links);
+                }
+            }
+            
+            function createRadialLayout(nodes, links) {
+                // Stop any existing simulation
+                if (simulation) simulation.stop();
+                
+                // Create hierarchy
+                const stratify = d3.stratify()
+                    .id(d => d.id)
+                    .parentId(d => {
+                        // Find parent based on links
+                        const parentLink = links.find(link => {
+                            // Handle both object and direct ID reference
+                            const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+                            return targetId === d.id && link.type === 'sequence';
+                        });
+                        
+                        // Get source ID from the link
+                        if (!parentLink) return null;
+                        return typeof parentLink.source === 'object' ? parentLink.source.id : parentLink.source;
+                    });
+                
+                // Try to create hierarchy, fallback to force layout if it fails
+                try {
+                    const root = stratify(nodes);
+                    
+                    // Create radial layout
+                    const radialLayout = d3.tree()
+                        .size([2 * Math.PI, Math.min(width, height) / 2 - 100])
+                        .separation((a, b) => (a.parent === b.parent ? 1 : 2) / a.depth);
+                    
+                    radialLayout(root);
+                    
+                    // Update node positions
+                    root.each(d => {
+                        const node = nodes.find(n => n.id === d.id);
+                        if (node) {
+                            // Convert polar to cartesian coordinates
+                            node.x = d.x ? width/2 + d.y * Math.cos(d.x - Math.PI/2) : width/2;
+                            node.y = d.x ? height/2 + d.y * Math.sin(d.x - Math.PI/2) : height/2;
+                        }
+                    });
+                    
+                    // Update visualization with new positions
+                    g.selectAll('.link')
+                        .attr('x1', d => {
+                            const source = nodes.find(n => n.id === d.source.id || n.id === d.source);
+                            return source ? source.x : 0;
+                        })
+                        .attr('y1', d => {
+                            const source = nodes.find(n => n.id === d.source.id || n.id === d.source);
+                            return source ? source.y : 0;
+                        })
+                        .attr('x2', d => {
+                            const target = nodes.find(n => n.id === d.target.id || n.id === d.target);
+                            return target ? target.x : 0;
+                        })
+                        .attr('y2', d => {
+                            const target = nodes.find(n => n.id === d.target.id || n.id === d.target);
+                            return target ? target.y : 0;
+                        });
+                    
+                    g.selectAll('.node')
+                        .attr('transform', d => `translate(${d.x}, ${d.y})`);
+                } catch (e) {
+                    console.error('Radial layout failed, using force layout instead:', e);
+                    createForceLayout(nodes, links);
+                }
+            }
+            
+            function createTemporalLayout(nodes, links) {
+                // Stop any existing simulation
+                if (simulation) simulation.stop();
+                
+                // Sort nodes by timestamp
+                nodes.sort((a, b) => {
+                    const timeA = a.timestamp ? new Date(a.timestamp) : 0;
+                    const timeB = b.timestamp ? new Date(b.timestamp) : 0;
+                    return timeA - timeB;
+                });
+                
+                // Calculate position based on time
+                const timeExtent = d3.extent(nodes, d => d.timestamp ? new Date(d.timestamp) : new Date());
+                const timeScale = d3.scaleTime()
+                    .domain(timeExtent)
+                    .range([100, width - 100]);
+                
+                // Distribute nodes vertically within time segments
+                const nodesByTime = {};
+                nodes.forEach(node => {
+                    const time = node.timestamp ? new Date(node.timestamp).getTime() : new Date().getTime();
+                    if (!nodesByTime[time]) {
+                        nodesByTime[time] = [];
+                    }
+                    nodesByTime[time].push(node);
+                });
+                
+                Object.values(nodesByTime).forEach(timeNodes => {
+                    const count = timeNodes.length;
+                    timeNodes.forEach((node, i) => {
+                        node.y = (height / (count + 1)) * (i + 1);
+                    });
+                });
+                
+                // Position nodes
+                nodes.forEach(node => {
+                    node.x = timeScale(node.timestamp ? new Date(node.timestamp) : new Date());
+                });
+                
+                // Update visualization with new positions
+                g.selectAll('.link')
+                    .attr('x1', d => {
+                        const source = nodes.find(n => n.id === d.source.id || n.id === d.source);
+                        return source ? source.x : 0;
+                    })
+                    .attr('y1', d => {
+                        const source = nodes.find(n => n.id === d.source.id || n.id === d.source);
+                        return source ? source.y : 0;
+                    })
+                    .attr('x2', d => {
+                        const target = nodes.find(n => n.id === d.target.id || n.id === d.target);
+                        return target ? target.x : 0;
+                    })
+                    .attr('y2', d => {
+                        const target = nodes.find(n => n.id === d.target.id || n.id === d.target);
+                        return target ? target.y : 0;
+                    });
+                
+                g.selectAll('.node')
+                    .attr('transform', d => `translate(${d.x}, ${d.y})`);
+            }
+            
+            function updateProgressVisualization(data) {
+                const totalNodes = data.nodes.length;
+                if (totalNodes === 0) return; // No data to visualize
+                
+                // Use server-provided metrics if available, otherwise calculate locally
+                let complexityScore, insightDensity, convergenceRate, maxRecursiveDepth;
+                
+                if (data.metrics) {
+                    // Server provided metrics - use these preferentially
+                    const metrics = data.metrics;
+                    
+                    // Calculate complexity score from metrics (0-100 scale)
+                    const avgDepth = metrics.avg_recursive_depth || 0;
+                    const growthRate = metrics.complexity_growth_rate || 0;
+                    complexityScore = Math.min(100, Math.round((avgDepth * 5 + growthRate * 50) * 100) / 100);
+                    
+                    // Calculate insight density
+                    const insightCount = metrics.thought_counts?.insight || 0;
+                    const totalCount = Object.values(metrics.thought_counts || {}).reduce((sum, count) => sum + count, 0) || totalNodes;
+                    insightDensity = Math.min(100, Math.round((insightCount / totalCount) * 100));
+                    
+                    // Calculate convergence rate
+                    const associationLinks = metrics.link_counts?.association || 0;
+                    const sequenceLinks = metrics.link_counts?.sequence || 0;
+                    convergenceRate = sequenceLinks > 0 
+                        ? Math.min(100, Math.round((associationLinks / sequenceLinks) * 50))
+                        : 0;
+                    
+                    // Get max recursive depth for chart scaling
+                    maxRecursiveDepth = metrics.max_recursive_depth || 0;
+                    
+                } else {
+                    // Fall back to local calculations if server metrics aren't available
+                    
+                    // 1. Complexity Growth: Based on recursive depth and connections density
+                    let totalRecursiveDepth = 0;
+                    maxRecursiveDepth = 0;
+                    let totalConnections = data.links.length;
+                    
+                    data.nodes.forEach(node => {
+                        const depth = node.recursive_depth || 0;
+                        maxRecursiveDepth = Math.max(maxRecursiveDepth, depth);
+                        totalRecursiveDepth += depth;
+                    });
+                    
+                    const avgRecursiveDepth = totalRecursiveDepth / totalNodes;
+                    const connectionDensity = totalConnections / (totalNodes * (totalNodes - 1) / 2); // Normalized by max possible connections
+                    
+                    // Complexity is a combination of depth and connection density
+                    complexityScore = Math.min(100, Math.round((avgRecursiveDepth * 10 + connectionDensity * 50) * 100) / 100);
+                    
+                    // 2. Insight Density: Percentage of insights among all thoughts
+                    const insightNodes = data.nodes.filter(node => node.type === 'insight').length;
+                    insightDensity = Math.min(100, Math.round((insightNodes / totalNodes) * 100));
+                    
+                    // 3. Convergence Rate: Measures how thoughts converge on similar concepts over time
+                    // We'll use the ratio of association links to sequence links as a proxy
+                    const associationLinks = data.links.filter(link => link.type === 'association').length;
+                    const sequenceLinks = data.links.filter(link => link.type === 'sequence').length;
+                    
+                    convergenceRate = sequenceLinks > 0 
+                        ? Math.min(100, Math.round((associationLinks / sequenceLinks) * 50))
+                        : 0;
+                }
+                
+                // Update the UI with these metrics
+                document.getElementById('complexity-value').textContent = `${complexityScore}%`;
+                document.getElementById('complexity-bar').style.width = `${complexityScore}%`;
+                
+                document.getElementById('insight-value').textContent = `${insightDensity}%`;
+                document.getElementById('insight-bar').style.width = `${insightDensity}%`;
+                
+                document.getElementById('convergence-value').textContent = `${convergenceRate}%`;
+                document.getElementById('convergence-bar').style.width = `${convergenceRate}%`;
+                
+                // Add a tooltip with more detailed metrics data when hovering over progress bars
+                if (data.metrics) {
+                    const avgDepth = data.metrics.avg_recursive_depth?.toFixed(2) || '0';
+                    const maxDepth = data.metrics.max_recursive_depth || '0';
+                    const growthRate = (data.metrics.complexity_growth_rate * 100)?.toFixed(2) || '0';
+                    const diversity = (data.metrics.thought_diversity * 100)?.toFixed(2) || '0';
+                    
+                    document.getElementById('complexity-bar').title = 
+                        `Avg. Recursive Depth: ${avgDepth}\nMax Depth: ${maxDepth}\nGrowth Rate: ${growthRate}%`;
+                    
+                    document.getElementById('insight-bar').title = 
+                        `Insights: ${data.metrics.thought_counts?.insight || 0}\nThought Diversity: ${diversity}%`;
+                    
+                    document.getElementById('convergence-bar').title = 
+                        `Association Links: ${data.metrics.link_counts?.association || 0}\nSequence Links: ${data.metrics.link_counts?.sequence || 0}`;
+                }
+                
+                // Create growth chart visualization using D3
+                const growthChart = d3.select('#growth-chart');
+                growthChart.selectAll('*').remove(); // Clear previous chart
+                
+                // Create SVG for the chart
+                const chartSvg = growthChart.append('svg')
+                    .attr('width', '100%')
+                    .attr('height', '100%')
+                    .attr('viewBox', '0 0 400 50')
+                    .attr('preserveAspectRatio', 'none');
+                
+                // Sort nodes by timestamp
+                const sortedNodes = [...data.nodes].sort((a, b) => 
+                    new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+                );
+                
+                // Create scales for X and Y axes
+                const timeStart = new Date(data.timeRange.start);
+                const timeEnd = new Date(data.timeRange.end);
+                
+                const xScale = d3.scaleTime()
+                    .domain([timeStart, timeEnd])
+                    .range([0, 400]);
+                
+                const yScale = d3.scaleLinear()
+                    .domain([0, maxRecursiveDepth + 2]) // Add some padding
+                    .range([50, 0]);
+                
+                // Create the line generator for recursive depth progression
+                const line = d3.line()
+                    .x(d => xScale(new Date(d.timestamp)))
+                    .y(d => yScale(d.recursive_depth || 0))
+                    .curve(d3.curveMonotoneX);
+                
+                // Add a subtle grid for the chart
+                chartSvg.append('g')
+                    .attr('class', 'grid')
+                    .selectAll('line')
+                    .data(d3.range(0, maxRecursiveDepth + 1, Math.max(1, Math.ceil(maxRecursiveDepth / 5))))
+                    .enter()
+                    .append('line')
+                    .attr('x1', 0)
+                    .attr('x2', 400)
+                    .attr('y1', d => yScale(d))
+                    .attr('y2', d => yScale(d))
+                    .attr('stroke', '#333')
+                    .attr('stroke-width', 0.5)
+                    .attr('stroke-dasharray', '2,2');
+                
+                // Add the line path for recursive depth
+                chartSvg.append('path')
+                    .datum(sortedNodes)
+                    .attr('fill', 'none')
+                    .attr('stroke', '#9b59b6')
+                    .attr('stroke-width', 2)
+                    .attr('d', line);
+                
+                // Add dots for insights
+                const insights = sortedNodes.filter(node => node.type === 'insight');
+                
+                chartSvg.selectAll('.insight-dot')
+                    .data(insights)
+                    .enter()
+                    .append('circle')
+                    .attr('class', 'insight-dot')
+                    .attr('cx', d => xScale(new Date(d.timestamp)))
+                    .attr('cy', d => yScale(d.recursive_depth || 0))
+                    .attr('r', 3)
+                    .attr('fill', '#2ecc71')
+                    .append('title')
+                    .text(d => `Insight: ${d.label}\nDepth: ${d.recursive_depth || 0}`);
+            }
+            
+            function updateTimeline(data) {
+                // Clear previous timeline
+                d3.select('#timeline').selectAll('.timeline-event').remove();
+                
+                // Create time scale
+                const timeRange = [new Date(data.timeRange.start), new Date(data.timeRange.end)];
+                const timeScale = d3.scaleTime()
+                    .domain(timeRange)
+                    .range([50, timeline.clientWidth - 50]);
+                
+                // Create timeline events
+                d3.select('#timeline')
+                    .selectAll('.timeline-event')
+                    .data(data.nodes)
+                    .enter()
+                    .append('div')
+                    .attr('class', 'timeline-event')
+                    .style('left', d => `${timeScale(new Date(d.timestamp))}px`)
+                    .style('background-color', d => {
+                        switch(d.type) {
+                            case 'insight': return '#2ecc71';
+                            case 'system': return '#e67e22';
+                            case 'dream': return '#9b59b6';
+                            case 'thought':
+                            default: return '#3498db';
+                        }
+                    })
+                    .attr('title', d => `${d.label} (${new Date(d.timestamp).toLocaleTimeString()})`)
+                    .on('click', (event, d) => {
+                        // Find the node in the visualization and show details
+                        const nodeIndex = nodes.findIndex(n => n.id === d.id);
+                        if (nodeIndex >= 0) {
+                            showDetails(event, nodes[nodeIndex]);
+                            
+                            // Center the visualization on this node
+                            const transform = d3.zoomIdentity
+                                .translate(width/2 - nodes[nodeIndex].x, height/2 - nodes[nodeIndex].y)
+                                .scale(1);
+                            
+                            svg.transition()
+                                .duration(750)
+                                .call(zoom.transform, transform);
+                        }
+                    });
+                
+                // Update progress visualization with the same data
+                updateProgressVisualization(data);
+            }
+            
+            function showDetails(event, d) {
+                // Format emotional valence description
+                let emotionalValenceDesc = 'N/A';
+                if (d.emotional_valence !== undefined) {
+                    const valence = d.emotional_valence;
+                    if (valence < -0.7) emotionalValenceDesc = 'Very Negative';
+                    else if (valence < -0.3) emotionalValenceDesc = 'Negative';
+                    else if (valence < 0.3) emotionalValenceDesc = 'Neutral';
+                    else if (valence < 0.7) emotionalValenceDesc = 'Positive';
+                    else emotionalValenceDesc = 'Very Positive';
+                    emotionalValenceDesc += ` (${valence.toFixed(2)})`;
+                }
+                
+                // Format emotional arousal description
+                let emotionalArousalDesc = 'N/A';
+                if (d.emotional_arousal !== undefined) {
+                    const arousal = d.emotional_arousal;
+                    if (arousal < 0.3) emotionalArousalDesc = 'Calm';
+                    else if (arousal < 0.5) emotionalArousalDesc = 'Moderate';
+                    else if (arousal < 0.7) emotionalArousalDesc = 'Elevated';
+                    else emotionalArousalDesc = 'Intense';
+                    emotionalArousalDesc += ` (${arousal.toFixed(2)})`;
+                }
+                
+                // Populate details panel
+                detailsContent.innerHTML = `
+                    <div class="detail-item">
+                        <div class="detail-label">Type:</div>
+                        <div>${d.type}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Timestamp:</div>
+                        <div>${new Date(d.timestamp).toLocaleString()}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Recursive Depth:</div>
+                        <div>${d.recursive_depth || 0}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Source:</div>
+                        <div>${d.source || 'N/A'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Generation Time:</div>
+                        <div>${d.generation_time ? d.generation_time + 'ms' : 'N/A'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Emotional Valence:</div>
+                        <div>${emotionalValenceDesc}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Emotional Arousal:</div>
+                        <div>${emotionalArousalDesc}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Content:</div>
+                        <div style="white-space: pre-wrap;">${d.full_content}</div>
+                    </div>
+                `;
+                
+                // Show details panel
+                detailsPanel.style.display = 'block';
+                
+                // Stop event propagation
+                event.stopPropagation();
+            }
+            
+            // Close details panel
+            closeDetailsBtn.addEventListener('click', function() {
+                detailsPanel.style.display = 'none';
+            });
+            
+            // Click away from details panel to close it
+            svg.on('click', function() {
+                detailsPanel.style.display = 'none';
+            });
+            
+            // Update button click handler
+            updateBtn.addEventListener('click', loadData);
+            
+            // Drag event handlers for force layout
+            function dragStarted(event, d) {
+                if (!event.active && simulation) simulation.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+            }
+            
+            function dragged(event, d) {
+                d.fx = event.x;
+                d.fy = event.y;
+            }
+            
+            function dragEnded(event, d) {
+                if (!event.active && simulation) simulation.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+            }
+            
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                width = svg.node().clientWidth;
+                height = svg.node().clientHeight;
+                
+                if (simulation) {
+                    simulation.force('center', d3.forceCenter(width / 2, height / 2));
+                    simulation.alpha(0.3).restart();
+                }
+            });
+            
+            // Initial data load
+            loadData();
+        });
+    </script>
+    
+    <!-- Bootstrap JS for dropdown menu and other interactive elements -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

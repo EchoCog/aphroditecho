@@ -1,0 +1,235 @@
+{% extends 'base.html' %}
+
+{% block title %}Workspace Memory - Deep Tree Echo{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1><i class="bi bi-layers"></i> Workspace Memory</h1>
+            <p class="lead">Subconscious knowledge storage for creative cognitive processes</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Memory Structures</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="memory-structure mb-3">
+                                <h6><i class="bi bi-building"></i> Architectural Frameworks</h6>
+                                <p>Spatial organization patterns and structural templates</p>
+                                <div class="progress mb-2">
+                                    <div class="progress-bar bg-primary" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">75%</div>
+                                </div>
+                                <button class="btn btn-sm btn-outline-primary">Access</button>
+                            </div>
+                            <div class="memory-structure mb-3">
+                                <h6><i class="bi bi-clock-history"></i> Temporal Sequences</h6>
+                                <p>Time-based patterns and procedural knowledge</p>
+                                <div class="progress mb-2">
+                                    <div class="progress-bar bg-info" role="progressbar" style="width: 62%" aria-valuenow="62" aria-valuemin="0" aria-valuemax="100">62%</div>
+                                </div>
+                                <button class="btn btn-sm btn-outline-primary">Access</button>
+                            </div>
+                            <div class="memory-structure mb-3">
+                                <h6><i class="bi bi-diagram-2"></i> Process Frameworks</h6>
+                                <p>Workflow templates and execution patterns</p>
+                                <div class="progress mb-2">
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: 83%" aria-valuenow="83" aria-valuemin="0" aria-valuemax="100">83%</div>
+                                </div>
+                                <button class="btn btn-sm btn-outline-primary">Access</button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="memory-structure mb-3">
+                                <h6><i class="bi bi-bezier2"></i> Conceptual Networks</h6>
+                                <p>Knowledge graphs and semantic relationships</p>
+                                <div class="progress mb-2">
+                                    <div class="progress-bar bg-warning" role="progressbar" style="width: 45%" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100">45%</div>
+                                </div>
+                                <button class="btn btn-sm btn-outline-primary">Access</button>
+                            </div>
+                            <div class="memory-structure mb-3">
+                                <h6><i class="bi bi-symmetry-vertical"></i> Pattern Templates</h6>
+                                <p>Reusable recursive and fractal structures</p>
+                                <div class="progress mb-2">
+                                    <div class="progress-bar bg-danger" role="progressbar" style="width: 90%" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100">90%</div>
+                                </div>
+                                <button class="btn btn-sm btn-outline-primary">Access</button>
+                            </div>
+                            <div class="memory-structure mb-3">
+                                <h6><i class="bi bi-journal-code"></i> Procedural Archives</h6>
+                                <p>Method implementations and algorithmic solutions</p>
+                                <div class="progress mb-2">
+                                    <div class="progress-bar bg-secondary" role="progressbar" style="width: 68%" aria-valuenow="68" aria-valuemin="0" aria-valuemax="100">68%</div>
+                                </div>
+                                <button class="btn btn-sm btn-outline-primary">Access</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Memory Workspace</h5>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-outline-primary active">Visual</button>
+                        <button class="btn btn-sm btn-outline-primary">Hierarchical</button>
+                        <button class="btn btn-sm btn-outline-primary">Network</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="workspace-memory-visualization">
+                        <div id="memory-vis-container" class="bg-light rounded p-2" style="height: 400px;">
+                            <!-- D3.js visualization will be rendered here -->
+                            <div class="text-center h-100 d-flex align-items-center justify-content-center">
+                                <div>
+                                    <i class="bi bi-diagram-3 display-4 text-muted"></i>
+                                    <p class="text-muted">Memory visualization will appear here</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Memory Metrics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="memory-metrics">
+                        <div class="metric-card mb-3 p-3 border rounded">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="mb-0">Memory Density</h6>
+                                    <small class="text-muted">Information per unit</small>
+                                </div>
+                                <div class="h4 mb-0">76%</div>
+                            </div>
+                        </div>
+                        
+                        <div class="metric-card mb-3 p-3 border rounded">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="mb-0">Connection Ratio</h6>
+                                    <small class="text-muted">Nodes to edges</small>
+                                </div>
+                                <div class="h4 mb-0">1:3.4</div>
+                            </div>
+                        </div>
+                        
+                        <div class="metric-card mb-3 p-3 border rounded">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="mb-0">Recall Latency</h6>
+                                    <small class="text-muted">Access time</small>
+                                </div>
+                                <div class="h4 mb-0">23ms</div>
+                            </div>
+                        </div>
+                        
+                        <div class="metric-card mb-3 p-3 border rounded">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="mb-0">Recursion Depth</h6>
+                                    <small class="text-muted">Self-referential levels</small>
+                                </div>
+                                <div class="h4 mb-0">4</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="memory-utilization mt-4">
+                        <h6>Memory Utilization</h6>
+                        <canvas id="utilization-chart" height="180"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Memory Operations</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary">
+                            <i class="bi bi-card-list"></i> Browse Memory Structure
+                        </button>
+                        <button class="btn btn-outline-primary">
+                            <i class="bi bi-search"></i> Query Memory
+                        </button>
+                        <button class="btn btn-outline-primary">
+                            <i class="bi bi-arrow-clockwise"></i> Reorganize Memory
+                        </button>
+                        <button class="btn btn-outline-primary">
+                            <i class="bi bi-folder-plus"></i> Add New Structure
+                        </button>
+                        <button class="btn btn-outline-secondary">
+                            <i class="bi bi-braces-asterisk"></i> Optimize Pattern Storage
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Memory utilization chart
+        const ctx = document.getElementById('utilization-chart').getContext('2d');
+        const utilizationChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                datasets: [{
+                    label: 'Memory Usage',
+                    data: [65, 59, 80, 81, 56, 55, 72],
+                    fill: true,
+                    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                    borderColor: 'rgba(59, 130, 246, 1)',
+                    tension: 0.3
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        // Memory data loading would be implemented here
+        console.log("Workspace memory interface loaded");
+        
+        // Add API calls to fetch actual memory data
+        fetch('/api/memory/workspace')
+            .then(response => response.json())
+            .then(data => {
+                console.log("Workspace memory data loaded", data);
+                // Update the UI with the loaded data
+            })
+            .catch(error => {
+                console.error("Failed to fetch workspace memory data:", error);
+            });
+    });
+</script>
+{% endblock %}

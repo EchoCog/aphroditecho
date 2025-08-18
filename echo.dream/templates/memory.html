@@ -1,0 +1,2171 @@
+
+<!DOCTYPE html>
+<html data-bs-theme="dark">
+<head>
+    <title>Deep Tree Echo - Memory</title>
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://unpkg.com/force-graph"></script>
+    <style>
+        /* Navigation styles */
+        .dte-navbar {
+            background-color: #1a1a2e;
+            padding: 10px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+        }
+        
+        .dte-navbar .container-fluid {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .dte-navbar .navbar-brand {
+            color: #e74c3c;
+            font-weight: 700;
+            font-size: 1.5rem;
+            text-decoration: none;
+        }
+        
+        .dte-navbar .navbar-nav {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .dte-navbar .nav-item {
+            margin: 0 10px;
+        }
+        
+        .dte-navbar .nav-link {
+            color: #f8f9fa;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        .dte-navbar .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+        
+        .dte-navbar .nav-link.active {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        /* Dropdown menu */
+        .dte-navbar .dropdown {
+            position: relative;
+        }
+        
+        .dte-navbar .dropdown-menu {
+            display: none;
+            position: absolute;
+            background-color: #1a1a2e;
+            min-width: 180px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            z-index: 1000;
+            border-radius: 4px;
+            padding: 8px 0;
+            border: 1px solid #333;
+        }
+        
+        .dte-navbar .dropdown:hover .dropdown-menu {
+            display: block;
+        }
+        
+        .dte-navbar .dropdown-item {
+            color: #f8f9fa;
+            padding: 8px 16px;
+            text-decoration: none;
+            display: block;
+        }
+        
+        .dte-navbar .dropdown-item:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+        
+        /* Memory visualization styles */
+        .memory-visualization {
+            width: 100%;
+            height: 500px;
+            border: 1px solid #333;
+            border-radius: 8px;
+            background-color: #1a1a1a;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .memory-type-badge {
+            display: inline-block;
+            padding: 0.25em 0.6em;
+            font-size: 0.75em;
+            font-weight: 700;
+            line-height: 1;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: 0.25rem;
+            margin-right: 5px;
+        }
+        
+        .memory-type-semantic { background-color: #3498db; }
+        .memory-type-episodic { background-color: #2ecc71; }
+        .memory-type-procedural { background-color: #e67e22; }
+        .memory-type-working { background-color: #9b59b6; }
+        .memory-type-sensory { background-color: #e74c3c; }
+        .memory-type-simulation { background-color: #7f8c8d; }
+        
+        .memory-controls {
+            margin-bottom: 15px;
+        }
+        
+        .filter-options {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .memory-stats {
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+        
+        .memory-node-detail {
+            position: absolute;
+            padding: 10px;
+            background-color: rgba(30, 30, 30, 0.9);
+            border: 1px solid #555;
+            border-radius: 4px;
+            font-size: 0.8em;
+            display: none;
+            z-index: 1000;
+        }
+        
+        /* Constellation View Styles */
+        .constellation-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #05051a;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(10,10,35,1) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(10,10,40,1) 0%, transparent 40%);
+            display: none;
+            z-index: 1;
+        }
+        
+        .star {
+            position: absolute;
+            background-color: #fff;
+            border-radius: 50%;
+            filter: blur(0.5px);
+        }
+        
+        .constellation-node {
+            position: absolute;
+            border-radius: 50%;
+            cursor: pointer;
+            transform-origin: center;
+            box-shadow: 0 0 15px currentColor;
+            z-index: 2;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .constellation-link {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 1px;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .constellation-particle {
+            position: absolute;
+            background-color: #fff;
+            border-radius: 50%;
+            width: 2px;
+            height: 2px;
+            filter: blur(1px);
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .view-toggle-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(30, 30, 45, 0.7);
+            color: #fff;
+            border: 1px solid #444;
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-size: 0.8em;
+            cursor: pointer;
+            z-index: 10;
+            transition: background-color 0.2s;
+        }
+        
+        .view-toggle-btn:hover {
+            background-color: rgba(40, 40, 60, 0.8);
+        }
+        
+        .control-panel {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background-color: rgba(30, 30, 45, 0.7);
+            border: 1px solid #444;
+            border-radius: 4px;
+            padding: 8px;
+            z-index: 10;
+            display: none;
+        }
+        
+        .control-panel button {
+            background-color: rgba(50, 50, 70, 0.8);
+            color: #fff;
+            border: 1px solid #555;
+            border-radius: 3px;
+            padding: 3px 8px;
+            margin: 2px 0;
+            font-size: 0.8em;
+            cursor: pointer;
+            width: 100%;
+            display: block;
+        }
+        
+        .control-panel button:hover {
+            background-color: rgba(70, 70, 90, 0.9);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="dte-navbar">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-braces"></i> DTE
+            </a>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="/"><i class="bi bi-house"></i> Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/memory"><i class="bi bi-memory"></i> Memory</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/recursive_distinction"><i class="bi bi-diagram-3"></i> Recursive Distinction</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/console"><i class="bi bi-terminal"></i> Console</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/diagnostics"><i class="bi bi-activity"></i> Diagnostics</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link" href="#"><i class="bi bi-grid-3x3-gap"></i> Workspaces</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/architecture_workspace"><i class="bi bi-buildings"></i> Architecture</a></li>
+                        <li><a class="dropdown-item" href="/scheduling_workspace"><i class="bi bi-calendar-week"></i> Scheduling</a></li>
+                        <li><a class="dropdown-item" href="/diary_workspace"><i class="bi bi-journal-text"></i> Diary</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container-fluid py-4">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1><i class="bi bi-memory"></i> Memory System</h1>
+                <p class="lead">Memory management and storage for Deep Tree Echo</p>
+            </div>
+        </div>
+        
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Memory Graph Visualization</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="memory-controls">
+                            <div class="filter-options">
+                                <div class="form-group">
+                                    <label>Memory Type:</label>
+                                    <select id="memoryTypeFilter" class="form-select form-select-sm">
+                                        <option value="">All Types</option>
+                                        <option value="semantic">Semantic</option>
+                                        <option value="episodic">Episodic</option>
+                                        <option value="procedural">Procedural</option>
+                                        <option value="working">Working</option>
+                                        <option value="sensory">Sensory</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Min Activation:</label>
+                                    <input type="range" class="form-range" id="activationSlider" min="0" max="100" value="0">
+                                    <span id="activationValue">0%</span>
+                                </div>
+                                <div class="form-group">
+                                    <label>Max Nodes:</label>
+                                    <select id="nodeLimitSelect" class="form-select form-select-sm">
+                                        <option value="50">50</option>
+                                        <option value="100" selected>100</option>
+                                        <option value="200">200</option>
+                                        <option value="500">500</option>
+                                    </select>
+                                </div>
+                                <button id="refreshGraph" class="btn btn-primary btn-sm mt-4">
+                                    <i class="bi bi-arrow-clockwise"></i> Refresh
+                                </button>
+                                <div class="dropdown d-inline-block ms-2">
+                                    <button class="btn btn-success btn-sm mt-4 dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-download"></i> Export
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                                        <li><a class="dropdown-item" href="#" id="exportJSON">JSON Format</a></li>
+                                        <li><a class="dropdown-item" href="#" id="exportCSV">CSV Format</a></li>
+                                        <li><a class="dropdown-item" href="#" id="exportGraphML">GraphML Format</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" href="#" id="exportSVG">SVG Image</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="memory-visualization" id="memoryGraph">
+                            <!-- Constellation View Elements -->
+                            <div id="constellationContainer" class="constellation-container"></div>
+                            
+                            <!-- View Toggle Button -->
+                            <button id="viewToggleBtn" class="view-toggle-btn">
+                                <i class="bi bi-stars"></i> Switch to Constellation View
+                            </button>
+                            
+                            <!-- Constellation Controls -->
+                            <div id="constellationControls" class="control-panel">
+                                <button id="zoomInBtn"><i class="bi bi-zoom-in"></i> Zoom In</button>
+                                <button id="zoomOutBtn"><i class="bi bi-zoom-out"></i> Zoom Out</button>
+                                <button id="resetViewBtn"><i class="bi bi-arrow-counterclockwise"></i> Reset View</button>
+                                <button id="toggleStarsBtn"><i class="bi bi-star"></i> Toggle Stars</button>
+                                <button id="toggleLabelsBtn"><i class="bi bi-tag"></i> Toggle Labels</button>
+                            </div>
+                        </div>
+                        
+                        <div id="nodeDetailPanel" class="memory-node-detail">
+                            <h6 id="nodeDetailTitle">Node Details</h6>
+                            <div id="nodeDetailContent"></div>
+                        </div>
+                        
+                        <div class="memory-stats mt-3">
+                            <h6>Memory Statistics:</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Total Nodes:</strong> <span id="totalNodes">0</span></p>
+                                    <p><strong>Total Connections:</strong> <span id="totalConnections">0</span></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Memory Types Distribution:</strong></p>
+                                    <div id="memoryTypeStats"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Memory Cycles</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Cycle Type</th>
+                                        <th>Frequency</th>
+                                        <th>Status</th>
+                                        <th>Last Run</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="memoryCyclesTable">
+                                    <tr>
+                                        <td colspan="4">Loading memory cycles...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Recursive Distinctions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="recursiveDistinctionsGraph" class="memory-visualization"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Memory Visualization Script
+        // Constants for the constellation view
+        const NODE_TRANSITION_DURATION = 2000; // ms
+        const STAR_COUNT = 200;
+        const ANIMATION_SPEED = 0.5;
+        const TWINKLE_SPEED = 0.002;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize graphs
+            const memoryGraphElem = document.getElementById('memoryGraph');
+            const rdGraphElem = document.getElementById('recursiveDistinctionsGraph');
+            
+            // Initialize constellation view elements
+            const constellationContainer = document.getElementById('constellationContainer');
+            const viewToggleBtn = document.getElementById('viewToggleBtn');
+            const controlPanel = document.getElementById('constellationControls');
+            
+            // Constellation view state
+            let isConstellationView = false;
+            let currentGraphData = { nodes: [], links: [] };
+            let constellationNodes = [];
+            let constellationLinks = [];
+            let backgroundStars = [];
+            let zoomLevel = 1;
+            let panOffset = { x: 0, y: 0 };
+            let showLabels = true;
+            let showStars = true;
+            let isDragging = false;
+            let lastMousePos = { x: 0, y: 0 };
+            let animationFrameId = null;
+            
+            // Constellation View Functions
+            function initConstellationView() {
+                // Clear any existing content
+                constellationContainer.innerHTML = '';
+                
+                // Create background stars
+                createBackgroundStars();
+                
+                // Position nodes in a visually appealing constellation pattern
+                createConstellationFromData();
+                
+                // Start animation loop
+                startConstellationAnimation();
+                
+                // Register event listeners for interaction
+                setupConstellationInteractions();
+            }
+            
+            function createBackgroundStars() {
+                backgroundStars = [];
+                
+                // Create random stars in the background
+                for (let i = 0; i < STAR_COUNT; i++) {
+                    const star = document.createElement('div');
+                    star.className = 'star';
+                    
+                    // Random position
+                    const x = Math.random() * 100;
+                    const y = Math.random() * 100;
+                    
+                    // Random size (tiny)
+                    const size = 0.5 + Math.random() * 1.5;
+                    
+                    // Random brightness
+                    const opacity = 0.1 + Math.random() * 0.9;
+                    
+                    // Apply styles
+                    star.style.left = `${x}%`;
+                    star.style.top = `${y}%`;
+                    star.style.width = `${size}px`;
+                    star.style.height = `${size}px`;
+                    star.style.opacity = opacity;
+                    
+                    // Store star data for animation
+                    backgroundStars.push({
+                        element: star,
+                        x, y, size, opacity,
+                        twinkleSpeed: 0.0003 + Math.random() * 0.001,
+                        twinkleOffset: Math.random() * Math.PI * 2
+                    });
+                    
+                    constellationContainer.appendChild(star);
+                }
+            }
+            
+            function createConstellationFromData() {
+                // Clear existing nodes and links
+                constellationNodes = [];
+                constellationLinks = [];
+                
+                const containerRect = constellationContainer.getBoundingClientRect();
+                const centerX = containerRect.width / 2;
+                const centerY = containerRect.height / 2;
+                
+                // Process nodes to create memory node elements
+                currentGraphData.nodes.forEach(node => {
+                    // Create memory node element
+                    const nodeElem = document.createElement('div');
+                    nodeElem.className = 'constellation-node';
+                    nodeElem.dataset.id = node.id;
+                    nodeElem.title = node.label;
+                    
+                    // Create node label element
+                    const labelElem = document.createElement('div');
+                    labelElem.className = 'memory-node-label';
+                    labelElem.textContent = node.label;
+                    
+                    // Determine node color based on memory type
+                    const colors = [
+                        '#7f8c8d',  // default - gray
+                        '#3498db',  // semantic - blue
+                        '#2ecc71',  // episodic - green
+                        '#e67e22',  // procedural - orange
+                        '#9b59b6',  // working - purple
+                        '#e74c3c'   // sensory - red
+                    ];
+                    const color = colors[node.group] || colors[0];
+                    
+                    // Determine initial position (will be arranged in patterns)
+                    // Start with random position and let the arrangement algorithm position them
+                    const angle = Math.random() * Math.PI * 2;
+                    const distance = 50 + Math.random() * 150;
+                    const x = centerX + Math.cos(angle) * distance;
+                    const y = centerY + Math.sin(angle) * distance;
+                    
+                    // Size based on activation level and salience
+                    const size = 4 + (node.activation || 0.3) * 12 + (node.salience || 0) * 4;
+                    
+                    // Store node data for animation and interaction
+                    constellationNodes.push({
+                        element: nodeElem,
+                        labelElement: labelElem,
+                        nodeData: node,
+                        x, y, size, color,
+                        targetX: x, targetY: y, // For smooth transitions
+                        pulseRate: 0.2 + Math.random() * 0.3,
+                        pulseOffset: Math.random() * Math.PI * 2,
+                        highlighted: false
+                    });
+                    
+                    // Apply initial styles
+                    nodeElem.style.width = `${size}px`;
+                    nodeElem.style.height = `${size}px`;
+                    nodeElem.style.backgroundColor = color;
+                    nodeElem.style.boxShadow = `0 0 ${size * 0.8}px ${color}`;
+                    
+                    // Add to DOM
+                    constellationContainer.appendChild(nodeElem);
+                    constellationContainer.appendChild(labelElem);
+                });
+                
+                // Arrange nodes in constellation patterns
+                arrangeNodesInPatterns();
+                
+                // Process links to create constellation connections
+                currentGraphData.links.forEach(link => {
+                    // Find the source and target nodes
+                    const sourceNode = constellationNodes.find(n => n.nodeData.id === link.source);
+                    const targetNode = constellationNodes.find(n => n.nodeData.id === link.target);
+                    
+                    if (sourceNode && targetNode) {
+                        // Create link element
+                        const linkElem = document.createElement('div');
+                        linkElem.className = 'constellation-link';
+                        
+                        // Determine link color based on type
+                        const typeColorMap = {
+                            'semantic': '#3498db',
+                            'episodic': '#2ecc71',
+                            'procedural': '#e67e22',
+                            'working': '#9b59b6',
+                            'sensory': '#e74c3c',
+                            'temporal': '#f39c12',
+                            'causal': '#9b59b6',
+                            'hierarchical': '#16a085',
+                            'association': '#e74c3c'
+                        };
+                        const color = typeColorMap[link.type] || 'rgba(255, 255, 255, 0.3)';
+                        
+                        // Store link data for animation
+                        constellationLinks.push({
+                            element: linkElem,
+                            source: sourceNode,
+                            target: targetNode,
+                            linkData: link,
+                            color,
+                            strength: link.value || 1,
+                            particles: [],
+                            particleCount: Math.round((link.value || 1) * 2),
+                            highlighted: false
+                        });
+                        
+                        // Add to DOM
+                        constellationContainer.appendChild(linkElem);
+                        
+                        // Create animated particles on the link
+                        createLinkParticles(constellationLinks[constellationLinks.length - 1]);
+                    }
+                });
+                
+                // Initial positioning update
+                updateConstellationPositions();
+            }
+            
+            function arrangeNodesInPatterns() {
+                // Group nodes by memory type to create distinct constellations
+                const groupedNodes = {};
+                constellationNodes.forEach(node => {
+                    const type = node.nodeData.memory_type || 'unknown';
+                    if (!groupedNodes[type]) {
+                        groupedNodes[type] = [];
+                    }
+                    groupedNodes[type].push(node);
+                });
+                
+                const containerRect = constellationContainer.getBoundingClientRect();
+                const centerX = containerRect.width / 2;
+                const centerY = containerRect.height / 2;
+                
+                // Position each group in a distinct constellation pattern
+                Object.keys(groupedNodes).forEach((type, groupIndex) => {
+                    const nodes = groupedNodes[type];
+                    const nodeCount = nodes.length;
+                    
+                    if (nodeCount === 0) return;
+                    
+                    // Choose a pattern based on the memory type
+                    const patterns = [
+                        arrangeInCircle,      // Default circular pattern
+                        arrangeInSpiral,      // Spiral pattern
+                        arrangeInStarfield,   // Random star field
+                        arrangeInGrid,        // Grid pattern
+                        arrangeInClusters     // Clustered arrangement
+                    ];
+                    
+                    // Use modulo to cycle through patterns, but favor certain patterns for specific types
+                    let patternIndex = groupIndex % patterns.length;
+                    if (type === 'semantic') patternIndex = 1; // Spiral for semantic
+                    if (type === 'episodic') patternIndex = 0; // Circle for episodic
+                    if (type === 'procedural') patternIndex = 3; // Grid for procedural
+                    
+                    // Calculate the group's region in the overall view
+                    // Position each group in a different sector around the center
+                    const groupAngle = (Math.PI * 2 * groupIndex) / Object.keys(groupedNodes).length;
+                    const groupDistance = Math.min(containerRect.width, containerRect.height) * 0.3;
+                    const groupCenterX = centerX + Math.cos(groupAngle) * groupDistance;
+                    const groupCenterY = centerY + Math.sin(groupAngle) * groupDistance;
+                    
+                    // Apply the selected pattern to arrange the nodes
+                    patterns[patternIndex](nodes, groupCenterX, groupCenterY, type);
+                });
+            }
+            
+            function arrangeInCircle(nodes, centerX, centerY, type) {
+                const nodeCount = nodes.length;
+                const radius = 20 + nodeCount * 4; // Scale radius based on node count
+                
+                nodes.forEach((node, i) => {
+                    const angle = (Math.PI * 2 * i) / nodeCount;
+                    node.targetX = centerX + Math.cos(angle) * radius;
+                    node.targetY = centerY + Math.sin(angle) * radius;
+                });
+            }
+            
+            function arrangeInSpiral(nodes, centerX, centerY, type) {
+                const nodeCount = nodes.length;
+                const spiralFactor = 10;
+                const maxRadius = 80 + nodeCount * 2;
+                
+                nodes.forEach((node, i) => {
+                    const angle = (i / nodeCount) * Math.PI * 6; // More revolutions for more nodes
+                    const radius = spiralFactor + (i / nodeCount) * maxRadius;
+                    node.targetX = centerX + Math.cos(angle) * radius;
+                    node.targetY = centerY + Math.sin(angle) * radius;
+                });
+            }
+            
+            function arrangeInStarfield(nodes, centerX, centerY, type) {
+                const spread = 120;
+                
+                nodes.forEach(node => {
+                    // Random position within the group's region
+                    node.targetX = centerX + (Math.random() * 2 - 1) * spread;
+                    node.targetY = centerY + (Math.random() * 2 - 1) * spread;
+                });
+            }
+            
+            function arrangeInGrid(nodes, centerX, centerY, type) {
+                const nodeCount = nodes.length;
+                const gridSize = Math.ceil(Math.sqrt(nodeCount));
+                const cellSize = 30;
+                const totalWidth = gridSize * cellSize;
+                const startX = centerX - totalWidth / 2;
+                const startY = centerY - totalWidth / 2;
+                
+                nodes.forEach((node, i) => {
+                    const row = Math.floor(i / gridSize);
+                    const col = i % gridSize;
+                    node.targetX = startX + col * cellSize;
+                    node.targetY = startY + row * cellSize;
+                });
+            }
+            
+            function arrangeInClusters(nodes, centerX, centerY, type) {
+                const nodeCount = nodes.length;
+                const clusterCount = Math.min(5, Math.ceil(nodeCount / 5));
+                
+                // Create cluster centers
+                const clusters = [];
+                for (let i = 0; i < clusterCount; i++) {
+                    const angle = (Math.PI * 2 * i) / clusterCount;
+                    const distance = 50 + Math.random() * 30;
+                    clusters.push({
+                        x: centerX + Math.cos(angle) * distance,
+                        y: centerY + Math.sin(angle) * distance
+                    });
+                }
+                
+                // Assign nodes to clusters
+                nodes.forEach((node, i) => {
+                    const cluster = clusters[i % clusterCount];
+                    const offset = 30;
+                    node.targetX = cluster.x + (Math.random() * 2 - 1) * offset;
+                    node.targetY = cluster.y + (Math.random() * 2 - 1) * offset;
+                });
+            }
+            
+            function createLinkParticles(link) {
+                // Clear any existing particles
+                link.particles.forEach(p => {
+                    if (p.element && p.element.parentNode) {
+                        p.element.parentNode.removeChild(p.element);
+                    }
+                });
+                link.particles = [];
+                
+                // Create new particles
+                for (let i = 0; i < link.particleCount; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'constellation-particle';
+                    
+                    // Initial position (random along the link)
+                    const progress = Math.random();
+                    
+                    // Store particle data
+                    link.particles.push({
+                        element: particle,
+                        progress,
+                        speed: 0.002 + Math.random() * 0.003 * link.strength // Speed based on link strength
+                    });
+                    
+                    // Add to DOM
+                    constellationContainer.appendChild(particle);
+                }
+            }
+            
+            function updateConstellationPositions() {
+                // Update all node positions with transition effect
+                constellationNodes.forEach(node => {
+                    // Apply zoom and pan transformations
+                    const scaledX = (node.targetX + panOffset.x) * zoomLevel;
+                    const scaledY = (node.targetY + panOffset.y) * zoomLevel;
+                    
+                    // Smooth transition to target position (if not being dragged)
+                    if (!node.isDragging) {
+                        node.x = node.x * 0.9 + scaledX * 0.1;
+                        node.y = node.y * 0.9 + scaledY * 0.1;
+                    }
+                    
+                    // Position the node element
+                    node.element.style.left = `${node.x}px`;
+                    node.element.style.top = `${node.y}px`;
+                    
+                    // Position the label element
+                    if (showLabels) {
+                        node.labelElement.style.display = 'block';
+                        node.labelElement.style.left = `${node.x}px`;
+                        node.labelElement.style.top = `${node.y + node.size + 5}px`;
+                    } else {
+                        node.labelElement.style.display = 'none';
+                    }
+                });
+                
+                // Update all link positions
+                constellationLinks.forEach(link => {
+                    const sourceX = link.source.x;
+                    const sourceY = link.source.y;
+                    const targetX = link.target.x;
+                    const targetY = link.target.y;
+                    
+                    // Calculate the angle and length of the link
+                    const dx = targetX - sourceX;
+                    const dy = targetY - sourceY;
+                    const angle = Math.atan2(dy, dx);
+                    const length = Math.sqrt(dx * dx + dy * dy);
+                    
+                    // Position and rotate the link element
+                    link.element.style.left = `${sourceX}px`;
+                    link.element.style.top = `${sourceY}px`;
+                    link.element.style.width = `${length}px`;
+                    link.element.style.transform = `rotate(${angle}rad)`;
+                    
+                    // Adjust link color based on highlight state
+                    if (link.highlighted) {
+                        link.element.style.background = `linear-gradient(90deg, ${link.color}, ${link.color})`;
+                        link.element.style.opacity = "0.8";
+                        link.element.style.height = "2px";
+                    } else {
+                        link.element.style.background = `linear-gradient(90deg, transparent, ${link.color}, transparent)`;
+                        link.element.style.opacity = "0.4";
+                        link.element.style.height = "1px";
+                    }
+                    
+                    // Update particles on the link
+                    link.particles.forEach(particle => {
+                        // Move particle along the link
+                        particle.progress += particle.speed * ANIMATION_SPEED;
+                        if (particle.progress > 1) {
+                            particle.progress = 0;
+                        }
+                        
+                        // Position particle
+                        const particleX = sourceX + dx * particle.progress;
+                        const particleY = sourceY + dy * particle.progress;
+                        
+                        particle.element.style.left = `${particleX}px`;
+                        particle.element.style.top = `${particleY}px`;
+                        
+                        // Make particles more visible on highlighted links
+                        if (link.highlighted) {
+                            particle.element.style.width = "3px";
+                            particle.element.style.height = "3px";
+                            particle.element.style.opacity = "0.9";
+                        } else {
+                            particle.element.style.width = "2px";
+                            particle.element.style.height = "2px";
+                            particle.element.style.opacity = "0.6";
+                        }
+                    });
+                });
+            }
+            
+            function animateConstellationView() {
+                // Update twinkling stars
+                backgroundStars.forEach(star => {
+                    if (showStars) {
+                        star.element.style.display = 'block';
+                        const twinkle = 0.5 + 0.5 * Math.sin(Date.now() * star.twinkleSpeed + star.twinkleOffset);
+                        star.element.style.opacity = star.opacity * twinkle;
+                    } else {
+                        star.element.style.display = 'none';
+                    }
+                });
+                
+                // Update pulsing effect for nodes
+                constellationNodes.forEach(node => {
+                    // Calculate pulse based on activation level and time
+                    const pulseEffect = 1 + (node.highlighted ? 0.3 : 0.15) * 
+                        Math.sin(Date.now() * node.pulseRate * TWINKLE_SPEED + node.pulseOffset);
+                    
+                    // Apply pulse to node size and glow
+                    const size = node.size * pulseEffect;
+                    node.element.style.width = `${size}px`;
+                    node.element.style.height = `${size}px`;
+                    
+                    // Enhance glow for highlighted nodes
+                    if (node.highlighted) {
+                        // Brighter glow for highlighted nodes
+                        node.element.style.boxShadow = `0 0 ${size * 1.5}px ${node.color}`;
+                        node.element.style.zIndex = "10";
+                    } else {
+                        // Normal glow for regular nodes
+                        node.element.style.boxShadow = `0 0 ${size * 0.8}px ${node.color}`;
+                        node.element.style.zIndex = "2";
+                    }
+                });
+                
+                // Update node and link positions
+                updateConstellationPositions();
+                
+                // Continue animation loop
+                animationFrameId = requestAnimationFrame(animateConstellationView);
+            }
+            
+            function startConstellationAnimation() {
+                if (animationFrameId) {
+                    cancelAnimationFrame(animationFrameId);
+                }
+                animationFrameId = requestAnimationFrame(animateConstellationView);
+            }
+            
+            function stopConstellationAnimation() {
+                if (animationFrameId) {
+                    cancelAnimationFrame(animationFrameId);
+                    animationFrameId = null;
+                }
+            }
+            
+            function setupConstellationInteractions() {
+                // Toggle between views
+                viewToggleBtn.addEventListener('click', toggleView);
+                
+                // Zoom and pan controls
+                document.getElementById('zoomInBtn').addEventListener('click', () => {
+                    zoomLevel *= 1.2;
+                });
+                
+                document.getElementById('zoomOutBtn').addEventListener('click', () => {
+                    zoomLevel *= 0.8;
+                });
+                
+                document.getElementById('resetViewBtn').addEventListener('click', () => {
+                    zoomLevel = 1;
+                    panOffset = { x: 0, y: 0 };
+                });
+                
+                document.getElementById('toggleStarsBtn').addEventListener('click', () => {
+                    showStars = !showStars;
+                });
+                
+                document.getElementById('toggleLabelsBtn').addEventListener('click', () => {
+                    showLabels = !showLabels;
+                });
+                
+                // Mouse interactions for dragging the view
+                constellationContainer.addEventListener('mousedown', e => {
+                    // Check if we're clicking on a node
+                    const clickedNodeElem = e.target.closest('.constellation-node');
+                    if (clickedNodeElem) {
+                        // Find the node data for this element
+                        const nodeId = clickedNodeElem.dataset.id;
+                        const node = constellationNodes.find(n => n.nodeData.id === nodeId);
+                        
+                        if (node) {
+                            // Handle node click - show details and highlight connections
+                            highlightNodeConnections(node);
+                            
+                            // Show node details panel
+                            showConstellationNodeDetails(node, e);
+                            
+                            // Mark as dragging this specific node
+                            node.isDragging = true;
+                            lastMousePos = { x: e.clientX, y: e.clientY };
+                            
+                            // Add mousemove and mouseup handlers for node dragging
+                            const mouseMoveHandler = moveEvent => {
+                                const dx = moveEvent.clientX - lastMousePos.x;
+                                const dy = moveEvent.clientY - lastMousePos.y;
+                                
+                                // Update node position directly (not target position)
+                                node.x += dx;
+                                node.y += dy;
+                                lastMousePos = { x: moveEvent.clientX, y: moveEvent.clientY };
+                            };
+                            
+                            const mouseUpHandler = () => {
+                                // End node dragging
+                                node.isDragging = false;
+                                
+                                // Update target position to match current position
+                                node.targetX = (node.x / zoomLevel) - panOffset.x;
+                                node.targetY = (node.y / zoomLevel) - panOffset.y;
+                                
+                                // Remove event listeners
+                                document.removeEventListener('mousemove', mouseMoveHandler);
+                                document.removeEventListener('mouseup', mouseUpHandler);
+                            };
+                            
+                            document.addEventListener('mousemove', mouseMoveHandler);
+                            document.addEventListener('mouseup', mouseUpHandler);
+                            
+                            return; // Exit to prevent view dragging when clicking on nodes
+                        }
+                    }
+                    
+                    // If not clicking on a node, handle view dragging
+                    isDragging = true;
+                    lastMousePos = { x: e.clientX, y: e.clientY };
+                    
+                    const mouseMoveHandler = moveEvent => {
+                        if (!isDragging) return;
+                        
+                        const dx = moveEvent.clientX - lastMousePos.x;
+                        const dy = moveEvent.clientY - lastMousePos.y;
+                        
+                        // Update pan offset
+                        panOffset.x += dx / zoomLevel;
+                        panOffset.y += dy / zoomLevel;
+                        
+                        lastMousePos = { x: moveEvent.clientX, y: moveEvent.clientY };
+                    };
+                    
+                    const mouseUpHandler = () => {
+                        isDragging = false;
+                        document.removeEventListener('mousemove', mouseMoveHandler);
+                        document.removeEventListener('mouseup', mouseUpHandler);
+                    };
+                    
+                    document.addEventListener('mousemove', mouseMoveHandler);
+                    document.addEventListener('mouseup', mouseUpHandler);
+                });
+                
+                // Mouse wheel for zooming
+                constellationContainer.addEventListener('wheel', e => {
+                    e.preventDefault();
+                    
+                    // Determine zoom direction
+                    const delta = e.deltaY || e.detail || e.wheelDelta;
+                    
+                    // Zoom in or out
+                    if (delta > 0) {
+                        zoomLevel *= 0.9; // Zoom out
+                    } else {
+                        zoomLevel *= 1.1; // Zoom in
+                    }
+                    
+                    // Limit zoom levels
+                    zoomLevel = Math.max(0.1, Math.min(3, zoomLevel));
+                });
+            }
+            
+            function highlightNodeConnections(node) {
+                // Reset all highlights
+                constellationNodes.forEach(n => {
+                    n.highlighted = false;
+                });
+                
+                constellationLinks.forEach(link => {
+                    link.highlighted = false;
+                });
+                
+                // Highlight this node
+                node.highlighted = true;
+                
+                // Find and highlight connected nodes and links
+                constellationLinks.forEach(link => {
+                    if (link.source === node) {
+                        link.highlighted = true;
+                        link.target.highlighted = true;
+                    } else if (link.target === node) {
+                        link.highlighted = true;
+                        link.source.highlighted = true;
+                    }
+                });
+            }
+            
+            function showConstellationNodeDetails(node, event) {
+                const nodeDetailPanel = document.getElementById('nodeDetailPanel');
+                const nodeDetailTitle = document.getElementById('nodeDetailTitle');
+                const nodeDetailContent = document.getElementById('nodeDetailContent');
+                
+                // Set panel content
+                nodeDetailTitle.textContent = node.nodeData.label;
+                
+                // Format node details
+                const memoryTypeMap = {
+                    'semantic': 'Semantic',
+                    'episodic': 'Episodic',
+                    'procedural': 'Procedural',
+                    'working': 'Working',
+                    'sensory': 'Sensory'
+                };
+                
+                const details = [
+                    `<span class="memory-type-badge memory-type-${node.nodeData.memory_type}">${memoryTypeMap[node.nodeData.memory_type] || 'Unknown'}</span>`,
+                    `<strong>Activation:</strong> ${Math.round(node.nodeData.activation * 100)}%`,
+                    `<strong>Consolidation:</strong> ${node.nodeData.consolidation || 0}`,
+                    `<strong>Emotional Valence:</strong> ${node.nodeData.valence || 0}`,
+                    `<strong>Emotional Arousal:</strong> ${node.nodeData.arousal || 0}`,
+                    `<strong>Salience:</strong> ${node.nodeData.salience || 0}`
+                ];
+                
+                nodeDetailContent.innerHTML = details.join('<br>');
+                
+                // Position panel next to the node
+                const rect = node.element.getBoundingClientRect();
+                const containerRect = constellationContainer.getBoundingClientRect();
+                
+                nodeDetailPanel.style.left = `${rect.right - containerRect.left + 10}px`;
+                nodeDetailPanel.style.top = `${rect.top - containerRect.top}px`;
+                
+                // Show panel
+                nodeDetailPanel.style.display = 'block';
+                
+                // Hide panel when clicking elsewhere
+                const hidePanel = (e) => {
+                    if (!nodeDetailPanel.contains(e.target) && e.target !== node.element) {
+                        nodeDetailPanel.style.display = 'none';
+                        document.removeEventListener('click', hidePanel);
+                    }
+                };
+                
+                setTimeout(() => {
+                    document.addEventListener('click', hidePanel);
+                }, 0);
+            }
+            
+            function toggleView() {
+                isConstellationView = !isConstellationView;
+                
+                if (isConstellationView) {
+                    // Switch to constellation view
+                    document.getElementById('viewToggleBtn').innerHTML = '<i class="bi bi-graph-up"></i> Switch to Network View';
+                    
+                    // Show constellation container
+                    constellationContainer.style.display = 'block';
+                    constellationContainer.style.opacity = '1';
+                    
+                    // Hide force graph (but don't completely remove it)
+                    memoryGraph.pauseAnimation();
+                    const graphCanvas = memoryGraphElem.querySelector('canvas');
+                    if (graphCanvas) {
+                        graphCanvas.style.opacity = '0';
+                        graphCanvas.style.pointerEvents = 'none';
+                    }
+                    
+                    // Show constellation controls
+                    document.getElementById('constellationControls').style.display = 'block';
+                    
+                    // Initialize constellation view if first time
+                    initConstellationView();
+                } else {
+                    // Switch back to force graph view
+                    document.getElementById('viewToggleBtn').innerHTML = '<i class="bi bi-stars"></i> Switch to Constellation View';
+                    
+                    // Hide constellation view
+                    constellationContainer.style.display = 'none';
+                    
+                    // Show force graph again
+                    memoryGraph.resumeAnimation();
+                    const graphCanvas = memoryGraphElem.querySelector('canvas');
+                    if (graphCanvas) {
+                        graphCanvas.style.opacity = '1';
+                        graphCanvas.style.pointerEvents = 'auto';
+                    }
+                    
+                    // Hide constellation controls
+                    document.getElementById('constellationControls').style.display = 'none';
+                    
+                    // Stop constellation animation to save resources
+                    stopConstellationAnimation();
+                }
+            }
+            
+            // Create graph instances with animation
+            const memoryGraph = ForceGraph()(memoryGraphElem)
+                .nodeId('id')
+                .nodeLabel('label')
+                .nodeColor(node => {
+                    // Color by memory type group
+                    const colors = [
+                        '#7f8c8d',  // default - gray
+                        '#3498db',  // semantic - blue
+                        '#2ecc71',  // episodic - green
+                        '#e67e22',  // procedural - orange
+                        '#9b59b6',  // working - purple
+                        '#e74c3c'   // sensory - red
+                    ];
+                    return colors[node.group] || colors[0];
+                })
+                .nodeRelSize(6)
+                .linkWidth(link => link.value)
+                .linkColor(link => {
+                    // Use emotional tone to determine link color if available
+                    if (link.emotional_tone !== undefined) {
+                        // Convert emotional tone (0-1) to color
+                        // 0 = negative emotion (red/orange)
+                        // 0.5 = neutral emotion (yellow/white)
+                        // 1 = positive emotion (green/blue)
+                        
+                        if (link.emotional_tone < 0.3) {
+                            // Negative emotions: red-orange gradient
+                            const intensity = Math.min(1, 0.7 + (link.emotional_intensity || 0.5) * 0.3);
+                            return `rgba(255, ${Math.floor(100 * link.emotional_tone / 0.3)}, 0, ${intensity})`;
+                        } else if (link.emotional_tone < 0.7) {
+                            // Neutral emotions: yellow-white gradient
+                            const normalizedTone = (link.emotional_tone - 0.3) / 0.4; // 0-1 range within neutral band
+                            const intensity = Math.min(1, 0.7 + (link.emotional_intensity || 0.5) * 0.3);
+                            const g = 150 + Math.floor(normalizedTone * 105);
+                            return `rgba(255, ${g}, ${Math.floor(normalizedTone * 255)}, ${intensity})`;
+                        } else {
+                            // Positive emotions: green-blue gradient
+                            const normalizedTone = (link.emotional_tone - 0.7) / 0.3; // 0-1 range within positive band
+                            const intensity = Math.min(1, 0.7 + (link.emotional_intensity || 0.5) * 0.3);
+                            const r = Math.max(0, Math.floor(100 - normalizedTone * 100));
+                            const g = Math.floor(200 - normalizedTone * 100);
+                            const b = 200 + Math.floor(normalizedTone * 55);
+                            return `rgba(${r}, ${g}, ${b}, ${intensity})`;
+                        }
+                    }
+                    
+                    // Default association color if no emotional data
+                    return '#ffffff';
+                })
+                .linkDirectionalArrowLength(6)
+                .linkDirectionalParticles(2)  // Add particles
+                .linkDirectionalParticleWidth(link => link.value * 1.5)  // Particle size based on link weight
+                .linkDirectionalParticleSpeed(0.01)  // Slow down particles for better visibility
+                .linkDirectionalParticleColor(link => {
+                    // If emotional data is present, color particles based on emotional tone
+                    if (link.emotional_tone !== undefined) {
+                        // Use emotional tone to color the particles
+                        // Negative emotions (0-0.3): red/orange spectrum
+                        // Neutral emotions (0.3-0.7): yellow/white spectrum
+                        // Positive emotions (0.7-1.0): green/blue spectrum
+                        if (link.emotional_tone < 0.3) {
+                            // Negative emotions: red-orange gradient
+                            return `rgb(255, ${Math.floor(100 * link.emotional_tone / 0.3)}, 0)`;
+                        } else if (link.emotional_tone < 0.7) {
+                            // Neutral emotions: yellow-white gradient
+                            const normalizedTone = (link.emotional_tone - 0.3) / 0.4; // 0-1 range within neutral band
+                            const g = 150 + Math.floor(normalizedTone * 105);
+                            return `rgb(255, ${g}, ${Math.floor(normalizedTone * 255)})`;
+                        } else {
+                            // Positive emotions: green-blue gradient
+                            const normalizedTone = (link.emotional_tone - 0.7) / 0.3; // 0-1 range within positive band
+                            const r = Math.max(0, Math.floor(100 - normalizedTone * 100));
+                            const g = Math.floor(200 - normalizedTone * 100);
+                            const b = 200 + Math.floor(normalizedTone * 55);
+                            return `rgb(${r}, ${g}, ${b})`;
+                        }
+                    }
+                    
+                    // If no emotional data or fallback, use type-based coloring
+                    const typeColorMap = {
+                        'semantic': '#3498db',
+                        'episodic': '#2ecc71',
+                        'procedural': '#e67e22',
+                        'working': '#9b59b6',
+                        'sensory': '#e74c3c',
+                        'temporal': '#f39c12',
+                        'causal': '#9b59b6',
+                        'hierarchical': '#16a085',
+                        'association': '#e74c3c'
+                    };
+                    return typeColorMap[link.type] || '#ffffff';
+                })
+                .nodeCanvasObject((node, ctx, globalScale) => {
+                    // Node custom rendering with pulsing effect
+                    const label = node.label;
+                    const fontSize = 12/globalScale;
+                    const nodeR = 6;
+                    
+                    // Draw node circle with dynamic size based on activation
+                    const activation = node.activation || 0.3;
+                    
+                    // Create pulsing effect for active nodes
+                    const regularPulse = node.highlighted ? 
+                        1 + 0.2 * Math.sin(Date.now() / 300) : 1;
+                        
+                    // Different animation effects based on node status
+                    let pulseSize = regularPulse;
+                    let extraGlow = false;
+                    let ringEffect = false;
+                    let haloColor = '';
+                    
+                    // Special animation for new nodes - entrance effect
+                    if (node.isNew) {
+                        // Calculate how long the node has existed (up to DURATION ms)
+                        const entranceProgress = Math.min(1, (Date.now() % NODE_TRANSITION_DURATION) / NODE_TRANSITION_DURATION);
+                        // Start large and shrink to normal size
+                        pulseSize = 1.5 + (1 - entranceProgress);
+                        // Add extra glow for new nodes
+                        extraGlow = true;
+                        // Add outer ring that expands and fades
+                        ringEffect = true;
+                        // Highlight new nodes with bright color
+                        haloColor = '#ffffff';
+                    }
+                    
+                    // Animation for nodes with changing activation values
+                    if (node.hasChanged && node.__previousActivation !== undefined) {
+                        const transProgress = Math.min(1, (Date.now() % NODE_TRANSITION_DURATION) / NODE_TRANSITION_DURATION);
+                        // Pulse based on activation change
+                        const changeDir = activation > node.__previousActivation ? 1 : -1;
+                        const changeAmp = Math.abs(activation - node.__previousActivation);
+                        // Add subtle pulse effect for changing nodes
+                        pulseSize += changeDir * changeAmp * Math.sin(Math.PI * transProgress) * 0.5;
+                        
+                        // Color halo based on activation change direction
+                        if (changeDir > 0) {
+                            // Brightening - show yellow/white halo
+                            haloColor = `rgba(255, 255, 200, ${(1-transProgress) * 0.8})`;
+                        } else {
+                            // Dimming - show blue halo
+                            haloColor = `rgba(100, 200, 255, ${(1-transProgress) * 0.6})`;
+                        }
+                        ringEffect = true;
+                    }
+                    
+                    // Set node color
+                    const colors = [
+                        '#7f8c8d',  // default - gray
+                        '#3498db',  // semantic - blue
+                        '#2ecc71',  // episodic - green
+                        '#e67e22',  // procedural - orange
+                        '#9b59b6',  // working - purple
+                        '#e74c3c'   // sensory - red
+                    ];
+                    ctx.fillStyle = colors[node.group] || colors[0];
+                    
+                    // Draw expanding ring for special effects
+                    if (ringEffect && haloColor) {
+                        ctx.save();
+                        const ringProgress = (Date.now() % NODE_TRANSITION_DURATION) / NODE_TRANSITION_DURATION;
+                        const ringRadius = nodeR * (1.5 + ringProgress * 2);
+                        const ringOpacity = Math.max(0, 1 - ringProgress);
+                        
+                        ctx.strokeStyle = haloColor;
+                        ctx.lineWidth = 2 * (1 - ringProgress);
+                        ctx.globalAlpha = ringOpacity;
+                        ctx.beginPath();
+                        ctx.arc(node.x, node.y, ringRadius, 0, 2 * Math.PI, false);
+                        ctx.stroke();
+                        ctx.restore();
+                    }
+                    
+                    // Draw main node circle
+                    const finalRadius = nodeR * pulseSize * (0.5 + activation/2);
+                    ctx.beginPath();
+                    ctx.arc(node.x, node.y, finalRadius, 0, 2 * Math.PI, false);
+                    ctx.fill();
+                    
+                    // Add glow effect for highlighted nodes
+                    if (node.highlighted || extraGlow) {
+                        ctx.save();
+                        ctx.shadowColor = extraGlow ? '#ffffff' : ctx.fillStyle;
+                        ctx.shadowBlur = extraGlow ? 20 : 15;
+                        ctx.shadowOffsetX = 0;
+                        ctx.shadowOffsetY = 0;
+                        ctx.beginPath();
+                        ctx.arc(node.x, node.y, finalRadius, 0, 2 * Math.PI, false);
+                        ctx.fill();
+                        ctx.restore();
+                    }
+                    
+                    // Draw node text label
+                    ctx.font = `${fontSize}px Sans-Serif`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillStyle = 'white';
+                    ctx.fillText(label, node.x, node.y + nodeR * 1.8);
+                })
+                .onNodeHover(node => {
+                    // Highlight node on hover and its connections
+                    if (node) {
+                        // Get all connected nodes
+                        const connectedNodes = new Set();
+                        const graphData = memoryGraph.graphData();
+                        
+                        // Find all links connected to this node
+                        graphData.links.forEach(link => {
+                            if (link.source.id === node.id || link.target.id === node.id) {
+                                connectedNodes.add(link.source.id === node.id ? link.target.id : link.source.id);
+                            }
+                        });
+                        
+                        // Update node highlighting
+                        graphData.nodes.forEach(n => {
+                            n.highlighted = (n === node) || connectedNodes.has(n.id);
+                        });
+                        
+                        // Update link highlighting
+                        graphData.links.forEach(link => {
+                            link.highlighted = (link.source.id === node.id || link.target.id === node.id);
+                        });
+                    } else {
+                        // Clear all highlighting
+                        const graphData = memoryGraph.graphData();
+                        graphData.nodes.forEach(n => {
+                            n.highlighted = false;
+                        });
+                        graphData.links.forEach(link => {
+                            link.highlighted = false;
+                        });
+                    }
+                    
+                    // Update cursor
+                    memoryGraphElem.style.cursor = node ? 'pointer' : null;
+                })
+                .linkCanvasObject((link, ctx, globalScale) => {
+                    // Only render custom links if highlighted
+                    if (!link.highlighted) return;
+                    
+                    // Get source and target coordinates
+                    const source = link.source;
+                    const target = link.target;
+                    
+                    // Draw highlighted link with animated dashes
+                    ctx.save();
+                    
+                    // Set line style
+                    ctx.lineWidth = 2.5;
+                    ctx.strokeStyle = link.source.highlighted && link.target.highlighted ? 
+                        '#ffff00' : '#ff8c00';
+                    
+                    // Set animated dash pattern
+                    const dashLength = 5;
+                    const dashOffset = Date.now() / 100 % (dashLength * 2);
+                    ctx.setLineDash([dashLength, dashLength]);
+                    ctx.lineDashOffset = dashOffset;
+                    
+                    // Draw line
+                    ctx.beginPath();
+                    ctx.moveTo(source.x, source.y);
+                    ctx.lineTo(target.x, target.y);
+                    ctx.stroke();
+                    
+                    // Restore context
+                    ctx.restore();
+                })
+                .onNodeClick((node, event) => {
+                    showNodeDetails(node, event);
+                })
+                .onLinkClick((link, event) => {
+                    showLinkDetails(link, event);
+                });
+                
+            const rdGraph = ForceGraph()(rdGraphElem)
+                .nodeId('id')
+                .nodeLabel('label')
+                .nodeColor(node => {
+                    // Color by node type
+                    const colors = ['#f39c12', '#3498db', '#2ecc71', '#9b59b6'];
+                    return colors[node.group] || '#7f8c8d';
+                })
+                .nodeRelSize(5)
+                .linkDirectionalArrowLength(6)
+                .linkDirectionalParticles(1)  // Add particles
+                .linkDirectionalParticleWidth(2)
+                .linkDirectionalParticleSpeed(0.005)  // Slower particles for distinction links
+                .nodeCanvasObject((node, ctx, globalScale) => {
+                    // Node custom rendering with subtle pulsing for recursive distinctions
+                    const label = node.label;
+                    const fontSize = 12/globalScale;
+                    const nodeR = 5;
+                    
+                    // Create subtle pulsing effect
+                    const pulseSize = node.highlighted ? 
+                        1 + 0.15 * Math.sin(Date.now() / 400) : 1;
+                    
+                    // Set node color
+                    const colors = ['#f39c12', '#3498db', '#2ecc71', '#9b59b6'];
+                    ctx.fillStyle = colors[node.group] || '#7f8c8d';
+                    
+                    // Draw node with pulsing effect for recursive distinctions
+                    ctx.beginPath();
+                    ctx.arc(node.x, node.y, nodeR * pulseSize, 0, 2 * Math.PI, false);
+                    ctx.fill();
+                    
+                    // Add subtle glow for highlighted nodes
+                    if (node.highlighted) {
+                        ctx.save();
+                        ctx.shadowColor = ctx.fillStyle;
+                        ctx.shadowBlur = 12;
+                        ctx.shadowOffsetX = 0;
+                        ctx.shadowOffsetY = 0;
+                        ctx.beginPath();
+                        ctx.arc(node.x, node.y, nodeR * pulseSize, 0, 2 * Math.PI, false);
+                        ctx.fill();
+                        ctx.restore();
+                    }
+                    
+                    // Draw node label
+                    ctx.font = `${fontSize}px Sans-Serif`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillStyle = 'white';
+                    ctx.fillText(label, node.x, node.y + nodeR * 1.8);
+                })
+                .onNodeHover(node => {
+                    // Highlight node on hover and its connections
+                    if (node) {
+                        // Get connected nodes
+                        const connectedNodes = new Set();
+                        const graphData = rdGraph.graphData();
+                        
+                        // Find links connected to this node
+                        graphData.links.forEach(link => {
+                            if (link.source.id === node.id || link.target.id === node.id) {
+                                connectedNodes.add(link.source.id === node.id ? link.target.id : link.source.id);
+                            }
+                        });
+                        
+                        // Update node highlighting
+                        graphData.nodes.forEach(n => {
+                            n.highlighted = (n === node) || connectedNodes.has(n.id);
+                        });
+                        
+                        // Update link highlighting
+                        graphData.links.forEach(link => {
+                            link.highlighted = (link.source.id === node.id || link.target.id === node.id);
+                        });
+                    } else {
+                        // Remove highlighting
+                        const graphData = rdGraph.graphData();
+                        graphData.nodes.forEach(n => {
+                            n.highlighted = false;
+                        });
+                        graphData.links.forEach(link => {
+                            link.highlighted = false;
+                        });
+                    }
+                    
+                    rdGraphElem.style.cursor = node ? 'pointer' : null;
+                })
+                .linkCanvasObject((link, ctx, globalScale) => {
+                    // Only render custom links if highlighted
+                    if (!link.highlighted) return;
+                    
+                    // Draw highlighted link with animated waves
+                    const source = link.source;
+                    const target = link.target;
+                    
+                    ctx.save();
+                    
+                    // Set line style
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = '#f1c40f';  // Yellowish glow for distinction links
+                    
+                    // Animated line pattern
+                    const time = Date.now() / 800;
+                    const numWaves = 3;
+                    const waveAmplitude = 3;
+                    
+                    // Draw wavy line to represent dynamic recursive relationships
+                    ctx.beginPath();
+                    
+                    // Calculate vector from source to target
+                    const dx = target.x - source.x;
+                    const dy = target.y - source.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    
+                    // Normalize vector
+                    const nx = dx / dist;
+                    const ny = dy / dist;
+                    
+                    // Perpendicular vector
+                    const px = -ny;
+                    const py = nx;
+                    
+                    ctx.moveTo(source.x, source.y);
+                    
+                    // Draw wavy path
+                    const steps = 12;
+                    for (let i = 0; i <= steps; i++) {
+                        const t = i / steps;
+                        const x = source.x + dx * t;
+                        const y = source.y + dy * t;
+                        
+                        // Add sine wave oscillation perpendicular to line
+                        const amp = Math.sin(t * Math.PI) * waveAmplitude;  // Amplitude peaks in the middle
+                        const wave = Math.sin(t * numWaves * Math.PI + time) * amp;
+                        
+                        const ox = x + px * wave;
+                        const oy = y + py * wave;
+                        
+                        if (i === 0) {
+                            ctx.moveTo(ox, oy);
+                        } else {
+                            ctx.lineTo(ox, oy);
+                        }
+                    }
+                    
+                    ctx.stroke();
+                    ctx.restore();
+                })
+                .onNodeClick((node, event) => {
+                    showNodeDetails(node, event);
+                })
+                .onLinkClick((link, event) => {
+                    showLinkDetails(link, event);
+                });
+            
+            // Control elements
+            const memoryTypeFilter = document.getElementById('memoryTypeFilter');
+            const activationSlider = document.getElementById('activationSlider');
+            const activationValue = document.getElementById('activationValue');
+            const nodeLimitSelect = document.getElementById('nodeLimitSelect');
+            const refreshButton = document.getElementById('refreshGraph');
+            
+            // Stats elements
+            const totalNodesElem = document.getElementById('totalNodes');
+            const totalConnectionsElem = document.getElementById('totalConnections');
+            const memoryTypeStatsElem = document.getElementById('memoryTypeStats');
+            
+            // Node detail elements
+            const nodeDetailPanel = document.getElementById('nodeDetailPanel');
+            const nodeDetailContent = document.getElementById('nodeDetailContent');
+            
+            // Update activation display
+            activationSlider.addEventListener('input', function() {
+                activationValue.textContent = this.value + '%';
+            });
+            
+            // Data refresh function
+            // Track previous graph data to detect changes
+            let previousMemoryData = null;
+            let previousRDData = null;
+            
+            // Animation constants
+            const NODE_TRANSITION_DURATION = 800; // ms
+            
+            function refreshData() {
+                // Get filter values
+                const memoryType = memoryTypeFilter.value;
+                const minActivation = activationSlider.value / 100;
+                const limit = nodeLimitSelect.value;
+                
+                // Fetch memory graph data
+                fetch(`/api/memory/visualization?memory_type=${memoryType}&min_activation=${minActivation}&limit=${limit}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Store the data for constellation view
+                        currentGraphData = data;
+                        
+                        // Track new and modified nodes for animations
+                        const newNodes = new Set();
+                        const updatedNodes = new Set();
+                        
+                        if (previousMemoryData) {
+                            // Get previous node IDs
+                            const prevNodeIds = new Set(previousMemoryData.nodes.map(n => n.id));
+                            
+                            // Identify new nodes
+                            data.nodes.forEach(node => {
+                                if (!prevNodeIds.has(node.id)) {
+                                    // This is a new node
+                                    newNodes.add(node.id);
+                                    // Add animation flag
+                                    node.isNew = true;
+                                    // Add entrance animation
+                                    node.__animateEntrance = true;
+                                } else {
+                                    // Check if node changed significantly
+                                    const prevNode = previousMemoryData.nodes.find(n => n.id === node.id);
+                                    if (prevNode && prevNode.activation !== node.activation) {
+                                        updatedNodes.add(node.id);
+                                        // Add changed flag and store previous activation
+                                        node.hasChanged = true;
+                                        node.__previousActivation = prevNode.activation;
+                                    }
+                                }
+                            });
+                            
+                            // Apply smooth transitions to positions of existing nodes
+                            const nodePositions = {}; 
+                            const currentGraphData = memoryGraph.graphData();
+                            
+                            // Store current positions
+                            if (currentGraphData && currentGraphData.nodes) {
+                                currentGraphData.nodes.forEach(node => {
+                                    if (node.x !== undefined && node.y !== undefined) {
+                                        nodePositions[node.id] = {
+                                            x: node.x,
+                                            y: node.y
+                                        };
+                                    }
+                                });
+                            }
+                            
+                            // Apply stored positions to new data for smooth transition
+                            data.nodes.forEach(node => {
+                                if (nodePositions[node.id]) {
+                                    node.x = nodePositions[node.id].x;
+                                    node.y = nodePositions[node.id].y;
+                                }
+                            });
+                        }
+                        
+                        // Update graph
+                        memoryGraph.graphData(data);
+                        
+                        // Update stats
+                        totalNodesElem.textContent = data.metrics.node_count;
+                        totalConnectionsElem.textContent = data.metrics.edge_count;
+                        
+                        // Update memory type stats
+                        let typeStatsHtml = '';
+                        for (const [type, count] of Object.entries(data.metrics.memory_types)) {
+                            const typeClass = `memory-type-${type.toLowerCase()}`;
+                            typeStatsHtml += `<span class="memory-type-badge ${typeClass}">${type}: ${count}</span>`;
+                        }
+                        memoryTypeStatsElem.innerHTML = typeStatsHtml;
+                        
+                        // Store for next comparison
+                        previousMemoryData = JSON.parse(JSON.stringify(data));
+                        
+                        // Animate new nodes with a special effect
+                        if (newNodes.size > 0) {
+                            console.log(`${newNodes.size} new memory nodes detected`);
+                            
+                            // Remove animation flags after a delay
+                            setTimeout(() => {
+                                const graphData = memoryGraph.graphData();
+                                graphData.nodes.forEach(node => {
+                                    if (node.isNew) {
+                                        delete node.isNew;
+                                        delete node.__animateEntrance;
+                                    }
+                                });
+                            }, NODE_TRANSITION_DURATION);
+                        }
+                        
+                        // Animate updated nodes
+                        if (updatedNodes.size > 0) {
+                            console.log(`${updatedNodes.size} updated memory nodes detected`);
+                            
+                            // Remove animation flags after a delay
+                            setTimeout(() => {
+                                const graphData = memoryGraph.graphData();
+                                graphData.nodes.forEach(node => {
+                                    if (node.hasChanged) {
+                                        delete node.hasChanged;
+                                        delete node.__previousActivation;
+                                    }
+                                });
+                            }, NODE_TRANSITION_DURATION);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Failed to fetch memory data:', error);
+                    });
+                    
+                // Fetch recursive distinctions graph data
+                fetch('/api/recursive-distinctions/visualization')
+                    .then(response => response.json())
+                    .then(data => {
+                        // Track new nodes for animations
+                        const newRDNodes = new Set();
+                        
+                        if (previousRDData) {
+                            // Get previous node IDs
+                            const prevNodeIds = new Set(previousRDData.nodes.map(n => n.id));
+                            
+                            // Identify new nodes
+                            data.nodes.forEach(node => {
+                                if (!prevNodeIds.has(node.id)) {
+                                    // This is a new node
+                                    newRDNodes.add(node.id);
+                                    // Add animation flag
+                                    node.isNew = true;
+                                }
+                            });
+                            
+                            // Apply smooth transitions to positions of existing nodes
+                            const nodePositions = {};
+                            const currentGraphData = rdGraph.graphData();
+                            
+                            // Store current positions
+                            if (currentGraphData && currentGraphData.nodes) {
+                                currentGraphData.nodes.forEach(node => {
+                                    if (node.x !== undefined && node.y !== undefined) {
+                                        nodePositions[node.id] = {
+                                            x: node.x,
+                                            y: node.y
+                                        };
+                                    }
+                                });
+                            }
+                            
+                            // Apply stored positions to new data for smooth transition
+                            data.nodes.forEach(node => {
+                                if (nodePositions[node.id]) {
+                                    node.x = nodePositions[node.id].x;
+                                    node.y = nodePositions[node.id].y;
+                                }
+                            });
+                        }
+                        
+                        // Update graph
+                        rdGraph.graphData(data);
+                        
+                        // Store for next comparison
+                        previousRDData = JSON.parse(JSON.stringify(data));
+                        
+                        // Animate new nodes with a special effect
+                        if (newRDNodes.size > 0) {
+                            console.log(`${newRDNodes.size} new recursive distinction nodes detected`);
+                            
+                            // Remove animation flags after a delay
+                            setTimeout(() => {
+                                const graphData = rdGraph.graphData();
+                                graphData.nodes.forEach(node => {
+                                    if (node.isNew) {
+                                        delete node.isNew;
+                                    }
+                                });
+                            }, NODE_TRANSITION_DURATION);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Failed to fetch recursive distinctions data:', error);
+                    });
+            }
+            
+            // Show node details in a panel
+            function showNodeDetails(node, event) {
+                if (!node) {
+                    nodeDetailPanel.style.display = 'none';
+                    return;
+                }
+                
+                // Position the panel near the click
+                nodeDetailPanel.style.left = (event.pageX + 10) + 'px';
+                nodeDetailPanel.style.top = (event.pageY + 10) + 'px';
+                
+                // Build content
+                let content = `
+                    <p><strong>ID:</strong> ${node.id}</p>
+                    <p><strong>Label:</strong> ${node.label}</p>
+                    <p><strong>Type:</strong> ${node.memory_type || node.node_type || 'Unknown'}</p>
+                `;
+                
+                // Add memory-specific properties if present
+                if (node.activation !== undefined) {
+                    content += `<p><strong>Activation:</strong> ${(node.activation * 100).toFixed(1)}%</p>`;
+                }
+                
+                if (node.consolidation !== undefined) {
+                    content += `<p><strong>Consolidation:</strong> ${node.consolidation}</p>`;
+                }
+                
+                if (node.valence !== undefined) {
+                    content += `<p><strong>Emotional Valence:</strong> ${node.valence.toFixed(2)}</p>`;
+                }
+                
+                if (node.expression !== undefined) {
+                    content += `<p><strong>Expression:</strong> ${node.expression}</p>`;
+                }
+                
+                nodeDetailContent.innerHTML = content;
+                nodeDetailPanel.style.display = 'block';
+            }
+            
+            // Function to show link details
+            function showLinkDetails(link, event) {
+                if (!link) {
+                    nodeDetailPanel.style.display = 'none';
+                    return;
+                }
+                
+                // Position the panel near the click
+                nodeDetailPanel.style.left = (event.pageX + 10) + 'px';
+                nodeDetailPanel.style.top = (event.pageY + 10) + 'px';
+                
+                // Get source and target node information
+                const sourceNode = typeof link.source === 'object' ? link.source : { id: link.source };
+                const targetNode = typeof link.target === 'object' ? link.target : { id: link.target };
+                
+                // Build content
+                let content = `
+                    <p><strong>Connection:</strong> ${sourceNode.label || sourceNode.id} → ${targetNode.label || targetNode.id}</p>
+                    <p><strong>Type:</strong> ${link.type || 'Default'}</p>
+                    <p><strong>Strength:</strong> ${(link.value * 100).toFixed(1)}%</p>
+                `;
+                
+                // Add emotional information if present
+                if (link.emotional_tone !== undefined) {
+                    // Add emotional tone (scaled from 0-1)
+                    const tonePercentage = (link.emotional_tone * 100).toFixed(1);
+                    let emotionType = 'Neutral';
+                    
+                    if (link.emotional_tone < 0.3) {
+                        emotionType = 'Negative';
+                    } else if (link.emotional_tone > 0.7) {
+                        emotionType = 'Positive';
+                    }
+                    
+                    content += `<p><strong>Emotional Tone:</strong> ${emotionType} (${tonePercentage}%)</p>`;
+                    
+                    // Add emotional intensity if present
+                    if (link.emotional_intensity !== undefined) {
+                        const intensityPercentage = (link.emotional_intensity * 100).toFixed(1);
+                        content += `<p><strong>Emotional Intensity:</strong> ${intensityPercentage}%</p>`;
+                    }
+                    
+                    // Add emotional visualization as a small color swatch
+                    let colorSwatch = '#888';
+                    
+                    if (link.emotional_tone < 0.3) {
+                        // Negative: red-orange
+                        colorSwatch = `rgb(255, ${Math.floor(100 * link.emotional_tone / 0.3)}, 0)`;
+                    } else if (link.emotional_tone < 0.7) {
+                        // Neutral: yellow-white 
+                        const normalizedTone = (link.emotional_tone - 0.3) / 0.4;
+                        const g = 150 + Math.floor(normalizedTone * 105);
+                        colorSwatch = `rgb(255, ${g}, ${Math.floor(normalizedTone * 255)})`;
+                    } else {
+                        // Positive: green-blue
+                        const normalizedTone = (link.emotional_tone - 0.7) / 0.3;
+                        const r = Math.max(0, Math.floor(100 - normalizedTone * 100));
+                        const g = Math.floor(200 - normalizedTone * 100);
+                        const b = 200 + Math.floor(normalizedTone * 55);
+                        colorSwatch = `rgb(${r}, ${g}, ${b})`;
+                    }
+                    
+                    content += `<div style="margin-top: 8px; margin-bottom: 8px;">
+                        <strong>Emotion Color:</strong> 
+                        <span style="display: inline-block; width: 20px; height: 20px; background-color: ${colorSwatch}; 
+                              vertical-align: middle; border-radius: 3px; border: 1px solid #ccc;"></span>
+                    </div>`;
+                }
+                
+                // Add metadata if present
+                if (link.metadata && Object.keys(link.metadata).length > 0) {
+                    content += `<p><strong>Additional Data:</strong></p><ul>`;
+                    for (const [key, value] of Object.entries(link.metadata)) {
+                        content += `<li>${key}: ${value}</li>`;
+                    }
+                    content += `</ul>`;
+                }
+                
+                nodeDetailContent.innerHTML = content;
+                nodeDetailPanel.style.display = 'block';
+            }
+            
+            // Hide node details when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!nodeDetailPanel.contains(event.target) && 
+                    event.target.closest('#memoryGraph') === null) {
+                    nodeDetailPanel.style.display = 'none';
+                }
+            });
+            
+            // Set up refresh button and initial data load
+            refreshButton.addEventListener('click', refreshData);
+            
+            // Set up view toggle button
+            viewToggleBtn.addEventListener('click', toggleView);
+            
+            // Load data initially
+            refreshData();
+            
+            // Set up auto-refresh every 30 seconds
+            setInterval(refreshData, 30000);
+            
+            // Export functions
+            
+            // Setup export buttons
+            document.getElementById('exportJSON').addEventListener('click', exportJSON);
+            document.getElementById('exportCSV').addEventListener('click', exportCSV);
+            document.getElementById('exportGraphML').addEventListener('click', exportGraphML);
+            document.getElementById('exportSVG').addEventListener('click', exportSVG);
+            
+            // Store the latest graph data when refreshed
+            const originalFetchHandlerMemory = memoryGraph.onEngineStop;
+            memoryGraph.onEngineStop(() => {
+                // Get the current graph data
+                currentGraphData = memoryGraph.graphData();
+                
+                // Call original handler if exists
+                if (originalFetchHandlerMemory) originalFetchHandlerMemory();
+            });
+            
+            function exportJSON() {
+                // Option 1: Use client-side data (faster)
+                if (currentGraphData) {
+                    // Create file content
+                    const jsonContent = JSON.stringify(currentGraphData, null, 2);
+                    
+                    // Create a timestamp for the filename
+                    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+                    
+                    // Download the file
+                    downloadFile(jsonContent, `memory-graph-${timestamp}.json`, 'application/json');
+                } else {
+                    // Option 2: Request from server (fallback)
+                    const memoryType = memoryTypeFilter.value;
+                    const minActivation = activationSlider.value / 100;
+                    const limit = nodeLimitSelect.value;
+                    
+                    // Download directly from the API
+                    window.location.href = `/api/memory/visualization?memory_type=${memoryType}&min_activation=${minActivation}&limit=${limit}&export=json`;
+                }
+            }
+            
+            function exportCSV() {
+                // Option 1: Use client-side data (faster)
+                if (currentGraphData) {
+                    // Create nodes CSV
+                    let nodesCSV = 'id,label,type,group,activation\n';
+                    currentGraphData.nodes.forEach(node => {
+                        nodesCSV += `"${node.id}","${node.label}","${node.memory_type || node.node_type || ''}",${node.group},${node.activation || 0}\n`;
+                    });
+                    
+                    // Create links CSV
+                    let linksCSV = 'source,target,type,value,emotional_tone,emotional_intensity\n';
+                    currentGraphData.links.forEach(link => {
+                        linksCSV += `"${link.source}","${link.target}","${link.type}",${link.value},${link.emotional_tone || 0.5},${link.emotional_intensity || 0.5}\n`;
+                    });
+                    
+                    // Create a timestamp for the filenames
+                    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+                    
+                    // Download the files
+                    downloadFile(nodesCSV, `memory-nodes-${timestamp}.csv`, 'text/csv');
+                    downloadFile(linksCSV, `memory-links-${timestamp}.csv`, 'text/csv');
+                } else {
+                    // Option 2: Request from server (fallback)
+                    const memoryType = memoryTypeFilter.value;
+                    const minActivation = activationSlider.value / 100;
+                    const limit = nodeLimitSelect.value;
+                    
+                    // Download directly from the API
+                    window.location.href = `/api/memory/visualization?memory_type=${memoryType}&min_activation=${minActivation}&limit=${limit}&export=csv`;
+                }
+            }
+            
+            function exportGraphML() {
+                // Option 1: Use client-side data (faster)
+                if (currentGraphData) {
+                    // Create GraphML content
+                    let graphML = '<?xml version="1.0" encoding="UTF-8"?>\n';
+                    graphML += '<graphml xmlns="http://graphml.graphdrawing.org/xmlns" ';
+                    graphML += 'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ';
+                    graphML += 'xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns ';
+                    graphML += 'http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">\n';
+                    
+                    // Define node attributes
+                    graphML += '  <key id="label" for="node" attr.name="label" attr.type="string" />\n';
+                    graphML += '  <key id="type" for="node" attr.name="type" attr.type="string" />\n';
+                    graphML += '  <key id="group" for="node" attr.name="group" attr.type="int" />\n';
+                    graphML += '  <key id="activation" for="node" attr.name="activation" attr.type="double" />\n';
+                    
+                    // Define edge attributes
+                    graphML += '  <key id="type" for="edge" attr.name="type" attr.type="string" />\n';
+                    graphML += '  <key id="weight" for="edge" attr.name="weight" attr.type="double" />\n';
+                    graphML += '  <key id="emotional_tone" for="edge" attr.name="emotional_tone" attr.type="double" />\n';
+                    graphML += '  <key id="emotional_intensity" for="edge" attr.name="emotional_intensity" attr.type="double" />\n';
+                    
+                    // Start the graph
+                    graphML += '  <graph id="G" edgedefault="directed">\n';
+                    
+                    // Add nodes
+                    currentGraphData.nodes.forEach(node => {
+                        graphML += `    <node id="${escapeXML(node.id)}">\n`;
+                        graphML += `      <data key="label">${escapeXML(node.label)}</data>\n`;
+                        graphML += `      <data key="type">${escapeXML(node.memory_type || node.node_type || '')}</data>\n`;
+                        graphML += `      <data key="group">${node.group || 0}</data>\n`;
+                        graphML += `      <data key="activation">${node.activation || 0}</data>\n`;
+                        graphML += '    </node>\n';
+                    });
+                    
+                    // Add edges
+                    currentGraphData.links.forEach(link => {
+                        graphML += `    <edge source="${escapeXML(link.source)}" target="${escapeXML(link.target)}">\n`;
+                        graphML += `      <data key="type">${escapeXML(link.type || '')}</data>\n`;
+                        graphML += `      <data key="weight">${link.value || 1}</data>\n`;
+                        graphML += `      <data key="emotional_tone">${link.emotional_tone || 0.5}</data>\n`;
+                        graphML += `      <data key="emotional_intensity">${link.emotional_intensity || 0.5}</data>\n`;
+                        graphML += '    </edge>\n';
+                    });
+                    
+                    // Close the graph and GraphML
+                    graphML += '  </graph>\n';
+                    graphML += '</graphml>';
+                    
+                    // Create a timestamp for the filename
+                    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+                    
+                    // Download the file
+                    downloadFile(graphML, `memory-graph-${timestamp}.graphml`, 'application/xml');
+                } else {
+                    // Option 2: Request from server (fallback)
+                    const memoryType = memoryTypeFilter.value;
+                    const minActivation = activationSlider.value / 100;
+                    const limit = nodeLimitSelect.value;
+                    
+                    // Download directly from the API
+                    window.location.href = `/api/memory/visualization?memory_type=${memoryType}&min_activation=${minActivation}&limit=${limit}&export=graphml`;
+                }
+            }
+            
+            function exportSVG() {
+                // Get SVG content from the graph
+                const svgElement = memoryGraphElem.querySelector('svg');
+                if (!svgElement) return;
+                
+                // Clone the SVG to avoid modifying the original
+                const svgClone = svgElement.cloneNode(true);
+                
+                // Add styling
+                const style = document.createElement('style');
+                style.textContent = `
+                    .node { fill-opacity: 0.8; stroke: #333; stroke-width: 1.5px; }
+                    .link { stroke-opacity: 0.6; stroke-width: 1.5px; }
+                    text { font-family: Arial, sans-serif; font-size: 10px; fill: #fff; }
+                `;
+                svgClone.appendChild(style);
+                
+                // Ensure proper size attributes
+                svgClone.setAttribute('width', memoryGraphElem.clientWidth);
+                svgClone.setAttribute('height', memoryGraphElem.clientHeight);
+                
+                // Set viewBox if not present
+                if (!svgClone.getAttribute('viewBox')) {
+                    svgClone.setAttribute('viewBox', `0 0 ${memoryGraphElem.clientWidth} ${memoryGraphElem.clientHeight}`);
+                }
+                
+                // Get SVG content as string
+                const svgContent = new XMLSerializer().serializeToString(svgClone);
+                
+                // Create a timestamp for the filename
+                const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+                
+                // Download the file
+                downloadFile(svgContent, `memory-graph-${timestamp}.svg`, 'image/svg+xml');
+            }
+            
+            // Helper to download a file
+            function downloadFile(content, filename, contentType) {
+                const blob = new Blob([content], { type: contentType });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                a.click();
+                
+                setTimeout(() => URL.revokeObjectURL(url), 100);
+            }
+            
+            // Helper to escape XML special characters
+            function escapeXML(str) {
+                if (typeof str !== 'string') {
+                    return String(str || '');
+                }
+                return str
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&apos;');
+            }
+        });
+    </script>
+</body>
+</html>

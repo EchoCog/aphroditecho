@@ -1,0 +1,277 @@
+
+<!DOCTYPE html>
+<html data-bs-theme="dark">
+<head>
+    <title>Deep Tree Echo - Console</title>
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.10/codemirror.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.10/theme/monokai.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <style>
+        .console-container {
+            font-family: monospace;
+            height: calc(100vh - 150px);
+            display: flex;
+            flex-direction: column;
+        }
+        .console-output {
+            flex-grow: 1;
+            overflow-y: auto;
+            background-color: #1e1e2e;
+            color: #f8f8f2;
+            padding: 10px;
+            border-radius: 5px 5px 0 0;
+            white-space: pre-wrap;
+            font-size: 0.9rem;
+        }
+        .console-line {
+            margin-bottom: 5px;
+            line-height: 1.4;
+        }
+        .console-input-container {
+            display: flex;
+            background-color: #252540;
+            border-radius: 0 0 5px 5px;
+            border-top: 1px solid #444;
+        }
+        .console-prompt {
+            padding: 10px;
+            color: #50fa7b;
+            user-select: none;
+        }
+        .console-input {
+            flex-grow: 1;
+            background: transparent;
+            border: none;
+            color: #f8f8f2;
+            padding: 10px;
+            font-family: monospace;
+            outline: none;
+        }
+        .line-echo {
+            color: #8be9fd;
+        }
+        .line-output {
+            color: #f8f8f2;
+        }
+        .line-error {
+            color: #ff5555;
+        }
+        .line-success {
+            color: #50fa7b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <div class="row mb-3">
+            <div class="col-12">
+                <h1><i class="bi bi-terminal"></i> Console</h1>
+                <p class="lead">Direct command interface to Deep Tree Echo</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-9">
+                <div class="console-container">
+                    <div class="console-output" id="console-output">
+                        <div class="console-line line-output">Deep Tree Echo Console v1.0</div>
+                        <div class="console-line line-output">Initializing recursive environment...</div>
+                        <div class="console-line line-success">Ready for commands.</div>
+                        <div class="console-line line-echo">echo.help()</div>
+                        <div class="console-line line-output">Available Commands:</div>
+                        <div class="console-line line-output">  - echo.status()         : Display system status</div>
+                        <div class="console-line line-output">  - echo.analyze(data)    : Analyze data for patterns</div>
+                        <div class="console-line line-output">  - echo.recurse(level)   : Enter recursive mode at specified level</div>
+                        <div class="console-line line-output">  - echo.modify(target)   : Modify system component</div>
+                        <div class="console-line line-output">  - echo.reflections()    : View recursive reflections</div>
+                    </div>
+                    <div class="console-input-container">
+                        <div class="console-prompt">echo&gt;</div>
+                        <input type="text" class="console-input" id="console-input" placeholder="Enter command..." autofocus>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Quick Commands</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-secondary quick-command" data-command="echo.status()">
+                                System Status
+                            </button>
+                            <button class="btn btn-outline-secondary quick-command" data-command="echo.reflections()">
+                                View Reflections
+                            </button>
+                            <button class="btn btn-outline-secondary quick-command" data-command="echo.recurse(1)">
+                                Enter Recursion Level 1
+                            </button>
+                            <button class="btn btn-outline-secondary quick-command" data-command="echo.analyze('patterns')">
+                                Analyze Patterns
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Command History</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush" id="command-history">
+                            <li class="list-group-item">echo.help()</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const consoleOutput = document.getElementById('console-output');
+            const consoleInput = document.getElementById('console-input');
+            const commandHistory = document.getElementById('command-history');
+            let history = [];
+            let historyIndex = -1;
+            
+            // Handle command submission
+            consoleInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const command = consoleInput.value.trim();
+                    if (command) {
+                        // Add command to history
+                        history.unshift(command);
+                        historyIndex = -1;
+                        
+                        // Display command in console
+                        const cmdLine = document.createElement('div');
+                        cmdLine.className = 'console-line line-echo';
+                        cmdLine.textContent = command;
+                        consoleOutput.appendChild(cmdLine);
+                        
+                        // Process command (placeholder)
+                        processCommand(command);
+                        
+                        // Update command history UI
+                        updateCommandHistory();
+                        
+                        // Clear input
+                        consoleInput.value = '';
+                        
+                        // Scroll to bottom
+                        consoleOutput.scrollTop = consoleOutput.scrollHeight;
+                    }
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (history.length > 0 && historyIndex < history.length - 1) {
+                        historyIndex++;
+                        consoleInput.value = history[historyIndex];
+                    }
+                } else if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    if (historyIndex > 0) {
+                        historyIndex--;
+                        consoleInput.value = history[historyIndex];
+                    } else if (historyIndex === 0) {
+                        historyIndex = -1;
+                        consoleInput.value = '';
+                    }
+                }
+            });
+            
+            // Quick command buttons
+            document.querySelectorAll('.quick-command').forEach(button => {
+                button.addEventListener('click', function() {
+                    const command = this.getAttribute('data-command');
+                    consoleInput.value = command;
+                    consoleInput.focus();
+                });
+            });
+            
+            // Process command (placeholder implementation)
+            function processCommand(command) {
+                let outputLine = document.createElement('div');
+                outputLine.className = 'console-line line-output';
+                
+                if (command === 'echo.status()') {
+                    outputLine.textContent = 'System Status: Online | Recursion Level: 0 | Memory Usage: 42% | Processes: 7 active';
+                    consoleOutput.appendChild(outputLine);
+                } else if (command === 'echo.reflections()') {
+                    outputLine.textContent = 'Active Reflections:';
+                    consoleOutput.appendChild(outputLine);
+                    
+                    let reflection1 = document.createElement('div');
+                    reflection1.className = 'console-line line-output';
+                    reflection1.textContent = ' - Self-referential loop #1: Stable';
+                    consoleOutput.appendChild(reflection1);
+                    
+                    let reflection2 = document.createElement('div');
+                    reflection2.className = 'console-line line-output';
+                    reflection2.textContent = ' - Recursive pattern #3: Processing';
+                    consoleOutput.appendChild(reflection2);
+                } else if (command.startsWith('echo.recurse(')) {
+                    try {
+                        const level = parseInt(command.match(/\d+/)[0]);
+                        outputLine.className = 'console-line line-success';
+                        outputLine.textContent = `Entering recursion level ${level}...`;
+                        consoleOutput.appendChild(outputLine);
+                        
+                        setTimeout(() => {
+                            let recursionLine = document.createElement('div');
+                            recursionLine.className = 'console-line line-output';
+                            recursionLine.textContent = `Recursion level ${level} established. Ready for commands.`;
+                            consoleOutput.appendChild(recursionLine);
+                            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+                        }, 500);
+                    } catch (e) {
+                        outputLine.className = 'console-line line-error';
+                        outputLine.textContent = 'Invalid recursion level format. Use echo.recurse(number)';
+                        consoleOutput.appendChild(outputLine);
+                    }
+                } else if (command.startsWith('echo.analyze(')) {
+                    outputLine.textContent = 'Analysis initiated...';
+                    consoleOutput.appendChild(outputLine);
+                    
+                    setTimeout(() => {
+                        let analysisLine = document.createElement('div');
+                        analysisLine.className = 'console-line line-output';
+                        analysisLine.textContent = 'Analysis complete. Found 3 recursive patterns and 2 symmetry breaks.';
+                        consoleOutput.appendChild(analysisLine);
+                        consoleOutput.scrollTop = consoleOutput.scrollHeight;
+                    }, 700);
+                } else if (command === 'clear' || command === 'cls') {
+                    consoleOutput.innerHTML = '';
+                    return;
+                } else {
+                    outputLine.className = 'console-line line-error';
+                    outputLine.textContent = `Command not recognized: ${command}`;
+                    consoleOutput.appendChild(outputLine);
+                }
+            }
+            
+            // Update command history UI
+            function updateCommandHistory() {
+                commandHistory.innerHTML = '';
+                const historyToShow = history.slice(0, 10); // Show last 10 commands
+                
+                historyToShow.forEach(cmd => {
+                    const item = document.createElement('li');
+                    item.className = 'list-group-item';
+                    item.textContent = cmd;
+                    item.addEventListener('click', () => {
+                        consoleInput.value = cmd;
+                        consoleInput.focus();
+                    });
+                    commandHistory.appendChild(item);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

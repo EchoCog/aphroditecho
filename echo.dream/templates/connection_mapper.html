@@ -1,0 +1,338 @@
+{% extends "base.html" %}
+
+{% block title %}Dynamic Interdisciplinary Connection Mapper{% endblock %}
+
+{% block content %}
+<div class="mapper-container">
+    <div class="mapper-header">
+        <h1>Dynamic Interdisciplinary Connection Mapper</h1>
+        <p class="description">
+            Visualize and explore connections between knowledge domains and concepts across disciplines.
+        </p>
+        
+        <div class="mapper-controls">
+            <div class="control-group">
+                <button id="view-domains-btn" class="btn view-btn active">View Domains</button>
+                <button id="view-concepts-btn" class="btn view-btn">View Concepts</button>
+            </div>
+            
+            <div class="control-group">
+                <button id="add-domain-btn" class="btn">Add Domain</button>
+                <button id="add-concept-btn" class="btn">Add Concept</button>
+                <button id="add-connection-btn" class="btn">Add Connection</button>
+                <button id="find-paths-btn" class="btn">Find Paths</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mapper-content">
+        <div class="mapper-visualization">
+            <div id="connection-map" class="visualization-container">
+                <!-- Visualization will be rendered here -->
+                <div class="loading">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button id="zoom-in-btn" title="Zoom In"><i class="feather" data-feather="zoom-in"></i></button>
+                <button id="zoom-out-btn" title="Zoom Out"><i class="feather" data-feather="zoom-out"></i></button>
+                <button id="zoom-reset-btn" title="Reset Zoom"><i class="feather" data-feather="maximize"></i></button>
+            </div>
+        </div>
+        
+        <div class="mapper-sidebar">
+            <div id="domain-details" class="details-panel">
+                <h3>Domain Details</h3>
+                <div class="empty-state">
+                    <div class="empty-state-icon">?</div>
+                    <p>Select a domain to view details</p>
+                </div>
+                
+                <div class="domain-info hidden">
+                    <h4 class="domain-name"></h4>
+                    <p class="domain-description"></p>
+                    
+                    <div class="info-section">
+                        <h5>Domain Type</h5>
+                        <p class="domain-type"></p>
+                    </div>
+                    
+                    <div class="info-section">
+                        <h5>Concepts</h5>
+                        <p class="concept-count"></p>
+                        <button id="view-domain-concepts-btn" class="btn btn-small">View Concepts</button>
+                    </div>
+                    
+                    <div class="info-section">
+                        <h5>Connections</h5>
+                        <ul class="connections-list"></ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="concept-details" class="details-panel hidden">
+                <h3>Concept Details</h3>
+                <div class="empty-state">
+                    <div class="empty-state-icon">?</div>
+                    <p>Select a concept to view details</p>
+                </div>
+                
+                <div class="concept-info hidden">
+                    <h4 class="concept-name"></h4>
+                    <p class="concept-description"></p>
+                    
+                    <div class="info-section">
+                        <h5>Concept Type</h5>
+                        <p class="concept-type"></p>
+                    </div>
+                    
+                    <div class="info-section">
+                        <h5>Domain</h5>
+                        <p class="domain-name"></p>
+                    </div>
+                    
+                    <div class="info-section">
+                        <h5>Connections</h5>
+                        <ul class="connections-list"></ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="paths-panel" class="details-panel hidden">
+                <h3>Interdisciplinary Paths</h3>
+                <div class="empty-state">
+                    <div class="empty-state-icon">↔</div>
+                    <p>Use the "Find Paths" button to discover connections between domains</p>
+                </div>
+                
+                <div class="paths-form">
+                    <div class="form-group">
+                        <label for="source-domain">Source Domain</label>
+                        <select id="source-domain" class="domain-select"></select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="target-domain">Target Domain</label>
+                        <select id="target-domain" class="domain-select"></select>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button id="search-paths-btn" class="btn">Find Paths</button>
+                    </div>
+                </div>
+                
+                <div class="paths-results hidden">
+                    <h4>Paths Found</h4>
+                    <div class="paths-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Domain Form Modal -->
+    <div id="domain-form-modal" class="modal-backdrop hidden">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Add Knowledge Domain</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="domain-form">
+                    <div class="form-group">
+                        <label for="domain-name">Domain Name</label>
+                        <input type="text" id="domain-name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="domain-description">Description</label>
+                        <textarea id="domain-description" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="domain-type">Domain Type</label>
+                        <select id="domain-type">
+                            <option value="general">General</option>
+                            <option value="specialized">Specialized</option>
+                            <option value="interdisciplinary">Interdisciplinary</option>
+                            <option value="applied">Applied</option>
+                            <option value="theoretical">Theoretical</option>
+                            <option value="emerging">Emerging</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="parent-domain">Parent Domain (Optional)</label>
+                        <select id="parent-domain">
+                            <option value="">None</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn modal-cancel">Cancel</button>
+                <button class="btn" id="domain-form-submit">Create Domain</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Concept Form Modal -->
+    <div id="concept-form-modal" class="modal-backdrop hidden">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Add Concept</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="concept-form">
+                    <div class="form-group">
+                        <label for="concept-name">Concept Name</label>
+                        <input type="text" id="concept-name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="concept-description">Description</label>
+                        <textarea id="concept-description" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="concept-domain">Domain</label>
+                        <select id="concept-domain" required></select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="concept-type">Concept Type</label>
+                        <select id="concept-type">
+                            <option value="concept">Concept</option>
+                            <option value="entity">Entity</option>
+                            <option value="process">Process</option>
+                            <option value="principle">Principle</option>
+                            <option value="theory">Theory</option>
+                            <option value="method">Method</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn modal-cancel">Cancel</button>
+                <button class="btn" id="concept-form-submit">Create Concept</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Connection Form Modal -->
+    <div id="connection-form-modal" class="modal-backdrop hidden">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Add Connection</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="connection-form">
+                    <div class="form-group">
+                        <label for="connection-type">Connection Type</label>
+                        <select id="connection-type">
+                            <option value="domain">Between Domains</option>
+                            <option value="concept">Between Concepts</option>
+                        </select>
+                    </div>
+                    
+                    <div id="domain-connection-fields">
+                        <div class="form-group">
+                            <label for="source-domain-select">Source Domain</label>
+                            <select id="source-domain-select" required></select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="target-domain-select">Target Domain</label>
+                            <select id="target-domain-select" required></select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="domain-connection-type">Relationship Type</label>
+                            <select id="domain-connection-type">
+                                <option value="related">Related</option>
+                                <option value="part_of">Part Of</option>
+                                <option value="contains">Contains</option>
+                                <option value="depends_on">Depends On</option>
+                                <option value="influences">Influences</option>
+                                <option value="derived_from">Derived From</option>
+                                <option value="opposes">Opposes</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div id="concept-connection-fields" class="hidden">
+                        <div class="form-group">
+                            <label for="source-concept-select">Source Concept</label>
+                            <select id="source-concept-select" required></select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="target-concept-select">Target Concept</label>
+                            <select id="target-concept-select" required></select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="concept-relation-type">Relation Type</label>
+                            <select id="concept-relation-type">
+                                <option value="related">Related</option>
+                                <option value="part_of">Part Of</option>
+                                <option value="contains">Contains</option>
+                                <option value="depends_on">Depends On</option>
+                                <option value="influences">Influences</option>
+                                <option value="derived_from">Derived From</option>
+                                <option value="opposes">Opposes</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="connection-strength">Connection Strength</label>
+                        <input type="range" id="connection-strength" min="0" max="1" step="0.1" value="0.5">
+                        <div class="range-labels">
+                            <span>Weak</span>
+                            <span>Strong</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="connection-description">Description</label>
+                        <textarea id="connection-description" rows="2"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="bidirectional-connection" checked>
+                            Bidirectional Connection
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn modal-cancel">Cancel</button>
+                <button class="btn" id="connection-form-submit">Create Connection</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/connection-mapper.css') }}">
+{% endblock %}
+
+{% block scripts %}
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="https://unpkg.com/feather-icons"></script>
+<script src="{{ url_for('static', filename='js/connection-mapper.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize UI
+        const ui = new ConnectionMapperUI();
+        
+        // Initialize Feather icons
+        feather.replace();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,214 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DTE Architecture Workspace</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            background-color: #f7f9fc;
+            color: #333;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .workspace-header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+        .structure-card {
+            transition: all 0.3s ease;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .structure-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .canvas-container {
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            background-color: #fff;
+            height: 500px;
+            overflow: hidden;
+        }
+        #structure-canvas {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="workspace-header">
+        <div class="container">
+            <h1><i class="bi bi-buildings"></i> Architecture Namespace</h1>
+            <p class="lead">DTE's Spatial Organization Workspace</p>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Structure Creator</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="structure-form">
+                            <div class="mb-3">
+                                <label for="structure-name" class="form-label">Structure Name</label>
+                                <input type="text" class="form-control" id="structure-name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="structure-dimensions" class="form-label">Dimensions</label>
+                                <input type="text" class="form-control" id="structure-dimensions" placeholder="e.g. 10x10x5" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="structure-purpose" class="form-label">Purpose</label>
+                                <textarea class="form-control" id="structure-purpose" rows="3" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Create Structure</button>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Structure List</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="structure-list" class="list-group">
+                            <!-- Structures will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Spatial Canvas</h5>
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-sm btn-outline-primary" id="zoom-in"><i class="bi bi-zoom-in"></i></button>
+                            <button class="btn btn-sm btn-outline-primary" id="zoom-out"><i class="bi bi-zoom-out"></i></button>
+                            <button class="btn btn-sm btn-outline-secondary" id="reset-view"><i class="bi bi-arrow-repeat"></i></button>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="canvas-container">
+                            <canvas id="structure-canvas"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Components</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col">
+                                <input type="text" id="component-name" class="form-control" placeholder="Component Name">
+                            </div>
+                            <div class="col">
+                                <button id="add-component" class="btn btn-primary" disabled>Add Component</button>
+                            </div>
+                        </div>
+                        <div id="component-list" class="list-group">
+                            <!-- Components will be displayed here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Basic workspace functionality would be implemented here
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load structures
+            fetch('/api/architecture/structures')
+                .then(response => response.json())
+                .then(data => {
+                    const structureList = document.getElementById('structure-list');
+                    structureList.innerHTML = '';
+                    
+                    for (const [id, structure] of Object.entries(data)) {
+                        const item = document.createElement('a');
+                        item.href = '#';
+                        item.className = 'list-group-item list-group-item-action';
+                        item.innerHTML = `
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">${structure.name}</h6>
+                            </div>
+                            <p class="mb-1">${structure.purpose}</p>
+                            <small>${structure.dimensions}</small>
+                        `;
+                        
+                        item.addEventListener('click', function() {
+                            // Select this structure
+                            document.querySelectorAll('#structure-list a').forEach(el => {
+                                el.classList.remove('active');
+                            });
+                            this.classList.add('active');
+                            document.getElementById('add-component').disabled = false;
+                            
+                            // Display components
+                            const componentList = document.getElementById('component-list');
+                            componentList.innerHTML = '';
+                            
+                            structure.components.forEach(component => {
+                                const compItem = document.createElement('div');
+                                compItem.className = 'list-group-item';
+                                compItem.innerHTML = `
+                                    <h6>${component.name}</h6>
+                                    <ul class="list-unstyled">
+                                        ${Object.entries(component.properties).map(([key, value]) => 
+                                            `<li><small>${key}: ${value}</small></li>`
+                                        ).join('')}
+                                    </ul>
+                                `;
+                                componentList.appendChild(compItem);
+                            });
+                        });
+                        
+                        structureList.appendChild(item);
+                    }
+                });
+                
+            // Structure form submission
+            document.getElementById('structure-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const name = document.getElementById('structure-name').value;
+                const dimensions = document.getElementById('structure-dimensions').value;
+                const purpose = document.getElementById('structure-purpose').value;
+                
+                fetch('/api/architecture/structures', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name,
+                        dimensions,
+                        purpose
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Refresh structure list
+                        window.location.reload();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
