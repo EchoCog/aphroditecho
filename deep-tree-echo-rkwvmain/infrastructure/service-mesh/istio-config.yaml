@@ -1,0 +1,260 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: istio-system
+  labels:
+    istio-injection: enabled
+
+---
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+metadata:
+  name: deep-echo-istio
+  namespace: istio-system
+spec:
+  components:
+    pilot:
+      k8s:
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        hpaSpec:
+          minReplicas: 1
+          maxReplicas: 3
+    ingressGateways:
+    - name: istio-ingressgateway
+      enabled: true
+      k8s:
+        service:
+          type: LoadBalancer
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+    egressGateways:
+    - name: istio-egressgateway
+      enabled: false
+  values:
+    global:
+      meshID: deep-echo-mesh
+      network: deep-echo-network
+    pilot:
+      traceSampling: 1.0
+      env:
+        EXTERNAL_ISTIOD: false
+    telemetry:
+      v2:
+        prometheus:
+          service:
+          - providers:
+              prometheus:
+                configOverride:
+                  metric_relabeling_configs:
+                  - source_labels: [__name__]
+                    regex: 'istio_.*'
+                    target_label: service_mesh
+                    replacement: istio
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: deep-echo-main-svc
+  namespace: default
+  labels:
+    app: deep-echo-main
+    service: deep-echo-main
+spec:
+  ports:
+  - port: 8000
+    name: http
+  selector:
+    app: deep-echo-main
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: deep-echo-gateway
+  namespace: default
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "deepecho.example.com"
+    - "*.deepecho.example.com"
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: deepecho-tls
+    hosts:
+    - "deepecho.example.com"
+    - "*.deepecho.example.com"
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: deep-echo-vs
+  namespace: default
+spec:
+  hosts:
+  - "deepecho.example.com"
+  - "*.deepecho.example.com"
+  gateways:
+  - deep-echo-gateway
+  http:
+  # API routes
+  - match:
+    - uri:
+        prefix: /api/
+    route:
+    - destination:
+        host: deep-echo-main-svc
+        port:
+          number: 8000
+    timeout: 30s
+    retries:
+      attempts: 3
+      perTryTimeout: 10s
+      retryOn: 5xx,reset,connect-failure,refused-stream
+  # Load balancer routes
+  - match:
+    - uri:
+        prefix: /lb/
+    route:
+    - destination:
+        host: deep-echo-lb-svc
+        port:
+          number: 8000
+  # Cache service routes
+  - match:
+    - uri:
+        prefix: /cache/
+    route:
+    - destination:
+        host: deep-echo-cache-svc
+        port:
+          number: 8002
+  # Default route to main app
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: deep-echo-main-svc
+        port:
+          number: 8000
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: deep-echo-main-dr
+  namespace: default
+spec:
+  host: deep-echo-main-svc
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 100
+      http:
+        http1MaxPendingRequests: 50
+        maxRequestsPerConnection: 10
+    loadBalancer:
+      simple: LEAST_CONN
+    outlierDetection:
+      consecutiveErrors: 3
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: deep-echo-cognitive-dr
+  namespace: default
+spec:
+  host: deep-echo-cognitive-svc
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 200
+      http:
+        http1MaxPendingRequests: 100
+        maxRequestsPerConnection: 5
+    loadBalancer:
+      simple: ROUND_ROBIN
+    outlierDetection:
+      consecutiveErrors: 5
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 30
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+  - name: canary
+    labels:
+      version: canary
+
+---
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: default
+  namespace: default
+spec:
+  mtls:
+    mode: PERMISSIVE
+
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: deep-echo-authz
+  namespace: default
+spec:
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/default/sa/deep-echo-main"]
+    to:
+    - operation:
+        methods: ["GET", "POST"]
+  - from:
+    - source:
+        namespaces: ["istio-system"]
+    to:
+    - operation:
+        methods: ["GET"]
+        paths: ["/health", "/metrics"]
+
+---
+apiVersion: telemetry.istio.io/v1alpha1
+kind: Telemetry
+metadata:
+  name: deep-echo-metrics
+  namespace: default
+spec:
+  metrics:
+  - providers:
+    - prometheus
+  - overrides:
+    - match:
+        metric: ALL_METRICS
+      tagOverrides:
+        source_app:
+          value: "deep-echo"
+        service_mesh:
+          value: "istio"

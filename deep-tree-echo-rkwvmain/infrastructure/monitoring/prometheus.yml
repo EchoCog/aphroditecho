@@ -1,0 +1,76 @@
+# Prometheus configuration for monitoring Deep Tree Echo services
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'deep-echo'
+    environment: 'production'
+
+rule_files:
+  - "rules/*.yml"
+
+scrape_configs:
+  # Main application
+  - job_name: 'deep-echo-main'
+    static_configs:
+      - targets: ['main-app:8000']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  # Load balancer
+  - job_name: 'deep-echo-load-balancer'
+    static_configs:
+      - targets: ['load-balancer:8000']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+
+  # Cache service
+  - job_name: 'deep-echo-cache'
+    static_configs:
+      - targets: ['cache-service:8002']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  # Cognitive services
+  - job_name: 'deep-echo-cognitive'
+    static_configs:
+      - targets: ['cognitive-service-1:8001', 'cognitive-service-2:8001']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  # Redis metrics (via redis_exporter if available)
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:6379']
+    scrape_interval: 30s
+
+  # Nginx metrics (via nginx_exporter if available)
+  - job_name: 'nginx'
+    static_configs:
+      - targets: ['nginx:80']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Node exporter for system metrics (if available)
+  - job_name: 'node'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 30s
+
+# Alerting configuration (optional)
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # - alertmanager:9093
+
+# Storage configuration
+storage:
+  tsdb:
+    retention.time: 15d
+    retention.size: 10GB

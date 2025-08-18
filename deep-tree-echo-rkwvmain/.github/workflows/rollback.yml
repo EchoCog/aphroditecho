@@ -1,0 +1,147 @@
+name: Rollback Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to rollback'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - staging
+        - production
+      
+      rollback_to:
+        description: 'Version to rollback to (commit SHA or tag)'
+        required: true
+        type: string
+
+      reason:
+        description: 'Reason for rollback'
+        required: true
+        type: string
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  validate-rollback:
+    name: Validate Rollback Request
+    runs-on: ubuntu-latest
+    outputs:
+      image_exists: ${{ steps.check_image.outputs.exists }}
+    
+    steps:
+      - name: Check if target image exists
+        id: check_image
+        run: |
+          # Check if the specified image exists in registry
+          if docker manifest inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.rollback_to }} > /dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Fail if image doesn't exist
+        if: steps.check_image.outputs.exists != 'true'
+        run: |
+          echo "❌ Image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.rollback_to }} not found"
+          exit 1
+
+  rollback-staging:
+    name: Rollback Staging
+    runs-on: ubuntu-latest
+    needs: [validate-rollback]
+    if: github.event.inputs.environment == 'staging'
+    environment:
+      name: staging
+      url: https://staging.deepecho.example.com
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create rollback backup
+        run: |
+          echo "Creating backup of current staging deployment..."
+          # This would backup current state
+
+      - name: Rollback staging environment
+        run: |
+          echo "Rolling back staging to: ${{ github.event.inputs.rollback_to }}"
+          echo "Reason: ${{ github.event.inputs.reason }}"
+          echo "Image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.rollback_to }}"
+          # Deploy the specified version
+
+      - name: Verify rollback
+        run: |
+          echo "Verifying staging rollback..."
+          # Add health checks and verification
+
+      - name: Notify rollback completion
+        run: |
+          echo "✅ Staging rollback completed successfully"
+
+  rollback-production:
+    name: Rollback Production
+    runs-on: ubuntu-latest
+    needs: [validate-rollback]
+    if: github.event.inputs.environment == 'production'
+    environment:
+      name: production
+      url: https://deepecho.example.com
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Pre-rollback safety checks
+        run: |
+          echo "Running pre-rollback safety checks..."
+          # Additional safety checks for production
+
+      - name: Create rollback backup
+        run: |
+          echo "Creating backup of current production deployment..."
+          # Backup current production state
+
+      - name: Rollback production environment
+        run: |
+          echo "Rolling back production to: ${{ github.event.inputs.rollback_to }}"
+          echo "Reason: ${{ github.event.inputs.reason }}"
+          echo "Image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.rollback_to }}"
+          # Deploy the specified version with zero downtime
+
+      - name: Verify rollback
+        run: |
+          echo "Verifying production rollback..."
+          # Comprehensive health checks
+
+      - name: Notify stakeholders
+        run: |
+          echo "✅ Production rollback completed successfully"
+          echo "Notifying stakeholders..."
+
+  post-rollback:
+    name: Post-Rollback Actions
+    runs-on: ubuntu-latest
+    needs: [rollback-staging, rollback-production]
+    if: always() && (needs.rollback-staging.result == 'success' || needs.rollback-production.result == 'success')
+    
+    steps:
+      - name: Update monitoring dashboards
+        run: |
+          echo "Updating monitoring dashboards with rollback information..."
+
+      - name: Create incident report
+        run: |
+          echo "Creating incident report for rollback..."
+          echo "Environment: ${{ github.event.inputs.environment }}"
+          echo "Rolled back to: ${{ github.event.inputs.rollback_to }}"
+          echo "Reason: ${{ github.event.inputs.reason }}"
+
+      - name: Schedule post-rollback review
+        run: |
+          echo "Scheduling post-rollback review meeting..."

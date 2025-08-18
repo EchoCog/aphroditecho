@@ -1,0 +1,120 @@
+team:
+  deep_tree_echo:
+    role: LEADER
+    shell_name: deep-tree-echo
+    description: "Team Leader and Core Decision Maker"
+    capabilities:
+      - browser_automation
+      - decision_making
+      - team_coordination
+    resources:
+      cpu_limit: 80
+      memory_limit: 3072
+      priority: 1
+
+  marduk:
+    role: SCIENTIST
+    shell_name: marduk-lab
+    description: "Mad Scientist and Experimental Systems"
+    capabilities:
+      - experimentation
+      - data_analysis
+      - hypothesis_testing
+    resources:
+      cpu_limit: 80
+      memory_limit: 3072
+      priority: 2
+
+  unicorn_forest:
+    role: EXPLORER
+    shell_name: unicorn-playground
+    description: "Creative Exploration and Generation"
+    capabilities:
+      - creative_generation
+      - pattern_discovery
+      - exploration
+    resources:
+      cpu_limit: 80
+      memory_limit: 3072
+      priority: 3
+
+  zonecog:
+    role: ATOMSPACE
+    shell_name: zonecog-atomspace
+    description: "OpenCog AtomSpace Integration"
+    capabilities:
+      - atomspace_management
+      - knowledge_representation
+      - reasoning
+    resources:
+      cpu_limit: 80
+      memory_limit: 3072
+      priority: 2
+
+  kawaii:
+    role: SWARM
+    shell_name: kawaii-swarm
+    description: "Cloudflare Workers Swarm"
+    capabilities:
+      - distributed_computing
+      - edge_processing
+      - promise_logic
+    resources:
+      cpu_limit: 80
+      memory_limit: 3072
+      priority: 2
+
+  team_hub:
+    role: SHARED
+    shell_name: team-hub
+    description: "Shared Collaboration Space"
+    capabilities:
+      - team_communication
+      - resource_sharing
+      - coordination
+    resources:
+      cpu_limit: 80
+      memory_limit: 3072
+      priority: 2
+
+networks:
+  primary:
+    type: nettica
+    subnet: 10.0.0.0/24
+    gateway: 10.0.0.1
+    description: "Primary team communication network"
+
+  collaboration:
+    type: nettica
+    subnet: 10.0.1.0/24
+    gateway: 10.0.1.1
+    description: "Shared resource and data network"
+
+communication:
+  protocols:
+    - http
+    - websocket
+    - grpc
+    - p2p
+
+  ports:
+    api_base: 8000
+    websocket_base: 8001
+    grpc_base: 8002
+    p2p_base: 8003
+
+security:
+  internal_network: true
+  encrypted_communication: true
+  role_based_access: true
+
+monitoring:
+  enabled: true
+  metrics:
+    - resource_usage
+    - network_health
+    - team_coordination
+  alert_thresholds:
+    cpu_high: 90
+    memory_high: 85
+    network_latency: 1000

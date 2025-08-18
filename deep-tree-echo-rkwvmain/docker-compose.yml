@@ -1,0 +1,304 @@
+version: '3.8'
+
+services:
+  # Redis for distributed caching and session management
+  redis:
+    image: redis:7-alpine
+    container_name: deep-echo-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - deep-echo-network
+    restart: unless-stopped
+
+  # Load Balancer and Service Registry
+  load-balancer:
+    build:
+      context: .
+      dockerfile: Dockerfile.microservice
+      args:
+        SERVICE_FILE: microservices/load_balancer.py
+    container_name: deep-echo-lb
+    ports:
+      - "8000:8000"
+    environment:
+      - LB_PORT=8000
+      - HEALTH_CHECK_INTERVAL=30
+      - AUTO_SCALING_ENABLED=true
+      - SCALE_UP_THRESHOLD=0.8
+      - SCALE_DOWN_THRESHOLD=0.3
+      - MIN_INSTANCES=1
+      - MAX_INSTANCES=5
+      - LB_STRATEGY=weighted
+    depends_on:
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - deep-echo-network
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.load-balancer.rule=Host(`lb.deepecho.local`)"
+      - "traefik.http.services.load-balancer.loadbalancer.server.port=8000"
+
+  # Multi-Level Cache Service
+  cache-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.microservice
+      args:
+        SERVICE_FILE: microservices/cache_service.py
+    container_name: deep-echo-cache
+    ports:
+      - "8002:8002"
+    environment:
+      - CACHE_SERVICE_PORT=8002
+      - MAX_CACHE_MEMORY_MB=512
+      - DEFAULT_TTL_SECONDS=300
+      - EVICTION_POLICY=lru
+      - ENABLE_COMPRESSION=true
+    depends_on:
+      - redis
+      - load-balancer
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - deep-echo-network
+    restart: unless-stopped
+
+  # Cognitive Processing Service (Multiple instances for load balancing)
+  cognitive-service-1:
+    build:
+      context: .
+      dockerfile: Dockerfile.microservice
+      args:
+        SERVICE_FILE: microservices/cognitive_service.py
+    container_name: deep-echo-cognitive-1
+    ports:
+      - "8001:8001"
+    environment:
+      - COGNITIVE_SERVICE_PORT=8001
+      - MAX_CONCURRENT_SESSIONS=50
+      - ENABLE_CACHING=true
+      - CACHE_TTL_SECONDS=300
+      - REDIS_URL=redis://redis:6379
+      - SERVICE_REGISTRY_URL=http://load-balancer:8000
+    depends_on:
+      - redis
+      - load-balancer
+      - cache-service
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - deep-echo-network
+    restart: unless-stopped
+
+  cognitive-service-2:
+    build:
+      context: .
+      dockerfile: Dockerfile.microservice
+      args:
+        SERVICE_FILE: microservices/cognitive_service.py
+    container_name: deep-echo-cognitive-2
+    ports:
+      - "8003:8001"
+    environment:
+      - COGNITIVE_SERVICE_PORT=8001
+      - MAX_CONCURRENT_SESSIONS=50
+      - ENABLE_CACHING=true
+      - CACHE_TTL_SECONDS=300
+      - REDIS_URL=redis://redis:6379
+      - SERVICE_REGISTRY_URL=http://load-balancer:8000
+    depends_on:
+      - redis
+      - load-balancer
+      - cache-service
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - deep-echo-network
+    restart: unless-stopped
+
+  # Main Application (Enhanced with distributed capabilities)
+  main-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: deep-echo-main
+    ports:
+      - "8080:8000"
+    environment:
+      - FLASK_ENV=production
+      - ECHO_WEBVM_MODE=false
+      - ECHO_MEMORY_LIMIT=600
+      - ENABLE_DISTRIBUTED_MODE=true
+      - LOAD_BALANCER_URL=http://load-balancer:8000
+      - CACHE_SERVICE_URL=http://cache-service:8002
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+      - load-balancer
+      - cache-service
+      - cognitive-service-1
+      - cognitive-service-2
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - deep-echo-network
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.main-app.rule=Host(`app.deepecho.local`)"
+      - "traefik.http.services.main-app.loadbalancer.server.port=8000"
+
+  # Nginx Reverse Proxy for additional load balancing
+  nginx:
+    image: nginx:alpine
+    container_name: deep-echo-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./infrastructure/nginx/conf.d:/etc/nginx/conf.d:ro
+      - nginx_cache:/var/cache/nginx
+    depends_on:
+      - main-app
+      - load-balancer
+    networks:
+      - deep-echo-network
+    restart: unless-stopped
+
+  # Monitoring: Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: deep-echo-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./infrastructure/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    networks:
+      - deep-echo-network
+    restart: unless-stopped
+
+  # Monitoring: Grafana
+  grafana:
+    image: grafana/grafana:latest
+    container_name: deep-echo-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=deepecho123
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./infrastructure/monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./infrastructure/monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    depends_on:
+      - prometheus
+    networks:
+      - deep-echo-network
+    restart: unless-stopped
+
+  # Distributed Tracing: Jaeger
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: deep-echo-jaeger
+    ports:
+      - "16686:16686"  # Jaeger UI
+      - "14268:14268"  # Jaeger collector
+    environment:
+      - COLLECTOR_ZIPKIN_HTTP_PORT=9411
+    networks:
+      - deep-echo-network
+    restart: unless-stopped
+
+  # Performance Testing: Artillery (for load testing)
+  artillery:
+    image: artilleryio/artillery:latest
+    container_name: deep-echo-artillery
+    volumes:
+      - ./infrastructure/testing:/scripts
+    networks:
+      - deep-echo-network
+    profiles:
+      - testing
+    command: ["sleep", "infinity"]  # Keep container running for manual testing
+
+  # Database for persistent storage (if needed)
+  postgres:
+    image: postgres:15-alpine
+    container_name: deep-echo-postgres
+    environment:
+      - POSTGRES_DB=deepecho
+      - POSTGRES_USER=deepecho
+      - POSTGRES_PASSWORD=deepecho123
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - deep-echo-network
+    restart: unless-stopped
+    profiles:
+      - database
+
+networks:
+  deep-echo-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  postgres_data:
+    driver: local
+  nginx_cache:
+    driver: local
+
+# Override configuration for development
+# Use: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+x-development: &development
+  environment:
+    - DEBUG=true
+    - LOG_LEVEL=DEBUG
+  volumes:
+    - ./src:/app:ro  # Mount source code for development

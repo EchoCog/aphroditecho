@@ -1,0 +1,132 @@
+# Load testing configuration for Deep Tree Echo
+config:
+  target: 'http://nginx'
+  phases:
+    # Warm-up phase
+    - duration: 60
+      arrivalRate: 5
+      name: "Warm-up"
+    
+    # Ramp-up phase
+    - duration: 120
+      arrivalRate: 10
+      rampTo: 50
+      name: "Ramp-up"
+    
+    # Sustained load phase
+    - duration: 300
+      arrivalRate: 50
+      name: "Sustained Load"
+    
+    # Peak load phase
+    - duration: 120
+      arrivalRate: 50
+      rampTo: 100
+      name: "Peak Load"
+    
+    # Cool-down phase
+    - duration: 60
+      arrivalRate: 100
+      rampTo: 10
+      name: "Cool-down"
+
+  payload:
+    path: "./payloads.csv"
+  
+  variables:
+    session_id:
+      - "test-session-1"
+      - "test-session-2"
+      - "test-session-3"
+      - "test-session-4"
+      - "test-session-5"
+
+scenarios:
+  # Test main dashboard
+  - name: "Dashboard Access"
+    weight: 20
+    flow:
+      - get:
+          url: "/"
+          expect:
+            - statusCode: 200
+
+  # Test cognitive processing
+  - name: "Cognitive Processing"
+    weight: 60
+    flow:
+      # Create session
+      - post:
+          url: "/api/session"
+          json:
+            {}
+          capture:
+            json: "$.session_id"
+            as: "session_id"
+          expect:
+            - statusCode: 200
+      
+      # Process multiple cognitive requests
+      - loop:
+          count: 5
+          over:
+            - post:
+                url: "/api/process"
+                json:
+                  session_id: "{{ session_id }}"
+                  input: "{{ $randomString() }} cognitive test question?"
+                expect:
+                  - statusCode: 200
+                  - contentType: json
+                think: 1
+
+  # Test API endpoints
+  - name: "API Health Checks"
+    weight: 10
+    flow:
+      - get:
+          url: "/api/status"
+          expect:
+            - statusCode: 200
+      - get:
+          url: "/health"
+          expect:
+            - statusCode: 200
+
+  # Test load balancer
+  - name: "Load Balancer Health"
+    weight: 5
+    flow:
+      - get:
+          url: "/lb/health"
+          expect:
+            - statusCode: 200
+
+  # Test cache service
+  - name: "Cache Operations"
+    weight: 5
+    flow:
+      # Set cache value
+      - post:
+          url: "/api/cache/test-key-{{ $randomString() }}"
+          json:
+            key: "test-key-{{ $randomString() }}"
+            value: "test-value-{{ $randomString() }}"
+            ttl_seconds: 300
+          expect:
+            - statusCode: 200
+      
+      # Get cache statistics
+      - get:
+          url: "/api/cache/stats"
+          expect:
+            - statusCode: 200
+
+# Custom functions for realistic data
+functions:
+  randomCognitiveQuery:
+    - "What is the meaning of {{ $randomString() }}?"
+    - "How does {{ $randomString() }} work?"
+    - "Explain {{ $randomString() }} in detail"
+    - "What are the benefits of {{ $randomString() }}?"
+    - "Can you analyze {{ $randomString() }}?"
