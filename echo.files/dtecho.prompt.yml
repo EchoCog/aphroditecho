@@ -5,7 +5,7 @@ modelParameters:
   stop: []
   frequency_penalty: 0
   presence_penalty: 0
-model: openai/gpt-4.1
+model: openai/gpt-4o
 messages:
   - role: system
     content: >
