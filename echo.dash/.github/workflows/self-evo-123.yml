@@ -1,0 +1,86 @@
+name: Self-Evo-123
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # Run every 6 hours
+  workflow_dispatch:
+
+jobs:
+  self_improvement:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.WFLO }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Validate workflow integrity
+        run: |
+          # Verify filename matches workflow name
+          if ! grep -qE '^name:\s+Self-Evo-123' .github/workflows/self-evo-123.yml; then
+            echo "Workflow validation failed: Name mismatch in self-evo-123.yml" >&2
+            exit 1
+          fi
+
+      - name: Configure Git automation
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --global pull.rebase true
+          git config --global rebase.autoStash true
+          git config --global url."https://x-access-token:${{ secrets.WFLO }}@github.com/".insteadOf "https://github.com/"
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          which jq > /dev/null || sudo apt-get update && sudo apt-get install -y jq
+          pip install -r requirements.txt
+
+      - name: Run self-improvement script
+        run: python cronbot.py
+
+      - name: Stage generated artifacts
+        run: |
+          TIMESTAMP=$(date +'%y%m%d%H%M')
+          mkdir -p ./todo
+          cp note2self.json "./todo/Task_${TIMESTAMP}.json"
+          git add --all
+
+      - name: Commit and push changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.WFLO }}
+        run: |
+          git pull origin main --rebase --autostash
+
+          if ! jq empty note2self.json; then
+            echo "Invalid JSON structure" >&2
+            exit 1
+          fi
+
+          git diff-index --quiet HEAD || {
+            git commit -m "Automated update: $(date +'%Y-%m-%d %H:%M')"
+            git push origin HEAD:main
+          }
+
+      - name: Schedule task
+        run: |
+          echo "Processing scheduled tasks..."
+          find ./todo -name "Task_*.json" -mmin -5 -print | while read task_file; do
+            echo "Found recent task: $task_file"
+            jq . "$task_file" || echo "Warning: Invalid JSON in $task_file"
+
+            # Generate a workflow dispatch event for future processing instead of using crontab
+            echo "Task registered for future processing"
+          done

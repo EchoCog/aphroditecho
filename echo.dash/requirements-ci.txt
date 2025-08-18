@@ -1,0 +1,12 @@
+# Minimal requirements for CI/CD environments
+# Basic dependencies needed for linting and testing
+
+# Core dependencies
+requests>=2.31.0
+python-dotenv==1.0.1
+psutil>=5.9.0
+websockets>=12.0
+
+# Optional dependencies with lighter alternatives
+# These help tests pass without requiring heavy ML/GUI packages
+numpy  # lightweight math library

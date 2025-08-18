@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+  windsurf-simple:
+    build:
+      context: ..
+      dockerfile: docker-simple/Dockerfile
+    container_name: windsurf-simple
+    volumes:
+      - ..:/home/deepecho/windsurf
+    environment:
+      - DISPLAY=:99
+    ports:
+      - "5901:5900"  # VNC on a different port to avoid conflict
+    cap_add:
+      - SYS_ADMIN  # Required for browser automation
+    security_opt:
+      - seccomp=unconfined  # Required for browser automation
+    shm_size: '2gb'  # Shared memory for browser
+    restart: unless-stopped

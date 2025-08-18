@@ -1,0 +1,8 @@
+# Deep Tree Echo privileged command configuration
+Defaults:deepecho !requiretty
+deepecho ALL=(ALL) NOPASSWD: /usr/bin/apt-get
+deepecho ALL=(ALL) NOPASSWD: /usr/bin/apt
+deepecho ALL=(ALL) NOPASSWD: /usr/bin/dpkg
+deepecho ALL=(ALL) NOPASSWD: /usr/bin/systemctl
+deepecho ALL=(ALL) NOPASSWD: /usr/bin/service
+deepecho ALL=(ALL) NOPASSWD: /usr/sbin/service

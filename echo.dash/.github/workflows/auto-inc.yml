@@ -1,0 +1,34 @@
+name: Auto-increment Version
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'note2self.json'
+      - '.github/workflows/request_payload.json'
+
+jobs:
+  increment-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.PAT }}
+
+      - name: Increment version
+        run: |
+          jq '.version |= . + 1' note2self.json > temp.json && \
+            mv temp.json note2self.json
+          jq '.version |= . + 1' .github/workflows/request_payload.json > \
+            temp.json && mv temp.json .github/workflows/request_payload.json
+      - name: Ensure newline at end of files
+        run: |
+          sed -i -e '$a\' note2self.json
+          sed -i -e '$a\' .github/workflows/request_payload.json
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add note2self.json .github/workflows/request_payload.json
+          git commit -m "Auto-increment version [skip ci]"
+          git push

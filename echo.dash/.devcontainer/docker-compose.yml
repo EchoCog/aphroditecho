@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+      args:
+        # Enable BuildKit cache to speed up builds
+        BUILDKIT_INLINE_CACHE: 1
+    command: sleep infinity
+    # Use bridge networking instead of host
+    networks:
+      - echosurface-network
+    volumes:
+      - ..:/workspaces/echosurface:cached
+      # X11 socket for GUI applications
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      # Docker socket for Docker-in-Docker
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Persistent volumes for data and packages
+      - xauthority-file:/tmp/.Xauthority
+      - python-packages:/usr/local/lib/python3.10/site-packages
+    ports:
+      - "6080:6080"  # desktop-lite VNC web client
+      - "5901:5901"  # VNC server
+      - "5432:5432"  # PostgreSQL
+      - "5900:5900"  # Project VNC port
+    environment:
+      - DISPLAY=:1
+      - XAUTHORITY=/tmp/.Xauthority
+      - PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=echosurface
+      - POSTGRES_HOST=db
+      # Docker environment variables
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - DOCKER_BUILDKIT=1
+      # Increase Node.js memory limit to prevent heap errors
+      - NODE_OPTIONS=--max_old_space_size=4096
+    # Add capabilities for browser automation
+    cap_add:
+      - SYS_ADMIN
+    security_opt:
+      - seccomp=unconfined
+    # Increase shared memory size for Chrome/Firefox
+    shm_size: '4gb'
+    # Set resource limits to prevent build failures
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+    depends_on:
+      - db
+
+  db:
+    image: postgres:14-alpine
+    restart: unless-stopped
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=echosurface
+    networks:
+      - echosurface-network
+
+networks:
+  echosurface-network:
+    driver: bridge
+    name: echosurface-network
+
+volumes:
+  postgres-data:
+  python-packages:
+  xauthority-file:

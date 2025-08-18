@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  windsurf:
+    build: .
+    container_name: windsurf
+    volumes:
+      - .:/home/deepecho/windsurf
+    environment:
+      - DISPLAY=:99
+    ports:
+      - "5900:5900"  # VNC
+    cap_add:
+      - SYS_ADMIN  # Required for browser automation
+    security_opt:
+      - seccomp=unconfined  # Required for browser automation
+    shm_size: '2gb'  # Shared memory for browser

@@ -1,0 +1,43 @@
+# Workflow B: Modifies Workflow A
+
+name: Self-Improve Workflow A
+
+on:
+ # schedule:
+  #  - cron: '30 * * * *' # Offset by 30 minutes
+  workflow_dispatch: # Allows manual trigger
+
+jobs:
+  modify_workflow_a:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pyyaml
+
+      - name: Modify Workflow A
+        run: |
+          python self_evo.py --target .github/workflows/workflow-a.yml --mode improve
+
+      - name: Validate Changes
+        run: |
+          python validate_workflow.py .github/workflows/workflow-a.yml
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+          git pull --rebase
+          git add .github/workflows/workflow-a.yml
+          git commit -m "Self-improved Workflow A"
+          git push

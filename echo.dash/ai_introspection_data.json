@@ -1,0 +1,14 @@
+{
+  "timestamp": "2025-08-18T03:27:31.676883",
+  "introspection_prompt": "DeepTreeEcho Recursive Self-Model Introspection:\n\nRepository Hypergraph Analysis:\n(file \"/home/runner/work/echodash/echodash/test_echo.py\" \"\"\"\nfrom selenium_interface import SeleniumInterface\nimport logging\n\ndef main():\n    # Set up logging\n    logging.basicConfig(level=logging.INFO)\n    logger = logging.getLogger(__name__)\n    \n    # Initialize interface\n    interface = SeleniumInterface()\n    \n    try:\n        # Initialize browser\n        if not interface.init():\n            logger.error(\"Failed to initialize browser\")\n            return\n        \n        # Test message\n        test_message = \"What are the key principles of recursive algorithms?\"\n        \n        # Send message and get response with echo analysis\n        response, echo_analysis = interface.send_message(test_message)\n        \n        if response and echo_analysis:\n            logger.info(\"Response received successfully\")\n            logger.info(\"Echo Analysis Results:\")\n            logger.info(\"Total Nodes: %s\", echo_analysis['total_nodes'])\n            logger.info(\"Average Echo: %.3f\", echo_analysis['avg_echo'])\n            logger.info(\"Maximum Echo: %.3f\", echo_analysis['max_echo'])\n            logger.info(\"Resonant Nodes: %s\", echo_analysis['resonant_nodes'])\n            logger.info(\"Tree Depth: %s\", echo_analysis['depth'])\n        else:\n            logger.error(\"Failed to get response or analyze echoes\")\n            \n    except (ImportError, AttributeError, KeyError, ValueError, RuntimeError) as e:\n        logger.error(\"Error in test: %s\", str(e))\n        \n    finally:\n        # Don't close the browser to keep the session alive\n        pass\n\nif __name__ == \"__main__\":\n    main()\n\n\"\"\")\n\n(file \"/home/runner/work/echodash/echodash/echoself_introspection.py\" \"\"\"\n\"\"\"\nEchoself Introspection Module\n\nHypergraph-encoded recursive self-model introspection\nInspired by DeepTreeEcho/Eva Self Model and echoself.md\n\nThis module implements the recursive self-model integration with hypergraph encoding\nand adapti...",
+  "attention_metrics": {
+    "recent_average_threshold": 0.55,
+    "recent_average_load": 0.5,
+    "total_decisions": 1,
+    "hypergraph_nodes": 0,
+    "highest_salience_files": []
+  },
+  "files_analyzed": 0,
+  "highest_salience_files": [],
+  "introspection_status": "success"
+}

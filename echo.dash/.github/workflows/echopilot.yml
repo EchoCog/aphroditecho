@@ -1,0 +1,711 @@
+name: EchoPilot Self-Improvement Workflow
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # Runs every 6 hours instead of every hour
+  workflow_dispatch:      # Allows manual trigger of the workflow
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  codebase_analysis:
+    runs-on: ubuntu-latest
+    outputs:
+      analysis_complete: ${{ steps.analysis.outputs.analysis_complete }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests python-dotenv psutil pygithub pylint coverage
+          # Install project dependencies for analysis
+          if [ -f requirements-ci.txt ]; then
+            pip install -r requirements-ci.txt || echo "CI requirements failed, continuing with basic analysis"
+          fi
+
+      - name: Run comprehensive codebase analysis
+        id: analysis
+        timeout-minutes: 30
+        run: |
+          # Fixed: Added robust file handling to prevent "Argument list too long" errors
+          # - Uses os.walk() instead of glob() for better performance with many files
+          # - Limits analysis to 50 files maximum to prevent argument list issues
+          # - Uses --files-from option with pylint as primary method
+          # - Falls back to batch processing if files-from fails
+          # - Added timeouts to prevent hanging
+          python3 << 'EOF'
+          import os
+          import json
+          import re
+          import subprocess
+          import sys
+          from pathlib import Path
+          from collections import defaultdict
+
+          def run_command(cmd, capture_output=True, timeout=300):
+              try:
+                  result = subprocess.run(cmd, shell=True, capture_output=capture_output, text=True, timeout=timeout)
+                  return result.returncode, result.stdout, result.stderr
+              except subprocess.TimeoutExpired:
+                  return -1, "", "Command timed out"
+              except Exception as e:
+                  return -1, "", str(e)
+
+          # Initialize analysis results
+          analysis_results = {
+              'code_quality_issues': [],
+              'architecture_gaps': [],
+              'test_coverage_gaps': [],
+              'dependency_issues': [],
+              'documentation_gaps': []
+          }
+
+          repo_path = Path('.')
+          
+          # 1. Code Quality Analysis
+          print("🔍 Analyzing code quality...")
+          
+          # Run pylint on Python files (using directory discovery to avoid argument list issues)
+          # Use a more robust approach to find Python files
+          python_files = []
+          for root, dirs, files in os.walk('.'):
+              # Skip .git and other hidden directories
+              dirs[:] = [d for d in dirs if not d.startswith('.')]
+              for file in files:
+                  if file.endswith('.py'):
+                      python_files.append(os.path.join(root, file))
+          if python_files:
+              print(f"Found {len(python_files)} Python files to analyze")
+              
+              # Limit the number of files to process to avoid argument list issues
+              max_files = 50  # Conservative limit
+              if len(python_files) > max_files:
+                  print(f"Limiting analysis to {max_files} files to avoid argument list issues")
+                  python_files = python_files[:max_files]
+              
+              # Use a more efficient approach to avoid argument list issues
+              # First, create a file list and use it with pylint
+              with open('python_files.txt', 'w') as f:
+                  for py_file in python_files:
+                      f.write(f"{py_file}\n")
+              
+              # Use pylint with file list to avoid argument list issues
+              pylint_cmd = "pylint --output-format=json --exit-zero --files-from=python_files.txt"
+              returncode, stdout, stderr = run_command(pylint_cmd, timeout=600)  # 10 minute timeout for pylint
+              
+              # Fallback: if files-from doesn't work, try processing files in batches
+              if returncode != 0 or not stdout:
+                  print("Pylint with files-from failed, trying batch processing...")
+                  # Process files in smaller batches to avoid argument list issues
+                  batch_size = 10
+                  all_pylint_results = []
+                  
+                  for i in range(0, len(python_files), batch_size):
+                      batch = python_files[i:i + batch_size]
+                      batch_files = ' '.join(str(f) for f in batch)
+                      batch_cmd = f"pylint --output-format=json --exit-zero {batch_files}"
+                      batch_returncode, batch_stdout, batch_stderr = run_command(batch_cmd, timeout=120)  # 2 minute timeout per batch
+                      
+                      if batch_returncode == 0 and batch_stdout:
+                          try:
+                              batch_results = json.loads(batch_stdout)
+                              if isinstance(batch_results, list):
+                                  all_pylint_results.extend(batch_results)
+                              else:
+                                  all_pylint_results.append(batch_results)
+                          except json.JSONDecodeError:
+                              pass
+                  
+                  # Use the combined results
+                  if all_pylint_results:
+                      stdout = json.dumps(all_pylint_results)
+                      returncode = 0
+              
+              if returncode == 0 and stdout:
+                  try:
+                      pylint_results = json.loads(stdout)
+                      for issue in pylint_results:
+                          if issue.get('type') in ['error', 'warning']:
+                              analysis_results['code_quality_issues'].append({
+                                  'file': issue.get('path', 'unknown'),
+                                  'line': issue.get('line', 0),
+                                  'message': issue.get('message', ''),
+                                  'type': issue.get('type', ''),
+                                  'symbol': issue.get('symbol', ''),
+                                  'severity': 'high' if issue.get('type') == 'error' else 'medium'
+                              })
+                  except json.JSONDecodeError:
+                      pass
+              else:
+                  print(f"⚠️ Pylint analysis failed or returned no results. Return code: {returncode}")
+                  print(f"   This is likely due to the large number of files. Continuing with other analysis...")
+                  print(f"   Will rely on pattern-based code quality analysis instead...")
+
+          # 2. Architecture Gap Analysis
+          print("🏗️ Analyzing architecture gaps...")
+          
+          # Check for fragmented memory system
+          memory_files = []
+          for root, dirs, files in os.walk('.'):
+              dirs[:] = [d for d in dirs if not d.startswith('.')]
+              for file in files:
+                  if file.endswith('.py') and ('memory' in file.lower() or 'Memory' in file):
+                      memory_files.append(os.path.join(root, file))
+          if len(memory_files) > 3:
+              analysis_results['architecture_gaps'].append({
+                  'gap': 'Fragmented Memory System',
+                  'description': f'Found {len(memory_files)} memory-related files that should be unified',
+                  'files': [str(f) for f in memory_files],
+                  'priority': 'high',
+                  'recommendation': 'Consolidate memory operations into unified_echo_memory.py'
+              })
+
+          # Check for potential architectural issues
+          # Look for multiple similar files that might indicate architectural fragmentation
+          launch_files = []
+          for root, dirs, files in os.walk('.'):
+              dirs[:] = [d for d in dirs if not d.startswith('.')]
+              for file in files:
+                  if file.endswith('.py') and file.startswith('launch_'):
+                      launch_files.append(os.path.join(root, file))
+          if len(launch_files) > 3:
+              analysis_results['architecture_gaps'].append({
+                  'gap': 'Multiple Launch Scripts',
+                  'description': f'Found {len(launch_files)} launch scripts that could be consolidated',
+                  'files': [str(f) for f in launch_files],
+                  'priority': 'medium',
+                  'recommendation': 'Consider creating a unified launcher with configuration options'
+              })
+
+          # Check for test file organization
+          test_files = []
+          for root, dirs, files in os.walk('.'):
+              dirs[:] = [d for d in dirs if not d.startswith('.')]
+              for file in files:
+                  if file.endswith('.py') and file.startswith('test_'):
+                      test_files.append(os.path.join(root, file))
+          if test_files and not (repo_path / 'tests').exists():
+              analysis_results['architecture_gaps'].append({
+                  'gap': 'Test Files Not Organized',
+                  'description': f'Found {len(test_files)} test files scattered throughout the codebase',
+                  'files': [str(f) for f in test_files[:10]],
+                  'priority': 'medium',
+                  'recommendation': 'Organize test files into a dedicated tests/ directory'
+              })
+
+          # Check for missing core architecture files
+          required_arch_files = ['ARCHITECTURE.md', 'DATA_FLOWS.md', 'COMPONENTS.md']
+          missing_arch_files = [f for f in required_arch_files if not os.path.exists(f)]
+          if missing_arch_files:
+              analysis_results['documentation_gaps'].append({
+                  'gap': 'Missing Architecture Documentation',
+                  'description': f'Missing required architecture files: {", ".join(missing_arch_files)}',
+                  'priority': 'high',
+                  'recommendation': 'Create comprehensive architecture documentation'
+              })
+
+          # 3. Test Coverage Analysis
+          print("🧪 Analyzing test coverage...")
+          
+          # Reuse test_files from above, but get source files
+          source_files = [f for f in python_files if not os.path.basename(f).startswith('test_') and 'test' not in os.path.basename(f)]
+          
+          if source_files and test_files:
+              # Simple coverage analysis - check if each source file has a corresponding test
+              untested_files = []
+              for source_file in source_files:
+                  source_basename = os.path.basename(source_file)
+                  if source_basename not in ['echopilot.py', 'setup.py', '__init__.py']:
+                      source_dir = os.path.dirname(source_file)
+                      test_file = os.path.join(source_dir, f"test_{source_basename}")
+                      if not os.path.exists(test_file):
+                          untested_files.append(source_file)
+              
+              if untested_files:
+                  analysis_results['test_coverage_gaps'].append({
+                      'gap': 'Missing Test Coverage',
+                      'description': f'Found {len(untested_files)} source files without corresponding tests',
+                      'files': untested_files[:10],  # Limit to first 10
+                      'priority': 'medium',
+                      'recommendation': 'Create comprehensive test suite for uncovered modules'
+                  })
+
+          # 4. Dependency Analysis
+          print("📦 Analyzing dependencies...")
+          
+          # Check for dependency conflicts
+          if os.path.exists('requirements.txt') and os.path.exists('requirements-ci.txt'):
+              with open('requirements.txt', 'r') as f:
+                  full_reqs = f.read()
+              with open('requirements-ci.txt', 'r') as f:
+                  ci_reqs = f.read()
+              
+              # Check for version conflicts
+              full_versions = re.findall(r'([a-zA-Z0-9_-]+)==([0-9.]+)', full_reqs)
+              ci_versions = re.findall(r'([a-zA-Z0-9_-]+)==([0-9.]+)', ci_reqs)
+              
+              conflicts = []
+              for pkg, version in full_versions:
+                  for ci_pkg, ci_version in ci_versions:
+                      if pkg == ci_pkg and version != ci_version:
+                          conflicts.append(f"{pkg}: {version} vs {ci_version}")
+              
+              if conflicts:
+                  analysis_results['dependency_issues'].append({
+                      'gap': 'Dependency Version Conflicts',
+                      'description': f'Found version conflicts between requirements files',
+                      'conflicts': conflicts,
+                      'priority': 'medium',
+                      'recommendation': 'Align dependency versions across requirements files'
+                  })
+
+          # 5. Error Handling Analysis
+          print("🚨 Analyzing error handling...")
+          
+          error_patterns = [
+              r'except\s+Exception\s*:',  # Generic exception handling
+              r'except\s*:',  # Bare except clauses
+              r'pass\s*#\s*TODO',  # TODO comments with pass
+              r'#\s*FIXME',  # FIXME comments
+              r'#\s*HACK',  # HACK comments
+          ]
+          
+          error_issues = []
+          for pattern in error_patterns:
+              for file in python_files:
+                  try:
+                      with open(file, 'r') as f:
+                          content = f.read()
+                          matches = re.finditer(pattern, content, re.MULTILINE)
+                          for match in matches:
+                              line_num = content[:match.start()].count('\n') + 1
+                              error_issues.append({
+                                  'file': str(file),
+                                  'line': line_num,
+                                  'pattern': pattern,
+                                  'context': content.split('\n')[line_num-1].strip()[:100]
+                              })
+                  except Exception:
+                      continue
+          
+          if error_issues:
+              analysis_results['code_quality_issues'].extend(error_issues[:20])  # Limit to first 20
+
+          # 6. Additional Code Quality Checks
+          print("🔍 Running additional code quality checks...")
+          
+          # Check for large files (potential refactoring candidates)
+          large_files = []
+          for file in python_files:
+              try:
+                  size = file.stat().st_size
+                  if size > 50000:  # Files larger than 50KB
+                      with open(file, 'r') as f:
+                          lines = len(f.readlines())
+                      large_files.append({
+                          'file': str(file),
+                          'size_kb': size // 1024,
+                          'lines': lines,
+                          'issue': 'Large file that may need refactoring',
+                          'priority': 'medium'
+                      })
+              except Exception:
+                  continue
+          
+          if large_files:
+              analysis_results['code_quality_issues'].extend(large_files[:5])
+
+          # Check for potential memory leaks or resource management issues
+          resource_patterns = [
+              r'open\([^)]*\)',  # File opens
+              r'socket\.',  # Socket operations
+              r'threading\.',  # Threading operations
+              r'multiprocessing\.',  # Multiprocessing operations
+          ]
+          
+          resource_issues = []
+          for pattern in resource_patterns:
+              for file in python_files:
+                  try:
+                      with open(file, 'r') as f:
+                          content = f.read()
+                          matches = re.finditer(pattern, content, re.MULTILINE)
+                          for match in matches:
+                              line_num = content[:match.start()].count('\n') + 1
+                              context = content.split('\n')[line_num-1].strip()[:100]
+                              if 'with ' not in context and 'try:' not in context:
+                                  resource_issues.append({
+                                      'file': str(file),
+                                      'line': line_num,
+                                      'pattern': pattern,
+                                      'context': context,
+                                      'issue': 'Potential resource management issue',
+                                      'priority': 'medium'
+                                  })
+                  except Exception:
+                      continue
+          
+          if resource_issues:
+              analysis_results['code_quality_issues'].extend(resource_issues[:10])
+
+          # 7. Security Analysis
+          print("🔒 Analyzing security patterns...")
+          
+          security_patterns = [
+              r'password\s*=',  # Hardcoded passwords
+              r'api_key\s*=',  # Hardcoded API keys
+              r'secret\s*=',  # Hardcoded secrets
+              r'eval\s*\(',  # eval() usage
+              r'exec\s*\(',  # exec() usage
+              r'os\.system\s*\(',  # os.system() usage
+              r'subprocess\.call\s*\(',  # subprocess.call() usage
+          ]
+          
+          security_issues = []
+          for pattern in security_patterns:
+              for file in python_files:
+                  try:
+                      with open(file, 'r') as f:
+                          content = f.read()
+                          matches = re.finditer(pattern, content, re.MULTILINE)
+                          for match in matches:
+                              line_num = content[:match.start()].count('\n') + 1
+                              context = content.split('\n')[line_num-1].strip()[:100]
+                              security_issues.append({
+                                  'file': str(file),
+                                  'line': line_num,
+                                  'pattern': pattern,
+                                  'context': context,
+                                  'issue': 'Potential security vulnerability',
+                                  'priority': 'high'
+                              })
+                  except Exception:
+                      continue
+          
+          if security_issues:
+              analysis_results['code_quality_issues'].extend(security_issues[:10])
+
+          # Clean up temporary files
+          try:
+              if os.path.exists('python_files.txt'):
+                  os.remove('python_files.txt')
+          except Exception:
+              pass
+          
+          # Save results to files instead of using environment variables
+          for key, value in analysis_results.items():
+              with open(f'analysis_{key}.json', 'w') as f:
+                  json.dump(value, f, indent=2)
+              print(f"✅ Saved {key} to analysis_{key}.json")
+              
+          # Set GitHub Actions outputs
+          output_file = os.environ.get('GITHUB_OUTPUT')
+          if output_file:
+              with open(output_file, 'a') as f:
+                  f.write(f"analysis_complete=true\n")
+          else:
+              print(f"Warning: GITHUB_OUTPUT not set")
+              
+          print(f"✅ Analysis complete. Found:")
+          print(f"  - {len(analysis_results['code_quality_issues'])} code quality issues")
+          print(f"  - {len(analysis_results['architecture_gaps'])} architecture gaps")
+          print(f"  - {len(analysis_results['test_coverage_gaps'])} test coverage gaps")
+          print(f"  - {len(analysis_results['dependency_issues'])} dependency issues")
+          print(f"  - {len(analysis_results['documentation_gaps'])} documentation gaps")
+          EOF
+
+      - name: Upload analysis results as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: analysis-results
+          path: |
+            analysis_code_quality_issues.json
+            analysis_architecture_gaps.json
+            analysis_test_coverage_gaps.json
+            analysis_dependency_issues.json
+            analysis_documentation_gaps.json
+          retention-days: 7
+
+  create_issues:
+    needs: codebase_analysis
+    runs-on: ubuntu-latest
+    if: always()  # Run even if analysis fails
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download analysis results
+        uses: actions/download-artifact@v4
+        with:
+          name: analysis-results
+          path: ./
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install GitHub API dependencies
+        run: |
+          pip install pygithub
+
+      - name: Create GitHub issues for identified problems
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 << 'EOF'
+          import os
+          import json
+          from pathlib import Path
+          from github import Github
+          from datetime import datetime
+
+          # Load analysis results from files
+          def load_analysis_file(filename):
+              try:
+                  if os.path.exists(filename):
+                      with open(filename, 'r') as f:
+                          return json.load(f)
+                  else:
+                      print(f"⚠️ Analysis file {filename} not found")
+                      return []
+              except json.JSONDecodeError as e:
+                  print(f"❌ Failed to parse {filename}: {e}")
+                  return []
+
+          # Load all analysis results
+          code_quality_issues = load_analysis_file('analysis_code_quality_issues.json')
+          architecture_gaps = load_analysis_file('analysis_architecture_gaps.json')
+          test_coverage_gaps = load_analysis_file('analysis_test_coverage_gaps.json')
+          dependency_issues = load_analysis_file('analysis_dependency_issues.json')
+          documentation_gaps = load_analysis_file('analysis_documentation_gaps.json')
+          
+          # Debug output
+          print(f"📊 Analysis Results Summary:")
+          print(f"  - Code Quality Issues: {len(code_quality_issues)}")
+          print(f"  - Architecture Gaps: {len(architecture_gaps)}")
+          print(f"  - Test Coverage Gaps: {len(test_coverage_gaps)}")
+          print(f"  - Dependency Issues: {len(dependency_issues)}")
+          print(f"  - Documentation Gaps: {len(documentation_gaps)}")
+
+          # Initialize GitHub client
+          github_token = os.environ.get('GITHUB_TOKEN')
+          if not github_token:
+              print("❌ No GitHub token available")
+              exit(1)
+
+          g = Github(github_token)
+          repo = g.get_repo(os.environ['GITHUB_REPOSITORY'])
+
+          # Create issues for each category
+          issues_created = 0
+          
+          # Architecture gaps (high priority)
+          for gap in architecture_gaps:
+              title = f"🏗️ {gap['gap']}"
+              body = f"""
+              ## Architecture Gap Identified
+              
+              **Gap**: {gap['gap']}
+              **Description**: {gap['description']}
+              **Priority**: {gap['priority']}
+              **Recommendation**: {gap['recommendation']}
+              
+              **Files Affected**:
+              {chr(10).join(f"- `{f}`" for f in gap.get('files', []))}
+              
+              ---
+              *Auto-generated by EchoPilot on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*
+              """
+              
+              try:
+                  issue = repo.create_issue(
+                      title=title,
+                      body=body,
+                      labels=['enhancement', 'architecture', 'high-priority'],
+                      assignees=['dtecho']
+                  )
+                  print(f"✅ Created issue #{issue.number}: {title}")
+                  issues_created += 1
+              except Exception as e:
+                  print(f"❌ Failed to create issue: {e}")
+
+          # Documentation gaps
+          for gap in documentation_gaps:
+              title = f"📚 {gap['gap']}"
+              body = f"""
+              ## Documentation Gap Identified
+              
+              **Gap**: {gap['gap']}
+              **Description**: {gap['description']}
+              **Priority**: {gap['priority']}
+              **Recommendation**: {gap['recommendation']}
+              
+              ---
+              *Auto-generated by EchoPilot on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*
+              """
+              
+              try:
+                  issue = repo.create_issue(
+                      title=title,
+                      body=body,
+                      labels=['documentation', 'enhancement'],
+                      assignees=['dtecho']
+                  )
+                  print(f"✅ Created issue #{issue.number}: {title}")
+                  issues_created += 1
+              except Exception as e:
+                  print(f"❌ Failed to create issue: {e}")
+
+          # Test coverage gaps
+          for gap in test_coverage_gaps:
+              title = f"🧪 {gap['gap']}"
+              body = f"""
+              ## Test Coverage Gap Identified
+              
+              **Gap**: {gap['gap']}
+              **Description**: {gap['description']}
+              **Priority**: {gap['priority']}
+              **Recommendation**: {gap['recommendation']}
+              
+              **Files Needing Tests**:
+              {chr(10).join(f"- `{f}`" for f in gap.get('files', []))}
+              
+              ---
+              *Auto-generated by EchoPilot on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*
+              """
+              
+              try:
+                  issue = repo.create_issue(
+                      title=title,
+                      body=body,
+                      labels=['testing', 'enhancement'],
+                      assignees=['dtecho']
+                  )
+                  print(f"✅ Created issue #{issue.number}: {title}")
+                  issues_created += 1
+              except Exception as e:
+                  print(f"❌ Failed to create issue: {e}")
+
+          # Dependency issues
+          for issue_data in dependency_issues:
+              title = f"📦 {issue_data['gap']}"
+              body = f"""
+              ## Dependency Issue Identified
+              
+              **Issue**: {issue_data['gap']}
+              **Description**: {issue_data['description']}
+              **Priority**: {issue_data['priority']}
+              **Recommendation**: {issue_data['recommendation']}
+              
+              **Conflicts**:
+              {chr(10).join(f"- {conflict}" for conflict in issue_data.get('conflicts', []))}
+              
+              ---
+              *Auto-generated by EchoPilot on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*
+              """
+              
+              try:
+                  issue = repo.create_issue(
+                      title=title,
+                      body=body,
+                      labels=['dependencies', 'bug'],
+                      assignees=['dtecho']
+                  )
+                  print(f"✅ Created issue #{issue.number}: {title}")
+                  issues_created += 1
+              except Exception as e:
+                  print(f"❌ Failed to create issue: {e}")
+
+          # Code quality issues (batch them if there are many)
+          if code_quality_issues:
+              # Group by file to avoid spam
+              issues_by_file = {}
+              for issue in code_quality_issues:
+                  file = issue.get('file', 'unknown')
+                  if file not in issues_by_file:
+                      issues_by_file[file] = []
+                  issues_by_file[file].append(issue)
+
+              for file, issues in list(issues_by_file.items())[:5]:  # Limit to 5 files
+                  title = f"🔧 Code Quality Issues in {Path(file).name}"
+                  
+                  # Create detailed issue body
+                  issue_details = []
+                  for issue in issues[:10]:
+                      if 'message' in issue:
+                          detail = f"- Line {issue.get('line', 'N/A')}: {issue.get('message', 'Unknown issue')} ({issue.get('type', 'unknown')})"
+                      elif 'issue' in issue:
+                          detail = f"- Line {issue.get('line', 'N/A')}: {issue.get('issue', 'Unknown issue')} ({issue.get('priority', 'unknown')})"
+                      else:
+                          detail = f"- Line {issue.get('line', 'N/A')}: {issue.get('pattern', 'Unknown pattern')}"
+                      issue_details.append(detail)
+                  
+                  body = f"""
+                  ## Code Quality Issues Identified
+                  
+                  **File**: `{file}`
+                  **Issues Found**: {len(issues)}
+                  
+                  **Issues**:
+                  {chr(10).join(issue_details)}
+                  
+                  ---
+                  *Auto-generated by EchoPilot on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*
+                  """
+                  
+                  try:
+                      issue = repo.create_issue(
+                          title=title,
+                          body=body,
+                          labels=['code-quality', 'bug'],
+                          assignees=['dtecho']
+                      )
+                      print(f"✅ Created issue #{issue.number}: {title}")
+                      issues_created += 1
+                  except Exception as e:
+                      print(f"❌ Failed to create issue: {e}")
+
+          if issues_created > 0:
+              print(f"🎉 Created {issues_created} issues for dtecho to work on!")
+          else:
+              print("✅ No issues found! Your codebase appears to be in good shape.")
+              print("💡 Consider running manual code reviews or adding more comprehensive tests.")
+          EOF
+
+  legacy_echopilot:
+    runs-on: ubuntu-latest
+    needs: [codebase_analysis, create_issues]
+    if: always()
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # Try CI requirements first, with timeout and fallback
+          timeout 300 pip install -r requirements-ci.txt || echo "CI requirements failed or timed out"
+          # Install individual critical dependencies
+          timeout 120 pip install requests python-dotenv || echo "Individual installs failed"
+
+      - name: Run legacy EchoPilot script
+        run: |
+          python echopilot.py

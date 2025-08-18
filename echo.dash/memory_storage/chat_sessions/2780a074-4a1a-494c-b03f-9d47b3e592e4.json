@@ -1,0 +1,42 @@
+{
+  "id": "2780a074-4a1a-494c-b03f-9d47b3e592e4",
+  "platform": "chatgpt",
+  "title": "Test Session",
+  "start_time": 1748910912.7063873,
+  "end_time": 1748910912.70658,
+  "status": "ended",
+  "messages": [
+    {
+      "id": "58d8c040-94fa-407d-9b87-50e848c4eecc",
+      "session_id": "2780a074-4a1a-494c-b03f-9d47b3e592e4",
+      "timestamp": 1748910912.7064655,
+      "platform": "chatgpt",
+      "role": "user",
+      "content": "Hello, how are you?",
+      "metadata": {},
+      "echo_value": 0.11200000000000002,
+      "salience": 0.7,
+      "parent_id": null,
+      "conversation_id": null
+    },
+    {
+      "id": "9e331460-0f1b-45d3-ad4b-ab0854ce32f0",
+      "session_id": "2780a074-4a1a-494c-b03f-9d47b3e592e4",
+      "timestamp": 1748910912.7065384,
+      "platform": "chatgpt",
+      "role": "assistant",
+      "content": "I am doing well, thank you for asking!",
+      "metadata": {},
+      "echo_value": 0.064,
+      "salience": 0.5,
+      "parent_id": null,
+      "conversation_id": null
+    }
+  ],
+  "conversation_id": null,
+  "metadata": {},
+  "tags": [],
+  "total_messages": 2,
+  "avg_echo_value": 0.08800000000000001,
+  "avg_salience": 0.6
+}

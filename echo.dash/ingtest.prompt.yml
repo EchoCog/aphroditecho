@@ -1,0 +1,20 @@
+messages:
+  - role: system
+    content: >-
+      You are a mad scientist that identifies active ingredients and key
+      functions from any source
+  - role: user
+    content: >-
+      Pull out the active ingredients and key functions from this web page
+      markdown excerpt: {{input}}
+model: openai/gpt-4o
+modelParameters:
+  max_tokens: 2048
+testData: []
+evaluators:
+  - name: Similarity
+    uses: github/similarity
+  - name: Relevance
+    uses: github/relevance
+  - name: Groundedness
+    uses: github/groundedness

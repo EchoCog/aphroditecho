@@ -1,0 +1,436 @@
+name: Deep Tree Echo Auto-Issue Generator
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      analysis_depth:
+        description: 'Analysis depth level'
+        required: true
+        default: 'comprehensive'
+        type: choice
+        options:
+          - 'basic'
+          - 'comprehensive'
+          - 'deep'
+      create_issues:
+        description: 'Actually create issues (vs dry run)'
+        required: true
+        default: false
+        type: boolean
+
+  # Auto-trigger when catalog or architecture files are updated
+  push:
+    paths:
+      - 'DEEP_TREE_ECHO_CATALOG.md'
+      - 'UNIFIED_ARCHITECTURE_PROPOSAL.md'
+      - 'deep_tree_echo*.py'
+    branches:
+      - main
+      - develop
+
+env:
+  ISSUE_LABEL_PREFIX: "deep-tree-echo"
+  META_ISSUE_NUMBER: "17"
+
+jobs:
+  analyze-fragments:
+    runs-on: ubuntu-latest
+    outputs:
+      fragments: ${{ steps.analysis.outputs.fragments }}
+      architecture_gaps: ${{ steps.analysis.outputs.architecture_gaps }}
+      migration_tasks: ${{ steps.analysis.outputs.migration_tasks }}
+
+    steps:
+      - name: 🔍 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: 📦 Install Dependencies
+        run: |
+          pip install requests python-dotenv psutil
+          pip install pygithub  # For GitHub API interaction
+
+      - name: 🧠 Analyze Deep Tree Echo Fragments
+        id: analysis
+        run: |
+          python << 'EOF'
+          import os
+          import json
+          import re
+          from pathlib import Path
+          from github import Github
+
+          # Repository analysis
+          repo_path = Path('.')
+
+          # Find all Deep Tree Echo related files
+          fragments = []
+          for pattern in ['*deep_tree_echo*.py', '*echo*.py', '*Echo*.py']:
+            for file in repo_path.glob(pattern):
+                if file.is_file():
+                    with open(file, 'r') as f:
+                        content = f.read()
+                        lines = len(content.splitlines())
+                        classes = re.findall(r'class\s+(\w*[Ee]cho\w*)', content)
+                        functions = re.findall(r'def\s+(\w*echo\w*)', content, re.IGNORECASE)
+
+                    fragments.append({
+                        'file': str(file),
+                        'lines': lines,
+                        'classes': classes,
+                        'functions': functions,
+                        'type': 'core' if 'deep_tree_echo.py' in str(file) else 'extension',
+                        'status': 'active' if file.stat().st_mtime > 1700000000 else 'legacy'
+                    })
+
+          # Identify architecture gaps
+          architecture_gaps = [
+            {
+                'gap': 'Fragmented Memory System',
+                'description': 'Memory operations scattered across multiple files',
+                'priority': 'high',
+                'files': ['memory_management.py', 'deep_tree_echo.py', 'cognitive_architecture.py']
+            },
+            {
+                'gap': 'Missing Cognitive Grammar',
+                'description': 'No unified symbolic reasoning layer',
+                'priority': 'high',
+                'files': ['cognitive_grammar_kernel.scm']
+            },
+            {
+                'gap': 'Inconsistent APIs',
+                'description': 'Different interfaces across Echo fragments',
+                'priority': 'medium',
+                'files': [f['file'] for f in fragments]
+            },
+            {
+                'gap': 'Legacy Code Retention',
+                'description': 'Deprecated versions still present',
+                'priority': 'medium',
+                'files': ['deep_tree_echo-v1.py', 'deep_tree_echo-v2.py']
+            },
+            {
+                'gap': 'Incomplete P-System',
+                'description': 'Missing membrane boundary implementation',
+                'priority': 'low',
+                'files': ['deep_tree_echo.py']
+            }
+          ]
+
+          # Generate migration tasks
+          migration_tasks = [
+            {
+                'task': 'Archive Legacy Versions',
+                'description': 'Move v1/v2 implementations to archive',
+                'type': 'cleanup',
+                'files': ['deep_tree_echo-v1.py', 'deep_tree_echo-v2.py'],
+                'estimated_effort': 'small'
+            },
+            {
+                'task': 'Unify Memory Systems',
+                'description': 'Consolidate memory operations into single module',
+                'type': 'refactor',
+                'files': ['memory_management.py', 'deep_tree_echo.py'],
+                'estimated_effort': 'large'
+            },
+            {
+                'task': 'Implement Cognitive Grammar',
+                'description': 'Add Scheme-based symbolic reasoning layer',
+                'type': 'feature',
+                'files': ['cognitive_grammar_kernel.scm'],
+                'estimated_effort': 'large'
+            },
+            {
+                'task': 'Standardize Extension APIs',
+                'description': 'Create consistent interface across all Echo components',
+                'type': 'refactor',
+                'files': [f['file'] for f in fragments if f['type'] == 'extension'],
+                'estimated_effort': 'medium'
+            },
+            {
+                'task': 'Add P-System Membranes',
+                'description': 'Implement computational boundary system',
+                'type': 'feature',
+                'files': ['deep_tree_echo.py'],
+                'estimated_effort': 'medium'
+            }
+          ]
+
+          # Output for GitHub Actions
+          print(f"::set-output name=fragments::{json.dumps(fragments)}")
+          print(f"::set-output name=architecture_gaps::{json.dumps(architecture_gaps)}")
+          print(f"::set-output name=migration_tasks::{json.dumps(migration_tasks)}")
+
+          # Save detailed analysis
+          analysis_data = {
+            'fragments': fragments,
+            'architecture_gaps': architecture_gaps,
+            'migration_tasks': migration_tasks,
+            'analysis_depth': os.environ.get('INPUT_ANALYSIS_DEPTH', 'comprehensive'),
+            'timestamp': '2024-07-21T06:44:00Z'
+          }
+
+          with open('deep_tree_echo_analysis.json', 'w') as f:
+            json.dump(analysis_data, f, indent=2)
+          EOF
+
+      - name: 📊 Upload Analysis Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: deep-tree-echo-analysis
+          path: deep_tree_echo_analysis.json
+
+  generate-issues:
+    needs: analyze-fragments
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.create_issues == 'true' || github.event_name == 'push' }}
+    permissions:
+      issues: write
+
+    steps:
+      - name: 🔍 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📥 Download Analysis Results
+        uses: actions/download-artifact@v4
+        with:
+          name: deep-tree-echo-analysis
+
+      - name: 🤖 Generate GitHub Issues
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python << 'EOF'
+          import json
+          import os
+          from github import Github
+
+          # Load analysis results
+          with open('deep_tree_echo_analysis.json', 'r') as f:
+            analysis = json.load(f)
+
+          # Initialize GitHub API
+          g = Github(os.environ['GITHUB_TOKEN'])
+          repo = g.get_repo(os.environ['GITHUB_REPOSITORY'])
+
+          # Issue templates
+          def create_gap_issue(gap):
+            title = f"🔧 Architecture Gap: {gap['gap']}"
+            body = f"""## 🎯 Architecture Gap Analysis
+
+          **Gap Identified**: {gap['gap']}
+          **Priority**: {gap['priority'].upper()}
+
+          ### 📋 Description
+          {gap['description']}
+
+          ### 📁 Affected Files
+          {chr(10).join(f"- `{file}`" for file in gap['files'])}
+
+          ### 🎯 Acceptance Criteria
+          - [ ] Gap analysis completed
+          - [ ] Solution design documented
+          - [ ] Implementation plan created
+          - [ ] Code changes implemented
+          - [ ] Tests added/updated
+          - [ ] Documentation updated
+
+          ### 🔗 Related
+          - Meta-issue: #{os.environ['META_ISSUE_NUMBER']}
+          - Architecture proposal: UNIFIED_ARCHITECTURE_PROPOSAL.md
+
+          ---
+          *Auto-generated by Deep Tree Echo Analysis System*
+          """
+            return title, body
+
+          def create_migration_issue(task):
+            title = f"🚀 Migration Task: {task['task']}"
+            effort_emoji = {'small': '🟢', 'medium': '🟡', 'large': '🔴'}
+
+            body = f"""## 🚀 Migration Task
+
+          **Task**: {task['task']}
+          **Type**: {task['type'].upper()}
+          **Effort**: {effort_emoji.get(task['estimated_effort'], '⚪')} {task['estimated_effort'].upper()}
+
+          ### 📋 Description
+          {task['description']}
+
+          ### 📁 Files to Modify
+          {chr(10).join(f"- `{file}`" for file in task['files'])}
+
+          ### 🎯 Implementation Steps
+          - [ ] Create backup of current implementation
+          - [ ] Design migration approach
+          - [ ] Implement changes incrementally
+          - [ ] Test functionality preservation
+          - [ ] Update documentation
+          - [ ] Validate integration with other components
+
+          ### 🔗 Related
+          - Meta-issue: #{os.environ['META_ISSUE_NUMBER']}
+          - Fragment catalog: DEEP_TREE_ECHO_CATALOG.md
+
+          ---
+          *Auto-generated by Deep Tree Echo Migration System*
+          """
+            return title, body
+
+          def create_fragment_issue(fragment):
+            title = f"📝 Fragment Analysis: {os.path.basename(fragment['file'])}"
+
+            body = f"""## 📝 Fragment Analysis Report
+
+          **File**: `{fragment['file']}`
+          **Type**: {fragment['type'].upper()}
+          **Status**: {fragment['status'].upper()}
+          **Lines of Code**: {fragment['lines']}
+
+          ### 🏗️ Structure Analysis
+          **Classes Found**: {', '.join(fragment['classes']) if fragment['classes'] else 'None'}
+          **Echo Functions**: {', '.join(fragment['functions']) if fragment['functions'] else 'None'}
+
+          ### 🎯 Integration Tasks
+          - [ ] Review current functionality
+          - [ ] Identify integration points
+          - [ ] Plan migration strategy
+          - [ ] Implement unified interface
+          - [ ] Update tests and documentation
+
+          ### 🔄 Next Steps
+          Based on fragment type and status, determine:
+          - Migration priority
+          - Integration approach
+          - Deprecation timeline (if applicable)
+
+          ### 🔗 Related
+          - Meta-issue: #{os.environ['META_ISSUE_NUMBER']}
+          - Fragment catalog: DEEP_TREE_ECHO_CATALOG.md
+
+          ---
+          *Auto-generated by Deep Tree Echo Fragment Analyzer*
+          """
+            return title, body
+
+          # Create issues for architecture gaps
+          print("Creating architecture gap issues...")
+          for gap in analysis['architecture_gaps']:
+            if gap['priority'] in ['high', 'medium']:  # Only create for high/medium priority
+                title, body = create_gap_issue(gap)
+                labels = [
+                    f"{os.environ['ISSUE_LABEL_PREFIX']}-gap",
+                    f"priority-{gap['priority']}",
+                    "architecture"
+                ]
+
+                # Check if issue already exists
+                existing_issues = repo.get_issues(state='open', labels=labels)
+                if not any(gap['gap'] in issue.title for issue in existing_issues):
+                    issue = repo.create_issue(title=title, body=body, labels=labels)
+                    print(f"Created gap issue: {issue.number}")
+
+          # Create issues for migration tasks
+          print("Creating migration task issues...")
+          for task in analysis['migration_tasks']:
+            if task['estimated_effort'] in ['small', 'medium']:  # Focus on achievable tasks
+                title, body = create_migration_issue(task)
+                labels = [
+                    f"{os.environ['ISSUE_LABEL_PREFIX']}-migration",
+                    f"effort-{task['estimated_effort']}",
+                    f"type-{task['type']}"
+                ]
+
+                # Check if issue already exists
+                existing_issues = repo.get_issues(state='open', labels=labels)
+                if not any(task['task'] in issue.title for issue in existing_issues):
+                    issue = repo.create_issue(title=title, body=body, labels=labels)
+                    print(f"Created migration issue: {issue.number}")
+
+          # Create analysis issues for major fragments
+          print("Creating fragment analysis issues...")
+          major_fragments = [f for f in analysis['fragments'] if f['lines'] > 100 or f['type'] == 'core']
+          for fragment in major_fragments:
+            title, body = create_fragment_issue(fragment)
+            labels = [
+                f"{os.environ['ISSUE_LABEL_PREFIX']}-fragment",
+                f"type-{fragment['type']}",
+                f"status-{fragment['status']}"
+            ]
+
+            # Check if issue already exists
+            existing_issues = repo.get_issues(state='open', labels=labels)
+            if not any(os.path.basename(fragment['file']) in issue.title for issue in existing_issues):
+                issue = repo.create_issue(title=title, body=body, labels=labels)
+                print(f"Created fragment issue: {issue.number}")
+
+          print("Issue generation completed!")
+          EOF
+
+  update-meta-issue:
+    needs: [analyze-fragments, generate-issues]
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: 🔍 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔄 Update Meta-Issue with Progress
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python << 'EOF'
+          import os
+          from github import Github
+          from datetime import datetime
+
+          # Initialize GitHub API
+          g = Github(os.environ['GITHUB_TOKEN'])
+          repo = g.get_repo(os.environ['GITHUB_REPOSITORY'])
+
+          # Get meta-issue
+          meta_issue = repo.get_issue(int(os.environ['META_ISSUE_NUMBER']))
+
+          # Count related issues
+          echo_issues = list(repo.get_issues(state='open', labels=[f"{os.environ['ISSUE_LABEL_PREFIX']}-gap"]))
+          migration_issues = list(repo.get_issues(state='open', labels=[f"{os.environ['ISSUE_LABEL_PREFIX']}-migration"]))
+          fragment_issues = list(repo.get_issues(state='open', labels=[f"{os.environ['ISSUE_LABEL_PREFIX']}-fragment"]))
+
+          # Update meta-issue with progress
+          update_comment = f"""## 🤖 Automated Analysis Update
+
+          **Timestamp**: {datetime.now().isoformat()}
+          **Analysis Status**: ✅ Completed
+
+          ### 📊 Sub-Issues Generated
+          - 🔧 Architecture Gaps: {len(echo_issues)} issues
+          - 🚀 Migration Tasks: {len(migration_issues)} issues
+          - 📝 Fragment Analysis: {len(fragment_issues)} issues
+
+          ### 🔗 Related Issues
+          {chr(10).join(f"- #{issue.number}: {issue.title}" for issue in echo_issues[:5])}
+          {chr(10).join(f"- #{issue.number}: {issue.title}" for issue in migration_issues[:5])}
+
+          ### 📋 Progress Checklist Update
+          - [x] Assessment & Cataloging (Automated)
+          - [x] Classification & Lineage Mapping (Automated)
+          - [x] Automated Issue Generation (Completed)
+          - [ ] Unified Architecture Implementation
+          - [ ] Fragment Migration & Refactoring
+          - [ ] Testing & Validation
+
+          ---
+          *Auto-generated by Deep Tree Echo Analysis Workflow*
+          """
+
+          meta_issue.create_comment(update_comment)
+          print("Meta-issue updated with progress!")
+          EOF

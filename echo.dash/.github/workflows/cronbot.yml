@@ -1,0 +1,346 @@
+name: Self-Evo with AI Introspection
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+jobs:
+  self_improvement:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.WFLO }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq tree git
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # Install core dependencies with timeout and fallback
+          timeout 300 pip install -r requirements-ci.txt || \
+            echo "CI requirements failed or timed out, installing core deps"
+          # Install introspection and analysis dependencies
+          timeout 120 pip install psutil requests python-dotenv pathlib typing-extensions dataclasses || \
+            echo "Core deps install failed"
+          # Install additional introspection dependencies
+          timeout 120 pip install networkx matplotlib numpy pandas || \
+            echo "Analysis deps install failed"
+
+      - name: Debug environment variables
+        run: |
+          echo "Environment variables for debugging:"
+          echo "GITHUB_TOKEN is set: ${{ secrets.WFLO != '' }}"
+          echo "Runner OS: ${{ runner.os }}"
+          echo "Workflow: ${{ github.workflow }}"
+          echo "Repository: ${{ github.repository }}"
+
+      - name: Initialize AI Introspection System
+        id: introspection_init
+        run: |
+          echo "Initializing AI introspection system..."
+          python -c "
+          import sys
+          import os
+          sys.path.append('.')
+          
+          try:
+              from echoself_introspection import EchoselfIntrospection
+              introspector = EchoselfIntrospection('.')
+              print('Introspection system initialized successfully')
+              with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+                  f.write('introspection_available=true\n')
+          except Exception as e:
+              print(f'Introspection system initialization failed: {e}')
+              with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+                  f.write('introspection_available=false\n')
+          "
+
+      - name: Perform AI Codebase Introspection
+        id: ai_introspection
+        if: steps.introspection_init.outputs.introspection_available == 'true'
+        run: |
+          echo "Performing AI-powered codebase introspection..."
+          python -c "
+          import sys
+          import json
+          import os
+          from datetime import datetime
+          
+          sys.path.append('.')
+          
+          try:
+              from echoself_introspection import EchoselfIntrospection
+              
+              # Initialize introspection system
+              introspector = EchoselfIntrospection('.')
+              
+              # Perform repository analysis
+              introspection_prompt = introspector.inject_repo_input_into_prompt(
+                  current_load=0.5, 
+                  recent_activity=0.3
+              )
+              
+              # Get attention metrics
+              metrics = introspector.get_attention_metrics()
+              
+              # Create introspection summary
+              introspection_data = {
+                  'timestamp': datetime.utcnow().isoformat(),
+                  'introspection_prompt': introspection_prompt[:2000] + '...' if len(introspection_prompt) > 2000 else introspection_prompt,
+                  'attention_metrics': metrics,
+                  'files_analyzed': metrics.get('hypergraph_nodes', 0),
+                  'highest_salience_files': metrics.get('highest_salience_files', []),
+                  'introspection_status': 'success'
+              }
+              
+              # Write introspection data to file
+              with open('ai_introspection_data.json', 'w') as f:
+                  json.dump(introspection_data, f, indent=2)
+              
+              print('AI introspection completed successfully')
+              with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+                  f.write('introspection_status=success\n')
+              
+          except Exception as e:
+              print(f'AI introspection failed: {e}')
+              introspection_data = {
+                  'timestamp': datetime.utcnow().isoformat(),
+                  'introspection_status': 'failed',
+                  'error': str(e)
+              }
+              with open('ai_introspection_data.json', 'w') as f:
+                  json.dump(introspection_data, f, indent=2)
+              with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+                  f.write('introspection_status=failed\n')
+          "
+
+      - name: Run Enhanced Self-Improvement Script
+        id: self_improvement
+        env:
+          GITHUB_TOKEN: ${{ secrets.WFLO }}
+        run: |
+          echo "Running enhanced self-improvement script with AI introspection..."
+          
+          # Check if introspection data is available
+          if [ -f "ai_introspection_data.json" ]; then
+              echo "AI introspection data available, enhancing cronbot execution"
+              python -c "
+          import sys
+          import json
+          import os
+          
+          sys.path.append('.')
+          
+          # Load introspection data
+          with open('ai_introspection_data.json', 'r') as f:
+              introspection_data = json.load(f)
+          
+          # Enhance note2self with introspection data
+          try:
+              with open('note2self.json', 'r') as f:
+                  current_note = json.load(f)
+          except FileNotFoundError:
+              current_note = {'timestamp': None, 'improvement': {}, 'assessment': ''}
+          
+          # Merge introspection data into note
+          current_note['ai_introspection'] = introspection_data
+          current_note['introspection_enhanced'] = True
+          
+          # Write enhanced note
+          with open('note2self.json', 'w') as f:
+              json.dump(current_note, f, indent=2)
+          
+          print('Enhanced note2self with AI introspection data')
+          "
+          else
+              echo "No AI introspection data available, running standard cronbot"
+          fi
+          
+          # Run the main cronbot script
+          python cronbot.py
+
+      - name: Run Enhanced Copilot Suggestions Script
+        id: copilot_suggestions
+        env:
+          GITHUB_TOKEN: ${{ secrets.WFLO }}
+        run: |
+          echo "Running enhanced copilot suggestions with AI introspection context..."
+          
+          # Check if introspection data is available for enhanced suggestions
+          if [ -f "ai_introspection_data.json" ]; then
+              echo "Using AI introspection data for enhanced suggestions"
+              python -c "
+          import sys
+          import json
+          import os
+          
+          sys.path.append('.')
+          
+          # Load introspection data
+          with open('ai_introspection_data.json', 'r') as f:
+              introspection_data = json.load(f)
+          
+          # Enhance request payload with introspection data
+          try:
+              with open('.github/workflows/request_payload.json', 'r') as f:
+                  payload = json.load(f)
+          except FileNotFoundError:
+              payload = {'note': {}, 'query': ''}
+          
+          # Add introspection context to payload
+          payload['ai_introspection_context'] = {
+              'files_analyzed': introspection_data.get('files_analyzed', 0),
+              'highest_salience_files': introspection_data.get('highest_salience_files', []),
+              'attention_metrics': introspection_data.get('attention_metrics', {}),
+              'introspection_status': introspection_data.get('introspection_status', 'unknown')
+          }
+          
+          # Enhance query with introspection insights
+          if introspection_data.get('introspection_status') == 'success':
+              payload['query'] += f\"\\n\\nAI Introspection Context:\\n- Files analyzed: {introspection_data.get('files_analyzed', 0)}\\n- Highest salience files: {', '.join([f[0] for f in introspection_data.get('highest_salience_files', [])[:3]])}\\n- Use this context to provide more targeted improvement suggestions.\"
+          
+          # Write enhanced payload
+          with open('.github/workflows/request_payload.json', 'w') as f:
+              json.dump(payload, f, indent=2)
+          
+          print('Enhanced request payload with AI introspection context')
+          "
+          fi
+          
+          # Run copilot suggestions
+          python copilot_suggestions.py
+
+      - name: Validate Generated Files
+        run: |
+          echo "Validating generated files..."
+          
+          # Validate note2self.json
+          if [ -f "note2self.json" ]; then
+              if jq empty note2self.json 2>/dev/null; then
+                  echo "✓ note2self.json is valid JSON"
+                  echo "Note2self content:"
+                  jq . note2self.json
+              else
+                  echo "✗ note2self.json contains invalid JSON"
+                  exit 1
+              fi
+          else
+              echo "✗ note2self.json not found"
+              exit 1
+          fi
+          
+          # Validate request_payload.json
+          if [ -f ".github/workflows/request_payload.json" ]; then
+              if jq empty .github/workflows/request_payload.json 2>/dev/null; then
+                  echo "✓ request_payload.json is valid JSON"
+              else
+                  echo "✗ request_payload.json contains invalid JSON"
+                  exit 1
+              fi
+          fi
+          
+          # Validate AI introspection data
+          if [ -f "ai_introspection_data.json" ]; then
+              if jq empty ai_introspection_data.json 2>/dev/null; then
+                  echo "✓ ai_introspection_data.json is valid JSON"
+              else
+                  echo "✗ ai_introspection_data.json contains invalid JSON"
+              fi
+          fi
+
+      - name: Generate Workflow Summary
+        run: |
+          echo "=== WORKFLOW SUMMARY ==="
+          echo "Timestamp: $(date)"
+          echo "Repository: ${{ github.repository }}"
+          echo "Workflow: ${{ github.workflow }}"
+          echo "Run ID: ${{ github.run_id }}"
+          
+          if [ -f "ai_introspection_data.json" ]; then
+              echo "AI Introspection Status: $(jq -r '.introspection_status' ai_introspection_data.json)"
+              echo "Files Analyzed: $(jq -r '.files_analyzed' ai_introspection_data.json)"
+          else
+              echo "AI Introspection Status: Not available"
+          fi
+          
+          if [ -f "note2self.json" ]; then
+              echo "Note2Self Status: Generated"
+              echo "Last Improvement: $(jq -r '.improvement' note2self.json)"
+              echo "Assessment: $(jq -r '.assessment' note2self.json)"
+          else
+              echo "Note2Self Status: Not generated"
+          fi
+
+      - name: Commit and push changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.WFLO }}
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+          
+          # Add all generated files
+          git add note2self.json .github/workflows/request_payload.json
+          
+          # Add AI introspection data if available
+          if [ -f "ai_introspection_data.json" ]; then
+              git add ai_introspection_data.json
+          fi
+          
+          # Create commit with enhanced message
+          if git diff-index --quiet HEAD; then
+              echo "No changes to commit"
+          else
+              INTROSPECTION_STATUS=""
+              if [ -f "ai_introspection_data.json" ]; then
+                  INTROSPECTION_STATUS=" with AI introspection"
+              fi
+              
+              git commit -m "Self-Evo: AI-enhanced improvement cycle${INTROSPECTION_STATUS} - $(date +'%Y-%m-%d %H:%M:%S')"
+              git push origin HEAD:main
+              echo "Changes committed and pushed successfully"
+          fi
+
+      - name: Post-Workflow Analysis
+        if: always()
+        run: |
+          echo "=== POST-WORKFLOW ANALYSIS ==="
+          
+          # Analyze workflow performance
+          echo "Workflow execution completed"
+          
+          # Check for any errors or warnings
+          if [ -f "ai_introspection_data.json" ]; then
+              INTROSPECTION_STATUS=$(jq -r '.introspection_status' ai_introspection_data.json)
+              if [ "$INTROSPECTION_STATUS" = "failed" ]; then
+                  echo "⚠️  AI introspection failed - check logs for details"
+              else
+                  echo "✅ AI introspection completed successfully"
+              fi
+          fi
+          
+          # Provide recommendations for next cycle
+          echo "=== RECOMMENDATIONS FOR NEXT CYCLE ==="
+          if [ -f "note2self.json" ]; then
+              echo "Last improvement: $(jq -r '.improvement' note2self.json)"
+              echo "Next focus areas:"
+              if [ -f "ai_introspection_data.json" ]; then
+                  jq -r '.highest_salience_files[] | "  - " + .[0] + " (salience: " + (.[1] | tostring) + ")"' ai_introspection_data.json
+              fi
+          fi

@@ -1,0 +1,32 @@
+{
+  "timestamp": "2025-08-17T03:31:13.578001",
+  "results": {
+    "introspection_system": true,
+    "note_generation": true,
+    "workflow_integration": false,
+    "copilot_integration": false,
+    "error_handling": true
+  },
+  "all_passed": false,
+  "test_note": {
+    "timestamp": "2025-08-17T03:31:13.574554",
+    "improvement": "test_improvement_with_introspection",
+    "assessment": "test_assessment",
+    "result": "success",
+    "retries": 0,
+    "introspection_enhanced": true,
+    "introspection_status": "success",
+    "files_analyzed": 0,
+    "resource_usage": {
+      "avg_cpu": 45.2,
+      "avg_memory": 67.8,
+      "samples": 120
+    },
+    "ai_introspection": {
+      "timestamp": "2025-08-17T03:31:13.574479",
+      "introspection_status": "success",
+      "files_analyzed": 0,
+      "highest_salience_files": []
+    }
+  }
+}

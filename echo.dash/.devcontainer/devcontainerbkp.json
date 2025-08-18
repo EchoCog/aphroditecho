@@ -1,0 +1,15 @@
+{
+	"name": "EchoSurface Simple",
+	"dockerComposeFile": ["../docker-simple/docker-compose.yml"],
+	"service": "windsurf-simple",
+	"workspaceFolder": "/home/deepecho/windsurf",
+	"forwardPorts": [5901],
+	"settings": {
+		"terminal.integrated.defaultProfile.linux": "bash"
+	},
+	"extensions": [
+		"ms-python.python",
+		"ms-azuretools.vscode-docker"
+	],
+	"remoteUser": "deepecho"
+}
