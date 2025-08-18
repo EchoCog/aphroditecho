@@ -6,8 +6,7 @@ enabling the Echo-Self system to optimize network architectures.
 """
 
 import random
-import math
-from typing import Dict, Any, List, Tuple, Set
+from typing import Dict, Any, Tuple
 from copy import deepcopy
 
 # Import interfaces - handle both absolute and relative imports

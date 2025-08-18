@@ -6,7 +6,7 @@ high-performance model serving and distributed computing.
 """
 
 import logging
-from typing import Dict, Any, Optional, List, Callable
+from typing import Dict, Any, Optional, List
 
 # Handle both absolute and relative imports  
 try:

@@ -140,7 +140,7 @@ class ModelTopologyAdapter:
         """Adjust number of attention heads."""
         new_heads = mutation.parameters.get('num_heads')
         if new_heads and 'num_attention_heads' in config:
-            original_heads = config['num_attention_heads']
+            config['num_attention_heads']
             
             # Ensure head dimension remains reasonable
             if 'hidden_size' in config:

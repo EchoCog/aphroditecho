@@ -18,7 +18,6 @@ from core.interfaces import Individual, FitnessEvaluator, EvolutionConfig
 from core.evolution_engine import EchoSelfEvolutionEngine
 from core.operators import MutationOperator, SelectionOperator, CrossoverOperator
 from neural.topology_individual import NeuralTopologyIndividual
-from integration.aphrodite_bridge import AphroditeFitnessEvaluator
 
 
 class SimpleFitnessEvaluator(FitnessEvaluator):
@@ -257,7 +256,7 @@ class TestEvolutionIntegration(unittest.TestCase):
         stats = engine.get_evolution_statistics()
         self.assertGreater(len(stats), 0)
         
-        print(f"\nEvolution completed:")
+        print("\nEvolution completed:")
         print(f"Final best fitness: {best_individual.fitness:.4f}")
         print(f"Best individual summary: {best_individual.get_network_summary()}")
 

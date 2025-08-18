@@ -5,9 +5,8 @@ Orchestrates the evolutionary process for self-optimizing neural architectures
 through genetic algorithms integrated with DTESN and Aphrodite Engine.
 """
 
-import asyncio
 import logging
-from typing import List, Dict, Optional, Any, Type
+from typing import List, Optional, Type
 from dataclasses import dataclass
 
 # Handle both absolute and relative imports
@@ -23,7 +22,7 @@ try:
 except ImportError:
     from .interfaces import (
         Individual, Population, FitnessEvaluator, EvolutionConfig, 
-        EvolutionObserver, EvolutionaryOperator
+        EvolutionObserver
     )
     from .operators import (
         MutationOperator, SelectionOperator, CrossoverOperator, 

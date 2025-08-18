@@ -5,7 +5,7 @@ Defines the fundamental contracts for evolutionary algorithms and self-optimizin
 """
 
 from abc import ABC, abstractmethod
-from typing import List, Dict, Any, Tuple, Optional, AsyncGenerator
+from typing import List, Dict, Any, Tuple, Optional
 from dataclasses import dataclass
 import uuid
 

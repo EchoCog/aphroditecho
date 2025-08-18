@@ -231,7 +231,7 @@ async def demonstrate_evolution():
         diversity_threshold=0.2
     )
     
-    print(f"Configuration:")
+    print("Configuration:")
     print(f"  Population Size: {config.population_size}")
     print(f"  Max Generations: {config.max_generations}")
     print(f"  Mutation Rate: {config.mutation_rate}")
@@ -258,7 +258,7 @@ async def demonstrate_evolution():
     initial_population = engine.current_population
     stats = initial_population.calculate_statistics()
     
-    print(f"Initial Population Statistics:")
+    print("Initial Population Statistics:")
     print(f"  Best Fitness: {stats['best']:.4f}")
     print(f"  Average Fitness: {stats['average']:.4f}")
     print(f"  Worst Fitness: {stats['worst']:.4f}")
@@ -269,7 +269,7 @@ async def demonstrate_evolution():
     best_initial = initial_population.get_best_individual()
     if best_initial:
         summary = best_initial.get_network_summary()
-        print(f"Initial Best Network:")
+        print("Initial Best Network:")
         print(f"  Layers: {summary['num_layers']}")
         print(f"  Types: {', '.join(summary['layer_types'])}")
         print(f"  Parameters: {summary['total_parameters']}")
@@ -290,7 +290,7 @@ async def demonstrate_evolution():
     # Display final results
     final_stats = final_population.calculate_statistics()
     
-    print(f"Final Population Statistics:")
+    print("Final Population Statistics:")
     print(f"  Best Fitness: {final_stats['best']:.4f}")
     print(f"  Average Fitness: {final_stats['average']:.4f}")
     print(f"  Worst Fitness: {final_stats['worst']:.4f}")
@@ -301,7 +301,7 @@ async def demonstrate_evolution():
     best_final = final_population.get_best_individual()
     if best_final:
         summary = best_final.get_network_summary()
-        print(f"🏆 Best Evolved Network:")
+        print("🏆 Best Evolved Network:")
         print(f"  Layers: {summary['num_layers']}")
         print(f"  Types: {', '.join(summary['layer_types'])}")
         print(f"  Parameters: {summary['total_parameters']}")
@@ -324,7 +324,7 @@ async def demonstrate_evolution():
     # Evolution statistics
     evolution_stats = engine.get_evolution_statistics()
     if evolution_stats:
-        print(f"Evolution Progress:")
+        print("Evolution Progress:")
         print(f"  Generations Completed: {len(evolution_stats)}")
         print(f"  Fitness Improvement: {final_stats['best'] - stats['best']:.4f}")
         print(f"  Final Convergence Rate: {evolution_stats[-1].convergence_rate:.6f}")
@@ -380,7 +380,7 @@ async def run_quick_test():
     individual2 = NeuralTopologyIndividual(genome2)
     
     child1, child2 = individual.crossover(individual2)
-    print(f"✓ Crossover successful, created 2 offspring")
+    print("✓ Crossover successful, created 2 offspring")
     
     # Test fitness evaluation
     print("Testing fitness evaluation...")

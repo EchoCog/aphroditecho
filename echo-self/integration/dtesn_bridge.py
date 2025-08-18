@@ -6,7 +6,7 @@ components from echo.kern for membrane computing and reservoir dynamics.
 """
 
 import logging
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, List
 
 # Handle both absolute and relative imports
 try:

@@ -143,7 +143,7 @@ async def simulate_inference_workload(integration: AphroditeAdaptiveIntegration,
         }
         
         # Hook post-inference
-        hooked_response = await integration.hook_inference_response(hooked_request, response_data)
+        await integration.hook_inference_response(hooked_request, response_data)
         
         print(f"   Request {i+1:2d}: {inference_time:6.1f}ms latency, {tokens_generated:2d} tokens")
         
