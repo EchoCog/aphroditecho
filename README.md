@@ -40,6 +40,7 @@ Developed through a collaboration between [PygmalionAI](https://pygmalion.chat) 
 - [🐳 Docker Deployment](#-docker-deployment)
 - [🔧 Configuration](#-configuration)
 - [📊 Performance & Benchmarks](#-performance--benchmarks)
+- [📚 Documentation](#-documentation)
 - [🤝 Contributing](#-contributing)
 - [🙏 Acknowledgements](#-acknowledgements)
 
@@ -48,6 +49,21 @@ Developed through a collaboration between [PygmalionAI](https://pygmalion.chat) 
 > **Next-Generation Embodied AI Architecture**
 
 This repository features an advanced integration of **Deep Tree Echo Membrane Computing** with the Aphrodite Engine, implementing a comprehensive 4E Embodied AI framework with Echo-Self AI Evolution Engine and Agent-Arena-Relation (AAR) orchestration.
+
+### 🌟 Echo Systems Overview
+
+The Aphrodite Engine integrates **six specialized Echo systems** that collectively provide advanced cognitive capabilities:
+
+| System | Purpose | Status | Key Features |
+|--------|---------|--------|-------------|
+| 🌳 **Echo.Dash** | Cognitive Architecture Hub | ✅ Active | Deep Tree Echo core, migration system, API standardization |
+| 💭 **Echo.Dream** | Agent-Arena-Relation | ✅ Active | Distributed cognition, recursive self-modification, hypergraph evolution |
+| 📁 **Echo.Files** | Resource Management | ✅ Active | ECAN allocation, Julia DTESN cores, P-Lingua membranes |
+| 🔧 **Echo.Kern** | DTESN Kernel | ✅ Active | Real-time processing, neuromorphic HAL, performance validation |
+| 🌐 **Echo.RKWV** | Production Deployment | ✅ Active | WebVM integration, microservices, monitoring (2500+ req/min) |
+| 🔄 **Echo.Self** | AI Evolution Engine | ✅ Active | Adaptive architecture, meta-learning, neural-symbolic bridge |
+
+**📋 Complete Documentation**: [Echo Systems Architecture Overview](ECHO_SYSTEMS_ARCHITECTURE.md)
 
 ### 🎯 Key Integration Components
 
@@ -668,6 +684,28 @@ Aphrodite Engine builds upon the extraordinary work of the open-source community
 
 </div>
 
+
+## 📚 Documentation
+
+### 🎯 Core Documentation
+- **[Echo Systems Architecture](ECHO_SYSTEMS_ARCHITECTURE.md)** - Comprehensive overview of all Echo.* systems
+- **[Technical Reference Index](ECHO_TECHNICAL_REFERENCES.md)** - Complete technical documentation index
+- **[Deep Tree Echo Architecture](DEEP_TREE_ECHO_ARCHITECTURE.md)** - Integration specifications
+- **[Development Roadmap](DEEP_TREE_ECHO_ROADMAP.md)** - Implementation roadmap
+
+### 🔧 System-Specific Documentation
+- **Echo.Dash**: [Deep Tree Echo Catalog](echo.dash/DEEP_TREE_ECHO_CATALOG.md) | [Migration Roadmap](echo.dash/MIGRATION_ROADMAP.md)
+- **Echo.Dream**: [Agent-Arena-Relation](echo.dream/README.md) | [Cognitive Flowcharts](echo.dream/README.md#cognitive-flowchart)
+- **Echo.Files**: [ECAN Resource Allocation](echo.files/ECAN_RESOURCE_ALLOCATION_PATHWAYS.md)
+- **Echo.Kern**: [DTESN Development](echo.kern/DEVO-GENESIS.md) | [Performance Tests](echo.kern/tests/)
+- **Echo.RKWV**: [Production Deployment](echo.rkwv/README.md) | [API Ecosystem](echo.rkwv/API_ECOSYSTEM_SUMMARY.md)
+- **Echo.Self**: [Evolution Engine](echo_self/README.md) | [Adaptive Architecture](echo_self/adaptive_architecture/)
+
+### 📖 Getting Started Guides
+- **Installation**: Follow the [Quick Start](#-quick-start) guide above
+- **Development**: See [Contributing Guidelines](CONTRIBUTING.md)
+- **Docker Deployment**: Use the [Docker section](#-docker-deployment)
+- **Configuration**: Check [Configuration options](#-configuration)
 
 ## 🤝 Contributing
 
