@@ -209,12 +209,14 @@ async def demonstrate_adaptive_architecture():
     # Set up model configuration
     model_config = create_demo_model_config()
     
-    # Integrate with Aphrodite (mocked for demo)
+    # Integrate with real Aphrodite Engine
     integration_success = await integration.integrate_with_aphrodite(model_config)
     if integration_success:
-        print("✅ Aphrodite integration established")
+        print("✅ Real Aphrodite Engine integration established")
     else:
-        print("⚠️  Aphrodite integration using mock mode")
+        print("❌ Failed to establish real Aphrodite Engine integration")
+        print("   Cannot proceed with demo - requires actual Aphrodite Engine")
+        return
     
     # Load adaptive model
     model_name = "demo-adaptive-model"

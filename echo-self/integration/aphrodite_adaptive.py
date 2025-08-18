@@ -370,12 +370,13 @@ class AphroditeAdaptiveIntegration:
                 if not self.topology_adapter.can_modify_architecture(model_config):
                     logger.warning("Model architecture cannot be modified - limited functionality")
                 
-                # Initialize Aphrodite bridge if needed
+                # Initialize Aphrodite bridge - required for real functionality
                 if not self.aphrodite_bridge.is_initialized():
                     model_name = model_config.get('model_name', 'default')
                     bridge_initialized = self.aphrodite_bridge.initialize(model_name)
                     if not bridge_initialized:
-                        logger.warning("Aphrodite bridge initialization failed - using mock mode")
+                        logger.error("Aphrodite bridge initialization failed - cannot proceed with real integration")
+                        raise RuntimeError("Failed to initialize real Aphrodite Engine components")
                 
                 # Set up inference hooks
                 await self._setup_inference_hooks()
