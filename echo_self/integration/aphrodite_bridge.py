@@ -20,10 +20,11 @@ logger = logging.getLogger(__name__)
 class AphroditeBridge:
     """Bridge between Echo-Self Evolution Engine and Aphrodite Engine."""
     
-    def __init__(self):
+    def __init__(self, model_config: Optional[Dict[str, Any]] = None, 
+                 engine_config: Optional[Dict[str, Any]] = None):
+        self.model_config = model_config or {}
+        self.engine_config = engine_config or {}
         self.model_runner = None
-        self.engine_config = None
-        self.model_config = None
         self.scheduler = None
         self._initialized = False
     
