@@ -12,9 +12,10 @@ import time
 from typing import Dict, Any, List
 from unittest.mock import Mock, patch
 
-# Import system path setup
 import sys
 import os
+
+# Import system path setup
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 from core.adaptive_architecture import (
@@ -36,7 +37,9 @@ class MockFitnessEvaluator:
     async def evaluate(self, individual: Individual) -> float:
         return 0.8  # Return constant fitness for testing
     
-    async def batch_evaluate(self, individuals: List[Individual]) -> List[float]:
+    async def batch_evaluate(
+        self, individuals: List[Individual]
+    ) -> List[float]:
         return [0.8] * len(individuals)
 
 
@@ -133,7 +136,9 @@ class TestArchitectureMutation(unittest.TestCase):
         mutated_genome = mutation.apply_to_genome(genome)
         
         # Check that layer was added
-        self.assertEqual(len(mutated_genome['layers']), original_layer_count + 1)
+        self.assertEqual(
+            len(mutated_genome['layers']), original_layer_count + 1
+        )
         self.assertEqual(mutated_genome['layers'][1]['type'], 'attention')
         self.assertEqual(mutated_genome['layers'][1]['size'], 256)
     
@@ -150,7 +155,9 @@ class TestArchitectureMutation(unittest.TestCase):
         mutated_genome = mutation.apply_to_genome(genome)
         
         # Check that layer was removed
-        self.assertEqual(len(mutated_genome['layers']), original_layer_count - 1)
+        self.assertEqual(
+            len(mutated_genome['layers']), original_layer_count - 1
+        )
     
     def test_modify_layer_mutation(self):
         """Test modifying a layer in architecture."""
@@ -194,7 +201,9 @@ class TestPerformanceMonitor(unittest.TestCase):
     
     def test_add_metrics(self):
         """Test adding performance metrics."""
-        metrics = PerformanceMetrics(latency_ms=100.0, throughput_tokens_per_sec=50.0)
+        metrics = PerformanceMetrics(
+            latency_ms=100.0, throughput_tokens_per_sec=50.0
+        )
         self.monitor.add_metrics(metrics)
         
         self.assertEqual(len(self.monitor.metrics_history), 1)
@@ -235,16 +244,18 @@ class TestPerformanceMonitor(unittest.TestCase):
         # Add degraded metrics (poor performance) to trigger detection
         degraded_metrics = PerformanceMetrics(
             latency_ms=500.0,   # Much higher latency (worse performance)
-            throughput_tokens_per_sec=20.0,   # Much lower throughput (worse performance)
-            memory_usage_mb=4096.0,  # Much higher memory usage (worse performance)  
-            accuracy_score=0.4   # Much lower accuracy (worse performance)
+            throughput_tokens_per_sec=20.0,   # Much lower throughput (worse)
+            memory_usage_mb=4096.0,  # Much higher memory usage (worse)
+            accuracy_score=0.4   # Much lower accuracy (worse)
         )
         
         for i in range(15):
             self.monitor.add_metrics(degraded_metrics)
         
-        # Should detect degradation (baseline overall_score ~0.85, degraded ~0.15)
-        self.assertTrue(self.monitor.detect_performance_degradation(threshold=0.05))
+        # Should detect degradation (baseline ~0.85, degraded ~0.15)
+        self.assertTrue(
+            self.monitor.detect_performance_degradation(threshold=0.05)
+        )
 
 
 class TestArchitectureOptimizer(unittest.TestCase):
@@ -267,7 +278,9 @@ class TestArchitectureOptimizer(unittest.TestCase):
         self.assertGreater(len(mutations), 0)
         # Should suggest latency reduction strategies
         mutation_types = [m.mutation_type for m in mutations]
-        self.assertTrue(any(mt in ['modify_layer', 'remove_layer'] for mt in mutation_types))
+        self.assertTrue(
+            any(mt in ['modify_layer', 'remove_layer'] for mt in mutation_types)
+        )
     
     def test_suggest_mutations_for_high_memory(self):
         """Test mutation suggestions for high memory usage."""
@@ -282,7 +295,9 @@ class TestArchitectureOptimizer(unittest.TestCase):
         
         self.assertGreater(len(mutations), 0)
         # Should suggest memory optimization strategies
-        has_layer_modification = any(m.mutation_type == 'modify_layer' for m in mutations)
+        has_layer_modification = any(
+            m.mutation_type == 'modify_layer' for m in mutations
+        )
         self.assertTrue(has_layer_modification)
     
     def test_suggest_mutations_for_low_accuracy(self):
@@ -298,7 +313,9 @@ class TestArchitectureOptimizer(unittest.TestCase):
         self.assertGreater(len(mutations), 0)
         # Should suggest accuracy improvement strategies
         mutation_types = [m.mutation_type for m in mutations]
-        self.assertTrue(any(mt in ['add_layer', 'modify_layer'] for mt in mutation_types))
+        self.assertTrue(
+            any(mt in ['add_layer', 'modify_layer'] for mt in mutation_types)
+        )
 
 
 class TestModelTopologyAdapter(unittest.TestCase):
@@ -327,10 +344,14 @@ class TestModelTopologyAdapter(unittest.TestCase):
             parameters={'scale_factor': 1.5}
         )
         
-        modified_config = self.adapter.apply_mutation_to_model_config(config, mutation)
+        modified_config = self.adapter.apply_mutation_to_model_config(
+            config, mutation
+        )
         
         # Hidden size should be scaled
-        self.assertNotEqual(modified_config['hidden_size'], original_hidden_size)
+        self.assertNotEqual(
+            modified_config['hidden_size'], original_hidden_size
+        )
         self.assertGreater(modified_config['hidden_size'], original_hidden_size)
     
     def test_adjust_attention_heads(self):
@@ -342,7 +363,9 @@ class TestModelTopologyAdapter(unittest.TestCase):
             parameters={'num_heads': 8}
         )
         
-        modified_config = self.adapter.apply_mutation_to_model_config(config, mutation)
+        modified_config = self.adapter.apply_mutation_to_model_config(
+            config, mutation
+        )
         
         # Attention heads should be adjusted
         self.assertEqual(modified_config['num_attention_heads'], 8)
@@ -357,10 +380,14 @@ class TestModelTopologyAdapter(unittest.TestCase):
             parameters={'num_layers': 2}
         )
         
-        modified_config = self.adapter.apply_mutation_to_model_config(config, mutation)
+        modified_config = self.adapter.apply_mutation_to_model_config(
+            config, mutation
+        )
         
         # Layers should be removed
-        self.assertEqual(modified_config['num_hidden_layers'], original_layers - 2)
+        self.assertEqual(
+            modified_config['num_hidden_layers'], original_layers - 2
+        )
     
     def test_layer_addition(self):
         """Test layer addition."""
@@ -372,10 +399,14 @@ class TestModelTopologyAdapter(unittest.TestCase):
             parameters={'num_layers': 2}
         )
         
-        modified_config = self.adapter.apply_mutation_to_model_config(config, mutation)
+        modified_config = self.adapter.apply_mutation_to_model_config(
+            config, mutation
+        )
         
         # Layers should be added
-        self.assertEqual(modified_config['num_hidden_layers'], original_layers + 2)
+        self.assertEqual(
+            modified_config['num_hidden_layers'], original_layers + 2
+        )
 
 
 class TestInferenceHookManager(unittest.TestCase):
@@ -417,7 +448,9 @@ class TestInferenceHookManager(unittest.TestCase):
         request_data = {'_hook_start_time': time.time()}
         inference_result = {'tokens_generated': 10}
         
-        result = await self.hook_manager.post_inference_hook(request_data, inference_result)
+        result = await self.hook_manager.post_inference_hook(
+            request_data, inference_result
+        )
         
         self.assertIsInstance(result, dict)
         # Should have called metrics collection
@@ -454,7 +487,9 @@ class TestAdaptiveArchitectureFramework(unittest.TestCase):
         self.framework.add_performance_metrics(metrics)
         
         # Should be added to performance monitor
-        self.assertEqual(len(self.framework.performance_monitor.metrics_history), 1)
+        self.assertEqual(
+            len(self.framework.performance_monitor.metrics_history), 1
+        )
     
     def test_adaptation_configuration(self):
         """Test adaptation parameter configuration."""
@@ -492,7 +527,9 @@ class TestAphroditeAdaptiveIntegration(unittest.TestCase):
             individual_class=NeuralTopologyIndividual
         )
         
-        self.adaptive_framework = AdaptiveArchitectureFramework(self.evolution_engine)
+        self.adaptive_framework = AdaptiveArchitectureFramework(
+            self.evolution_engine
+        )
         self.integration = AphroditeAdaptiveIntegration(self.adaptive_framework)
     
     def test_integration_initialization(self):
@@ -507,8 +544,12 @@ class TestAphroditeAdaptiveIntegration(unittest.TestCase):
         model_config = create_test_model_config()
         
         # Mock the bridge initialization to avoid dependency issues
-        with patch.object(self.integration.aphrodite_bridge, 'is_initialized', return_value=True):
-            result = await self.integration.integrate_with_aphrodite(model_config)
+        with patch.object(
+            self.integration.aphrodite_bridge, 'is_initialized', return_value=True
+        ):
+            result = await self.integration.integrate_with_aphrodite(
+                model_config
+            )
         
         self.assertTrue(result)
         self.assertTrue(self.integration.is_integrated)
@@ -520,7 +561,9 @@ class TestAphroditeAdaptiveIntegration(unittest.TestCase):
         model_config = create_test_model_config()
         
         # Set up integration
-        with patch.object(self.integration.aphrodite_bridge, 'is_initialized', return_value=True):
+        with patch.object(
+            self.integration.aphrodite_bridge, 'is_initialized', return_value=True
+        ):
             await self.integration.integrate_with_aphrodite(model_config)
         
         # Create and apply mutation
@@ -555,7 +598,9 @@ class TestAdaptiveModelLoader(unittest.TestCase):
             individual_class=NeuralTopologyIndividual
         )
         
-        self.adaptive_framework = AdaptiveArchitectureFramework(self.evolution_engine)
+        self.adaptive_framework = AdaptiveArchitectureFramework(
+            self.evolution_engine
+        )
         self.integration = AphroditeAdaptiveIntegration(self.adaptive_framework)
         self.loader = AdaptiveModelLoader(self.integration)
     
@@ -565,8 +610,12 @@ class TestAdaptiveModelLoader(unittest.TestCase):
         model_config = create_test_model_config()
         
         # Mock integration to avoid dependency issues
-        with patch.object(self.integration, 'integrate_with_aphrodite', return_value=True):
-            result = await self.loader.load_adaptive_model(model_name, model_config)
+        with patch.object(
+            self.integration, 'integrate_with_aphrodite', return_value=True
+        ):
+            result = await self.loader.load_adaptive_model(
+                model_name, model_config
+            )
         
         self.assertTrue(result)
         self.assertIn(model_name, self.loader.loaded_models)
@@ -581,7 +630,9 @@ class TestAdaptiveModelLoader(unittest.TestCase):
         model_config = create_test_model_config()
         
         # Load model first
-        with patch.object(self.integration, 'integrate_with_aphrodite', return_value=True):
+        with patch.object(
+            self.integration, 'integrate_with_aphrodite', return_value=True
+        ):
             await self.loader.load_adaptive_model(model_name, model_config)
         
         # Create mutation
@@ -591,8 +642,12 @@ class TestAdaptiveModelLoader(unittest.TestCase):
         )
         
         # Reload with adaptation
-        with patch.object(self.integration, 'apply_architecture_adaptation', return_value=True):
-            result = await self.loader.reload_model_with_adaptation(model_name, mutation)
+        with patch.object(
+            self.integration, 'apply_architecture_adaptation', return_value=True
+        ):
+            result = await self.loader.reload_model_with_adaptation(
+                model_name, mutation
+            )
         
         self.assertTrue(result)
         
@@ -611,7 +666,9 @@ class TestAdaptiveModelLoader(unittest.TestCase):
         model_config = create_test_model_config()
         
         # Load model first
-        with patch.object(self.integration, 'integrate_with_aphrodite', return_value=True):
+        with patch.object(
+            self.integration, 'integrate_with_aphrodite', return_value=True
+        ):
             await self.loader.load_adaptive_model(model_name, model_config)
         
         # Unload model
@@ -649,8 +706,12 @@ class TestInferenceTimeAdaptation(unittest.TestCase):
         
         try:
             # Integrate with mock Aphrodite
-            with patch.object(integration.aphrodite_bridge, 'is_initialized', return_value=True):
-                integration_result = await integration.integrate_with_aphrodite(model_config)
+            with patch.object(
+                integration.aphrodite_bridge, 'is_initialized', return_value=True
+            ):
+                integration_result = await integration.integrate_with_aphrodite(
+                    model_config
+                )
                 self.assertTrue(integration_result)
             
             # Simulate inference with performance metrics
@@ -679,7 +740,9 @@ class TestInferenceTimeAdaptation(unittest.TestCase):
                 }
                 
                 # Hook into inference
-                hooked_request = await integration.hook_inference_request(request_data)
+                hooked_request = await integration.hook_inference_request(
+                    request_data
+                )
                 hooked_response = await integration.hook_inference_response(
                     hooked_request, response_data
                 )
@@ -693,7 +756,9 @@ class TestInferenceTimeAdaptation(unittest.TestCase):
             self.assertIn('performance_trend', status)
             
             # Check that performance monitoring is working
-            current_perf = adaptive_framework.performance_monitor.get_current_performance()
+            current_perf = (
+                adaptive_framework.performance_monitor.get_current_performance()
+            )
             self.assertIn('avg_latency_ms', current_perf)
             
         finally:

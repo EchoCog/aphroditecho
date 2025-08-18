@@ -6,7 +6,7 @@ components from echo.kern for membrane computing and reservoir dynamics.
 """
 
 import logging
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, List
 
 # Handle both absolute and relative imports
 try:
@@ -59,7 +59,9 @@ class DTESNBridge:
             self.ESNReservoir = ESNReservoir
             
             # Import B-Series calculator
-            from ...echo.kern.bseries_differential_calculator import BSeriesCalculator
+            from ...echo.kern.bseries_differential_calculator import (
+                BSeriesCalculator
+            )
             self.BSeriesCalculator = BSeriesCalculator
             
             # Import DTESN compiler if available
@@ -82,7 +84,9 @@ class DTESNBridge:
             import os
             
             # Add echo.kern to path
-            echo_kern_path = os.path.join(os.path.dirname(__file__), '..', '..', 'echo.kern')
+            echo_kern_path = os.path.join(
+                os.path.dirname(__file__), '..', '..', 'echo.kern'
+            )
             if echo_kern_path not in sys.path:
                 sys.path.insert(0, echo_kern_path)
             
@@ -93,7 +97,9 @@ class DTESNBridge:
             
             self.PSystemMembranes = psystem_membranes.PSystemMembranes
             self.ESNReservoir = esn_reservoir.ESNReservoir
-            self.BSeriesCalculator = bseries_differential_calculator.BSeriesCalculator
+            self.BSeriesCalculator = (
+                bseries_differential_calculator.BSeriesCalculator
+            )
             
         except ImportError as e:
             logger.error(f"Could not import DTESN components: {e}")
@@ -127,10 +133,14 @@ class DTESNBridge:
         """Check if the bridge is initialized."""
         return self._initialized
     
-    def process_individual_through_dtesn(self, individual: Individual) -> Dict[str, Any]:
+    def process_individual_through_dtesn(
+        self, individual: Individual
+    ) -> Dict[str, Any]:
         """Process an individual through DTESN components."""
         if not self._initialized:
-            logger.warning("DTESN Bridge not initialized, returning empty results")
+            logger.warning(
+                "DTESN Bridge not initialized, returning empty results"
+            )
             return {}
         
         try:
@@ -157,7 +167,9 @@ class DTESNBridge:
             logger.error(f"Error processing individual through DTESN: {e}")
             return {}
     
-    def _process_through_membranes(self, individual: Individual) -> Dict[str, Any]:
+    def _process_through_membranes(
+        self, individual: Individual
+    ) -> Dict[str, Any]:
         """Process individual through P-System membranes."""
         try:
             # Convert individual genome to membrane input format
@@ -169,14 +181,18 @@ class DTESNBridge:
             return {
                 'input_data': genome_data,
                 'output_data': membrane_output,
-                'membrane_count': len(membrane_output) if isinstance(membrane_output, (list, dict)) else 1
+                'membrane_count': (
+                    len(membrane_output) if isinstance(membrane_output, (list, dict)) else 1
+                )
             }
             
         except Exception as e:
             logger.error(f"Error in membrane processing: {e}")
             return {}
     
-    def _process_through_reservoir(self, individual: Individual) -> Dict[str, Any]:
+    def _process_through_reservoir(
+        self, individual: Individual
+    ) -> Dict[str, Any]:
         """Process individual through ESN reservoir."""
         try:
             # Convert individual to reservoir input
@@ -188,7 +204,9 @@ class DTESNBridge:
             return {
                 'input_data': reservoir_input,
                 'output_data': reservoir_output,
-                'reservoir_size': self.reservoir.reservoir_size if hasattr(self.reservoir, 'reservoir_size') else 0
+                'reservoir_size': (
+                    self.reservoir.reservoir_size if hasattr(self.reservoir, 'reservoir_size') else 0
+                )
             }
             
         except Exception as e:
@@ -220,7 +238,9 @@ class DTESNBridge:
             logger.error(f"Error in dynamics calculation: {e}")
             return {}
     
-    def _genome_to_membrane_format(self, genome: Dict[str, Any]) -> List[Any]:
+    def _genome_to_membrane_format(
+        self, genome: Dict[str, Any]
+    ) -> List[Any]:
         """Convert genome to P-System membrane input format."""
         # Simple conversion - in practice this would be more sophisticated
         membrane_input = []
@@ -230,13 +250,17 @@ class DTESNBridge:
             membrane_obj = {
                 'type': layer.get('type', 'dense'),
                 'size': layer.get('size', 64),
-                'activation': genome.get('activation_functions', {}).get(str(len(membrane_input)), 'relu')
+                'activation': genome.get('activation_functions', {}).get(
+                    str(len(membrane_input)), 'relu'
+                )
             }
             membrane_input.append(membrane_obj)
         
         return membrane_input
     
-    def _genome_to_reservoir_format(self, genome: Dict[str, Any]) -> List[float]:
+    def _genome_to_reservoir_format(
+        self, genome: Dict[str, Any]
+    ) -> List[float]:
         """Convert genome to ESN reservoir input format."""
         # Convert network structure to numerical input
         reservoir_input = []
@@ -265,7 +289,9 @@ class DTESNBridge:
         
         return reservoir_input
     
-    def _network_to_tree_structure(self, layers: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def _network_to_tree_structure(
+        self, layers: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         """Convert network layers to tree structure for B-Series calculation."""
         tree_structure = []
         
@@ -299,7 +325,9 @@ class DTESNBridge:
             
             # Optionally modify fitness based on DTESN results
             if 'membrane_state' in dtesn_results:
-                membrane_complexity = dtesn_results['membrane_state'].get('membrane_count', 1)
+                membrane_complexity = (
+                    dtesn_results['membrane_state'].get('membrane_count', 1)
+                )
                 # Reward moderate complexity
                 complexity_bonus = 1.0 - abs(membrane_complexity - 5) / 10.0
                 individual.fitness *= max(0.5, complexity_bonus)

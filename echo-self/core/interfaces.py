@@ -1,11 +1,12 @@
 """
 Core interfaces and protocols for Echo-Self AI Evolution Engine.
 
-Defines the fundamental contracts for evolutionary algorithms and self-optimizing systems.
+Defines the fundamental contracts for evolutionary algorithms and 
+self-optimizing systems.
 """
 
 from abc import ABC, abstractmethod
-from typing import List, Dict, Any, Tuple, Optional, AsyncGenerator
+from typing import List, Dict, Any, Tuple, Optional
 from dataclasses import dataclass
 import uuid
 
@@ -47,7 +48,9 @@ class Individual(ABC):
         pass
     
     @abstractmethod
-    def crossover(self, other: 'Individual') -> Tuple['Individual', 'Individual']:
+    def crossover(
+        self, other: 'Individual'
+    ) -> Tuple['Individual', 'Individual']:
         """Perform crossover with another individual to produce offspring."""
         pass
     
@@ -118,7 +121,9 @@ class Population:
             for i, ind1 in enumerate(self.individuals):
                 for ind2 in self.individuals[i+1:]:
                     distances.append(ind1.distance(ind2))
-            self.diversity = sum(distances) / len(distances) if distances else 0.0
+            self.diversity = (
+                sum(distances) / len(distances) if distances else 0.0
+            )
         else:
             self.diversity = 0.0
         
@@ -148,17 +153,23 @@ class EvolutionObserver(ABC):
     """Observer interface for monitoring evolution progress."""
     
     @abstractmethod
-    async def on_generation_start(self, generation: int, population: Population) -> None:
+    async def on_generation_start(
+        self, generation: int, population: Population
+    ) -> None:
         """Called at the start of each generation."""
         pass
     
     @abstractmethod
-    async def on_generation_end(self, generation: int, population: Population) -> None:
+    async def on_generation_end(
+        self, generation: int, population: Population
+    ) -> None:
         """Called at the end of each generation."""
         pass
     
     @abstractmethod
-    async def on_evolution_complete(self, final_population: Population) -> None:
+    async def on_evolution_complete(
+        self, final_population: Population
+    ) -> None:
         """Called when evolution is complete."""
         pass
 

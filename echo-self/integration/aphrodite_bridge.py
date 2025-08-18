@@ -6,7 +6,7 @@ high-performance model serving and distributed computing.
 """
 
 import logging
-from typing import Dict, Any, Optional, List, Callable
+from typing import Dict, Any, Optional, List
 
 # Handle both absolute and relative imports  
 try:
@@ -65,7 +65,9 @@ class AphroditeBridge:
             
             # Model interfaces
             try:
-                from ...aphrodite.modeling.models.interfaces_base import AphroditeModel
+                from ...aphrodite.modeling.models.interfaces_base import (
+                    AphroditeModel
+                )
                 self.AphroditeModel = AphroditeModel
             except ImportError:
                 logger.warning("Model interfaces not available")
@@ -89,7 +91,9 @@ class AphroditeBridge:
             import os
             
             # Add aphrodite to path
-            aphrodite_path = os.path.join(os.path.dirname(__file__), '..', '..', 'aphrodite')
+            aphrodite_path = os.path.join(
+                os.path.dirname(__file__), '..', '..', 'aphrodite'
+            )
             if aphrodite_path not in sys.path:
                 sys.path.insert(0, aphrodite_path)
             
@@ -129,7 +133,9 @@ class AphroditeBridge:
                 'max_num_seqs': 16,
             }
             
-            logger.info(f"Aphrodite configurations initialized for model: {model_name}")
+            logger.info(
+                f"Aphrodite configurations initialized for model: {model_name}"
+            )
             
         except Exception as e:
             logger.error(f"Failed to initialize configurations: {e}")
@@ -181,8 +187,12 @@ class AphroditeBridge:
             
         except Exception as e:
             logger.error(f"Failed to initialize real Aphrodite Engine: {e}")
-            logger.info("This likely means Aphrodite Engine dependencies need to be installed")
-            logger.info("Run: pip install -e . --timeout 3600 to install Aphrodite Engine")
+            logger.info(
+                "This likely means Aphrodite Engine dependencies need to be installed"
+            )
+            logger.info(
+                "Run: pip install -e . --timeout 3600 to install Aphrodite Engine"
+            )
             raise
     
     def is_initialized(self) -> bool:
@@ -211,7 +221,9 @@ class AphroditeBridge:
             model_config = self._individual_to_model_config(individual)
             
             # Evaluate performance
-            performance_metrics = self._run_performance_evaluation(model_config, test_prompts)
+            performance_metrics = self._run_performance_evaluation(
+                model_config, test_prompts
+            )
             
             return performance_metrics
             
@@ -219,7 +231,9 @@ class AphroditeBridge:
             logger.error(f"Error evaluating individual performance: {e}")
             return {'performance': 0.0}
     
-    def _individual_to_model_config(self, individual: Individual) -> Dict[str, Any]:
+    def _individual_to_model_config(
+        self, individual: Individual
+    ) -> Dict[str, Any]:
         """Convert individual to Aphrodite model configuration."""
         genome = individual.genome
         
@@ -291,13 +305,17 @@ class AphroditeBridge:
             total_time = end_time - start_time
             
             # Calculate real metrics
-            avg_latency = total_latency / len(test_prompts) if test_prompts else 0
+            avg_latency = (
+                total_latency / len(test_prompts) if test_prompts else 0
+            )
             throughput = total_tokens / total_time if total_time > 0 else 0
             
             # Get memory usage from engine stats
             memory_usage_mb = 0.0
             if hasattr(self.engine, 'get_model_memory_usage'):
-                memory_usage_mb = self.engine.get_model_memory_usage() / (1024 * 1024)
+                memory_usage_mb = (
+                    self.engine.get_model_memory_usage() / (1024 * 1024)
+                )
             
             # Update metrics with real values
             metrics['latency'] = avg_latency
@@ -332,7 +350,9 @@ class AphroditeBridge:
         # In practice, you might use more sophisticated metrics
         return 0.8  # Default quality score
     
-    def _fallback_performance_estimation(self, model_config: Dict[str, Any]) -> Dict[str, float]:
+    def _fallback_performance_estimation(
+        self, model_config: Dict[str, Any]
+    ) -> Dict[str, float]:
         """Fallback performance estimation when real evaluation fails."""
         # Architecture-based performance estimation
         layers = model_config.get('layers', [])
@@ -349,7 +369,9 @@ class AphroditeBridge:
             'accuracy': 0.7  # Conservative estimate
         }
     
-    def _calculate_model_complexity(self, model_config: Dict[str, Any]) -> float:
+    def _calculate_model_complexity(
+        self, model_config: Dict[str, Any]
+    ) -> float:
         """Calculate model complexity score."""
         layers = model_config.get('layers', [])
         connections = model_config.get('connections', [])
@@ -375,7 +397,9 @@ class AphroditeBridge:
         
         return (layer_complexity + connection_complexity) / 1000.0
     
-    def _evaluate_architecture_quality(self, model_config: Dict[str, Any]) -> float:
+    def _evaluate_architecture_quality(
+        self, model_config: Dict[str, Any]
+    ) -> float:
         """Evaluate the quality of the neural architecture."""
         layers = model_config.get('layers', [])
         
@@ -421,7 +445,9 @@ class AphroditeBridge:
             optimized_config = model_config.copy()
             
             # Optimize tensor parallelism based on model size
-            total_params = sum(layer.get('size', 64) for layer in model_config.get('layers', []))
+            total_params = sum(
+                layer.get('size', 64) for layer in model_config.get('layers', [])
+            )
             if total_params > 100000:
                 optimized_config['tensor_parallel_size'] = 2
             elif total_params > 500000:
@@ -480,7 +506,9 @@ class AphroditeFitnessEvaluator(FitnessEvaluator):
             logger.error(f"Error in Aphrodite fitness evaluation: {e}")
             return self._simple_fitness_calculation(individual)
     
-    async def batch_evaluate(self, individuals: List[Individual]) -> List[float]:
+    async def batch_evaluate(
+        self, individuals: List[Individual]
+    ) -> List[float]:
         """Batch evaluate individuals."""
         fitnesses = []
         

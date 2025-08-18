@@ -5,16 +5,15 @@ Orchestrates the evolutionary process for self-optimizing neural architectures
 through genetic algorithms integrated with DTESN and Aphrodite Engine.
 """
 
-import asyncio
 import logging
-from typing import List, Dict, Optional, Any, Type
+from typing import List, Optional, Type
 from dataclasses import dataclass
 
 # Handle both absolute and relative imports
 try:
     from core.interfaces import (
         Individual, Population, FitnessEvaluator, EvolutionConfig, 
-        EvolutionObserver, EvolutionaryOperator
+        EvolutionObserver
     )
     from core.operators import (
         MutationOperator, SelectionOperator, CrossoverOperator, 
@@ -23,7 +22,7 @@ try:
 except ImportError:
     from .interfaces import (
         Individual, Population, FitnessEvaluator, EvolutionConfig, 
-        EvolutionObserver, EvolutionaryOperator
+        EvolutionObserver
     )
     from .operators import (
         MutationOperator, SelectionOperator, CrossoverOperator, 
@@ -104,7 +103,9 @@ class EchoSelfEvolutionEngine:
     async def evolve(self, num_generations: Optional[int] = None) -> Population:
         """Run the evolutionary algorithm."""
         if self.current_population is None:
-            raise ValueError("Population not initialized. Call initialize_population() first.")
+            raise ValueError(
+                "Population not initialized. Call initialize_population() first."
+            )
         
         max_generations = num_generations or self.config.max_generations
         self.is_running = True
@@ -279,7 +280,9 @@ class EchoSelfEvolutionEngine:
         """Notify observers of generation start."""
         for observer in self.observers:
             try:
-                await observer.on_generation_start(self.generation, self.current_population)
+                await observer.on_generation_start(
+                    self.generation, self.current_population
+                )
             except Exception as e:
                 logger.error(f"Observer error in generation start: {e}")
     
@@ -287,7 +290,9 @@ class EchoSelfEvolutionEngine:
         """Notify observers of generation end."""
         for observer in self.observers:
             try:
-                await observer.on_generation_end(self.generation, self.current_population)
+                await observer.on_generation_end(
+                    self.generation, self.current_population
+                )
             except Exception as e:
                 logger.error(f"Observer error in generation end: {e}")
     
