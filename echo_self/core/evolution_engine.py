@@ -1,8 +1,8 @@
 """
 Core Evolution Engine for Echo-Self AI System
 
-Main orchestrator for self-optimizing neural architectures through genetic algorithms.
-Integrates with meta-learning system for architecture optimization.
+Main orchestrator for self-optimizing neural architectures through genetic
+algorithms. Integrates with meta-learning system for architecture optimization.
 """
 
 from typing import List, Dict, Optional, Tuple, Any
@@ -312,6 +312,9 @@ class EchoSelfEvolutionEngine:
             'config': self.config
         }
         
+        # Add integration status
+        stats.update(self.get_integration_status())
+        
         # Add meta-learning statistics if available
         if self.meta_optimizer:
             stats['meta_learning'] = self.meta_optimizer.get_meta_learning_stats()
@@ -439,5 +442,29 @@ class EchoSelfEvolutionEngine:
         self.generation = checkpoint_data['generation']
         self.best_individual = checkpoint_data['best_individual']
         self.evolution_history = checkpoint_data['evolution_history']
+        
+        logger.info(f"Checkpoint loaded from {filepath}")
+    
+    def enable_aar_integration(self, aar_orchestrator) -> None:
+        """Enable integration with AAR Core Orchestrator."""
+        self.aar_orchestrator = aar_orchestrator
+        logger.info("AAR orchestrator integration enabled")
+    
+    def enable_aphrodite_integration(self, aphrodite_bridge) -> None:
+        """Enable integration with Aphrodite Engine bridge."""
+        self.aphrodite_bridge = aphrodite_bridge
+        logger.info("Aphrodite Engine bridge integration enabled")
+    
+    def get_integration_status(self) -> Dict[str, bool]:
+        """Get current integration status."""
+        return {
+            'aar_integration_enabled': hasattr(self, 'aar_orchestrator') and 
+                                     self.aar_orchestrator is not None,
+            'aphrodite_integration_enabled': hasattr(self, 'aphrodite_bridge') and 
+                                           self.aphrodite_bridge is not None,
+            'dtesn_integration_enabled': hasattr(self, 'dtesn_kernel') and 
+                                        self.dtesn_kernel is not None,
+            'meta_learning_enabled': self.meta_optimizer is not None
+        }
         
         logger.info(f"Checkpoint loaded from {filepath}")

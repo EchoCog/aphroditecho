@@ -64,7 +64,12 @@ class AARCoreOrchestrator:
         self.echo_self_engine = echo_self_engine
         logger.info("Echo-Self evolution engine integration enabled")
     
-    async def orchestrate_inference(self, request: Dict[str, Any]) -> Dict[str, Any]:
+    def enable_echo_self_integration(self, echo_self_engine):
+        """Enable integration with Echo-Self evolution engine (alias)."""
+        self.set_echo_self_integration(echo_self_engine)
+    
+    async def orchestrate_inference(self, 
+                                      request: Dict[str, Any]) -> Dict[str, Any]:
         """Orchestrate inference through agent-arena system."""
         try:
             self.performance_stats['total_requests'] += 1

@@ -10,7 +10,7 @@ __author__ = "EchoCog Deep Tree Echo Team"
 
 from .core.evolution_engine import EchoSelfEvolutionEngine
 # from .meta_learning.meta_learner import MetaLearner  # Placeholder
-# from .adaptive_architecture.topology_mutator import TopologyMutator  # Placeholder
+# from .adaptive_architecture.topology_mutator import TopologyMutator
 
 __all__ = [
     'EchoSelfEvolutionEngine',
