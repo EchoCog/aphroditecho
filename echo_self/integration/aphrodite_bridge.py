@@ -54,33 +54,33 @@ class AphroditeBridge:
     def _import_aphrodite_components(self):
         """Import Aphrodite Engine components."""
         try:
-            # Core engine components
-            from ...aphrodite.engine.aphrodite_engine import AphroditeEngine
-            from ...aphrodite.common.config import EngineConfig, ModelConfig
-            from ...aphrodite.common.sampling_params import SamplingParams
-            
+            # Prefer absolute imports for installed package
+            from aphrodite.engine.aphrodite_engine import AphroditeEngine
+            from aphrodite.common.config import EngineConfig, ModelConfig
+            from aphrodite.common.sampling_params import SamplingParams
+
             self.AphroditeEngine = AphroditeEngine
             self.EngineConfig = EngineConfig
             self.ModelConfig = ModelConfig
             self.SamplingParams = SamplingParams
-            
+
             # Model interfaces
             try:
-                from ...aphrodite.modeling.models.interfaces_base import AphroditeModel
+                from aphrodite.modeling.models.interfaces_base import AphroditeModel
                 self.AphroditeModel = AphroditeModel
             except ImportError:
                 logger.warning("Model interfaces not available")
-            
+
             # Worker components
             try:
-                from ...aphrodite.worker.model_runner import ModelRunner
+                from aphrodite.worker.model_runner import ModelRunner
                 self.ModelRunner = ModelRunner
             except ImportError:
                 logger.warning("ModelRunner not available")
-            
+
         except ImportError as e:
             logger.warning(f"Some Aphrodite components not available: {e}")
-            # Try alternative import approach
+            # Try alternative import approach for editable/monorepo setups
             self._try_alternative_aphrodite_imports()
     
     def _try_alternative_aphrodite_imports(self):
@@ -89,7 +89,7 @@ class AphroditeBridge:
             import sys
             import os
             
-            # Add aphrodite to path
+            # Add aphrodite to path (monorepo layout)
             aphrodite_path = os.path.join(os.path.dirname(__file__), '..', '..', 'aphrodite')
             if aphrodite_path not in sys.path:
                 sys.path.insert(0, aphrodite_path)

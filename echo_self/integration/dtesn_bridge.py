@@ -50,26 +50,24 @@ class DTESNBridge:
     def _import_dtesn_components(self):
         """Import DTESN components from echo.kern."""
         try:
-            # Import P-System membranes
-            from ...echo.kern.psystem_membranes import PSystemMembranes
+            # Prefer absolute imports for installed package
+            from echo.kern.psystem_membranes import PSystemMembranes
             self.PSystemMembranes = PSystemMembranes
-            
-            # Import ESN reservoir
-            from ...echo.kern.esn_reservoir import ESNReservoir
+
+            from echo.kern.esn_reservoir import ESNReservoir
             self.ESNReservoir = ESNReservoir
-            
-            # Import B-Series calculator
-            from ...echo.kern.bseries_differential_calculator import BSeriesCalculator
+
+            from echo.kern.bseries_differential_calculator import BSeriesCalculator
             self.BSeriesCalculator = BSeriesCalculator
-            
+
             # Import DTESN compiler if available
             try:
-                from ...echo.kern.dtesn_compiler import DTESNCompiler
+                from echo.kern.dtesn_compiler import DTESNCompiler
                 self.DTESNCompiler = DTESNCompiler
             except ImportError:
                 logger.warning("DTESN Compiler not available")
                 self.DTESNCompiler = None
-            
+
         except ImportError as e:
             logger.warning(f"Some DTESN components not available: {e}")
             # Try alternative import paths
