@@ -3,7 +3,6 @@ from collections.abc import Iterable, Mapping, Sequence
 from typing import Annotated, Any, Literal, Optional
 
 import torch
-from loguru import logger
 from torch import nn
 from transformers import BatchFeature, Gemma3Config, Gemma3Processor
 from transformers.models.gemma3.processing_gemma3 import Gemma3ProcessorKwargs

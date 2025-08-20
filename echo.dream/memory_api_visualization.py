@@ -11,11 +11,8 @@ import networkx as nx
 import csv
 import json
 import datetime
-import xml.dom.minidom
-from sqlalchemy import desc
 
 from app import app
-from database import db
 from models_memory import MemoryNode, MemoryAssociation
 from models import SelfReferentialNode
 

@@ -1,7 +1,6 @@
 from typing import Any, Optional
 
 import torch
-from loguru import logger
 
 import aphrodite.modeling.layers.fused_moe.modular_kernel as mk
 from aphrodite.common.logger import log_once

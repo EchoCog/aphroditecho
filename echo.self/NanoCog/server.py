@@ -16,15 +16,14 @@ import sys
 import json
 import logging
 import argparse
-from typing import List, Dict, Any, Optional, Union, AsyncGenerator
+from typing import List, Dict, Any, Union, AsyncGenerator
 from datetime import datetime
-from contextlib import asynccontextmanager, nullcontext
+from contextlib import asynccontextmanager
 
 import torch
 import tiktoken
-import numpy as np
 import requests
-from fastapi import FastAPI, HTTPException, Depends, BackgroundTasks, Request, status
+from fastapi import FastAPI, HTTPException, Depends, Request, status
 from fastapi.responses import StreamingResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
@@ -591,7 +590,7 @@ async def chat_stream(
                 yield f"data: {json.dumps({'error': str(e)})}\n\n"
             
             # End the stream
-            yield f"data: [DONE]\n\n"
+            yield "data: [DONE]\n\n"
         
         return StreamingResponse(
             generate_stream(),
@@ -698,7 +697,7 @@ async def diagnostics_stream(
                 yield f"data: {json.dumps({'type': 'error', 'error': str(e)})}\n\n"
             
             # End the stream
-            yield f"data: [DONE]\n\n"
+            yield "data: [DONE]\n\n"
         
         return StreamingResponse(
             generate_stream(),

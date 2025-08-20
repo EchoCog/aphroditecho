@@ -26,7 +26,6 @@ except ImportError:
                       "https://github.com/flashinfer-ai/flashinfer") from None
 
 import torch
-from loguru import logger
 
 import aphrodite.common.envs as envs
 from aphrodite import _custom_ops as ops

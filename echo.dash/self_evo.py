@@ -30,7 +30,7 @@ import logging
 import hashlib
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Any
 
 # Configure cognitive logging for enhanced transparency
 logging.basicConfig(
@@ -126,7 +126,7 @@ def improve_workflow(file_path: str, mode: str, **kwargs) -> Dict[str, Any]:
             logger.info(f"📊 Cognitive safety score: {safety_score:.3f}")
             
         else:
-            logger.warning(f"⚠️ Modifications rejected due to safety threshold violation")
+            logger.warning("⚠️ Modifications rejected due to safety threshold violation")
             logger.warning(f"📊 Safety score {safety_score:.3f} < threshold {safety_threshold}")
             
             # Restore from backup if modifications were rejected

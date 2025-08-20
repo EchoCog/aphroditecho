@@ -1,17 +1,13 @@
 import asyncio
 import logging
-from typing import Dict, List, Optional, Callable, Union
+from typing import Dict, Optional, Callable
 from dataclasses import dataclass, field
 from enum import Enum
 import time
-import heapq
-from datetime import datetime, timedelta
 import json
 from pathlib import Path
-import signal
 import threading
 from queue import PriorityQueue
-import numpy as np
 import psutil
 
 class ActivityState(Enum):

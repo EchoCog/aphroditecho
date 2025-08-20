@@ -8,7 +8,6 @@ import numpy as np
 import regex as re
 import torch
 import torch.nn as nn
-from loguru import logger
 from mistral_common.audio import mel_filter_bank
 from mistral_common.protocol.instruct.messages import (AudioChunk, RawAudio,
                                                        TextChunk, UserMessage)

@@ -19,16 +19,12 @@ License: MIT
 Version: 1.0
 """
 
-import sys
-import re
-import json
 import uuid
 import time
-from typing import Dict, List, Set, Any, Optional, Tuple, Union, Callable
+from typing import Dict, List, Set, Any, Optional, Tuple, Callable
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from collections import defaultdict, Counter
-from abc import ABC, abstractmethod
+from collections import defaultdict
 import threading
 import logging
 
@@ -681,15 +677,15 @@ if __name__ == "__main__":
     system = create_dtesn_psystem_example()
     
     # Display initial state
-    print(f"\nInitial system state:")
+    print("\nInitial system state:")
     print(system)
-    print(f"\nSystem statistics:")
+    print("\nSystem statistics:")
     stats = system.get_system_stats()
     for key, value in stats.items():
         print(f"  {key}: {value}")
     
     # Validate OEIS A000081 compliance
-    print(f"\nOEIS A000081 validation:")
+    print("\nOEIS A000081 validation:")
     is_valid, errors = system.validate_oeis_a000081_compliance()
     print(f"  Valid: {is_valid}")
     if errors:
@@ -697,7 +693,7 @@ if __name__ == "__main__":
             print(f"  Error: {error}")
     
     # Display membrane hierarchy
-    print(f"\nMembrane hierarchy:")
+    print("\nMembrane hierarchy:")
     tree = system.get_membrane_tree()
     
     def print_tree(node, indent=0):
@@ -709,14 +705,14 @@ if __name__ == "__main__":
     print_tree(tree)
     
     # Evolve system for a few steps
-    print(f"\nEvolution simulation:")
+    print("\nEvolution simulation:")
     for step in range(3):
         active = system.evolve_system()
         print(f"  Step {step + 1}: Active={active}, {system}")
         if not active:
             break
     
-    print(f"\nFinal system statistics:")
+    print("\nFinal system statistics:")
     final_stats = system.get_system_stats()
     for key, value in final_stats.items():
         print(f"  {key}: {value}")

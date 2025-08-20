@@ -6,12 +6,10 @@ Tests the activity regulation and scheduling system functionality.
 """
 
 import unittest
-import asyncio
 import logging
 import sys
-import threading
 import time
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock
 from pathlib import Path
 from enum import Enum
 

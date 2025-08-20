@@ -26,9 +26,8 @@ Options:
 
 import sys
 import re
-import json
 import argparse
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Tuple
 from dataclasses import dataclass, field
 from enum import Enum
 
@@ -482,7 +481,7 @@ class DTESNCompiler:
             if verbose:
                 bseries_summary = self.bseries_validator.get_bseries_summary(config.max_depth)
                 if "status" not in bseries_summary:
-                    print(f"B-Series Summary:")
+                    print("B-Series Summary:")
                     print(f"  Total classified trees: {bseries_summary['total_trees']}")
                     for order, info in bseries_summary['orders'].items():
                         print(f"    Order {order}: {info['count']} trees")
@@ -624,8 +623,6 @@ def generate_legacy_documentation():
     print("Generating Echo-Kernel specification with multi-level security architecture...")
     
     # Use the original echo_kernel_spec.py logic to maintain compatibility
-    import subprocess
-    import os
     
     # Generate OEIS A000081 sequence for partitioning
     if _USE_ENHANCED_ENUMERATOR:
@@ -971,12 +968,12 @@ def enumerate_oeis_a000081(num_terms: int, verbose: bool = False):
     if verbose and _USE_ENHANCED_ENUMERATOR:
         print("Additional information:")
         print(f"- Known exact values: 0-{enumerator.get_known_range()}")
-        print(f"- Values beyond known range use asymptotic approximation")
-        print(f"- Asymptotic formula: A000081(n) ~ D * α^n * n^(-3/2)")
-        print(f"  where D ≈ 0.43992, α ≈ 2.95576")
+        print("- Values beyond known range use asymptotic approximation")
+        print("- Asymptotic formula: A000081(n) ~ D * α^n * n^(-3/2)")
+        print("  where D ≈ 0.43992, α ≈ 2.95576")
         
         # Show some validation examples
-        print(f"\nValidation examples:")
+        print("\nValidation examples:")
         test_cases = [(5, 9), (6, 20), (7, 48), (8, 115)]
         for n, expected in test_cases:
             if n < len(sequence):
@@ -999,7 +996,7 @@ def generate_psystem_from_dtesn(dtesn_file: str, verbose: bool = False) -> bool:
         # Validate DTESN config first
         is_valid, errors = compiler.validator.validate_membrane_hierarchy(config.membrane_hierarchy, config.max_depth)
         if not is_valid:
-            print(f"❌ DTESN configuration validation failed:")
+            print("❌ DTESN configuration validation failed:")
             for error in errors:
                 print(f"  {error}")
             return False
@@ -1008,11 +1005,11 @@ def generate_psystem_from_dtesn(dtesn_file: str, verbose: bool = False) -> bool:
         try:
             psystem = config.to_psystem_hierarchy()
             
-            print(f"✅ P-System membrane hierarchy generated successfully!")
+            print("✅ P-System membrane hierarchy generated successfully!")
             print(f"\n{psystem}")
             
             # Display hierarchy tree
-            print(f"\nMembrane Hierarchy:")
+            print("\nMembrane Hierarchy:")
             tree = psystem.get_membrane_tree()
             
             def print_tree(node, indent=0):
@@ -1026,24 +1023,24 @@ def generate_psystem_from_dtesn(dtesn_file: str, verbose: bool = False) -> bool:
             
             # Display system statistics
             if verbose:
-                print(f"\nP-System Statistics:")
+                print("\nP-System Statistics:")
                 stats = psystem.get_system_stats()
                 for key, value in stats.items():
                     print(f"  {key}: {value}")
             
             # Validate OEIS A000081 compliance
-            print(f"\nOEIS A000081 Compliance Validation:")
+            print("\nOEIS A000081 Compliance Validation:")
             is_oeis_valid, oeis_errors = psystem.validate_oeis_a000081_compliance()
             if is_oeis_valid:
-                print(f"  ✅ Hierarchy follows OEIS A000081 enumeration")
+                print("  ✅ Hierarchy follows OEIS A000081 enumeration")
             else:
-                print(f"  ❌ OEIS A000081 validation failed:")
+                print("  ❌ OEIS A000081 validation failed:")
                 for error in oeis_errors:
                     print(f"    {error}")
             
             # Demonstrate evolution
             if verbose:
-                print(f"\nEvolution Demonstration:")
+                print("\nEvolution Demonstration:")
                 for step in range(3):
                     active = psystem.evolve_system()
                     print(f"  Step {step + 1}: Active={active}, Rules applied={psystem.rule_applications}")
@@ -1077,10 +1074,10 @@ def display_bseries_info(max_order: int = 5, verbose: bool = False):
     
     # Display basic statistics
     stats = classifier.get_classification_statistics()
-    print(f"Classification Statistics:")
+    print("Classification Statistics:")
     print(f"  Total trees classified: {stats['total_trees']}")
     print(f"  Maximum order: {stats['max_order']}")
-    print(f"  Structure types:")
+    print("  Structure types:")
     print(f"    Single nodes: {stats['single_node_count']}")
     print(f"    Linear chains: {stats['linear_chain_count']}")
     print(f"    Star graphs: {stats['star_graph_count']}")
@@ -1106,7 +1103,7 @@ def display_bseries_info(max_order: int = 5, verbose: bool = False):
                 print(f"    Tree {tree.tree_id:2d}: α={coeff:8.6f}, F(τ)={expr}")
     
     # Display computational costs
-    print(f"\nComputational Cost Summary:")
+    print("\nComputational Cost Summary:")
     costs = classifier.get_computational_cost_summary()
     total_cost = 0
     for order in range(1, min(max_order + 1, stats['max_order'] + 1)):
@@ -1117,7 +1114,7 @@ def display_bseries_info(max_order: int = 5, verbose: bool = False):
     print(f"  Total:   {total_cost:6.1f} units")
     
     # OEIS A000081 validation
-    print(f"\nOEIS A000081 Validation:")
+    print("\nOEIS A000081 Validation:")
     is_valid, errors = classifier.validate_against_oeis_a000081()
     if is_valid:
         print("  ✅ All tree counts match OEIS A000081")
@@ -1127,19 +1124,19 @@ def display_bseries_info(max_order: int = 5, verbose: bool = False):
             print(f"    {error}")
     
     if verbose:
-        print(f"\nDetailed B-Series Information:")
-        print(f"- B-Series formula: y(h) = y₀ + h ∑ α(τ) F(τ)(y₀)")
-        print(f"- τ represents rooted trees from OEIS A000081")
-        print(f"- α(τ) are B-Series coefficients (shown above)")
-        print(f"- F(τ) are elementary differentials (expressions shown)")
-        print(f"- Computational cost reflects relative complexity")
-        print(f"- Symmetry factor accounts for tree automorphisms")
+        print("\nDetailed B-Series Information:")
+        print("- B-Series formula: y(h) = y₀ + h ∑ α(τ) F(τ)(y₀)")
+        print("- τ represents rooted trees from OEIS A000081")
+        print("- α(τ) are B-Series coefficients (shown above)")
+        print("- F(τ) are elementary differentials (expressions shown)")
+        print("- Computational cost reflects relative complexity")
+        print("- Symmetry factor accounts for tree automorphisms")
         
-        print(f"\nIntegration with DTESN:")
-        print(f"- Trees provide structure for differential operators")
-        print(f"- Coefficients determine operator weights")
-        print(f"- Elementary differentials map to computational kernels")
-        print(f"- Real-time constraints limit usable tree orders")
+        print("\nIntegration with DTESN:")
+        print("- Trees provide structure for differential operators")
+        print("- Coefficients determine operator weights")
+        print("- Elementary differentials map to computational kernels")
+        print("- Real-time constraints limit usable tree orders")
 
 
 def main():
@@ -1235,9 +1232,9 @@ def main():
                     print(f"Max depth: {config.max_depth}")
                     print(f"Membrane levels: {len(config.membrane_hierarchy)}")
                     if _USE_ENHANCED_ENUMERATOR:
-                        print(f"OEIS A000081 validation: Enhanced enumerator used")
+                        print("OEIS A000081 validation: Enhanced enumerator used")
                     else:
-                        print(f"OEIS A000081 validation: Hardcoded values used")
+                        print("OEIS A000081 validation: Hardcoded values used")
                 return True
             else:
                 print(f"❌ {args.file} validation failed:")

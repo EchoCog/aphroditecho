@@ -16,9 +16,7 @@ y(h) = y₀ + h ∑ α(τ) F(τ)(y₀)
 The classification system builds on OEIS A000081 rooted tree enumeration.
 """
 
-import sys
-import math
-from typing import Dict, List, Tuple, Optional, NamedTuple
+from typing import Dict, List, Tuple, Optional
 from dataclasses import dataclass
 from enum import Enum
 
@@ -602,17 +600,17 @@ def main():
     
     # Display classification statistics
     stats = classifier.get_classification_statistics()
-    print(f"Classification Statistics:")
+    print("Classification Statistics:")
     print(f"  Total trees classified: {stats['total_trees']}")
     print(f"  Maximum order: {stats['max_order']}")
-    print(f"  Structure types:")
+    print("  Structure types:")
     print(f"    Single nodes: {stats['single_node_count']}")
     print(f"    Linear chains: {stats['linear_chain_count']}")
     print(f"    Star graphs: {stats['star_graph_count']}")
     print(f"    General trees: {stats['general_tree_count']}")
     
     # Display trees by order
-    print(f"\nTrees by Order:")
+    print("\nTrees by Order:")
     for order in range(1, stats['max_order'] + 1):
         trees = classifier.get_trees_by_order(order)
         print(f"  Order {order}: {len(trees)} trees")
@@ -622,7 +620,7 @@ def main():
             print(f"    Tree {tree.tree_id}: α={coeff:.4f}, F(τ)={expr}")
     
     # Validate against OEIS A000081
-    print(f"\nOEIS A000081 Validation:")
+    print("\nOEIS A000081 Validation:")
     is_valid, errors = classifier.validate_against_oeis_a000081()
     if is_valid:
         print("  ✅ All tree counts match OEIS A000081")
@@ -632,12 +630,12 @@ def main():
             print(f"    {error}")
     
     # Display computational costs
-    print(f"\nComputational Cost Summary:")
+    print("\nComputational Cost Summary:")
     costs = classifier.get_computational_cost_summary()
     for order, cost in costs.items():
         print(f"  Order {order}: Total cost {cost:.2f}")
     
-    print(f"\n✅ B-Series tree classification system operational")
+    print("\n✅ B-Series tree classification system operational")
 
 
 if __name__ == "__main__":

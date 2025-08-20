@@ -8,7 +8,7 @@ container/category/project structures for organizing user content.
 import logging
 import uuid
 from datetime import datetime
-from typing import Dict, List, Any, Optional, Set
+from typing import Dict, List, Any
 
 logger = logging.getLogger(__name__)
 

@@ -8,10 +8,7 @@ according to the specifications in echo9ml.md
 import unittest
 import numpy as np
 import tempfile
-import json
 from pathlib import Path
-import time
-from typing import Dict, Any
 
 # Import echo9ml components
 from echo9ml import (

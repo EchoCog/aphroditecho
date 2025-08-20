@@ -19,7 +19,7 @@ License: MIT
 
 import numpy as np
 import time
-from typing import Optional, Tuple, List, Dict, Any
+from typing import Optional, Dict, Any
 from dataclasses import dataclass
 from enum import Enum
 
@@ -493,7 +493,7 @@ if __name__ == "__main__":
     print(f"   Activation sparsity: {summary['state_metrics']['activation_sparsity']:.3f}")
     print(f"   Spectral radius: {summary['state_metrics']['spectral_radius']:.3f}")
     
-    print(f"\n✅ ESN Reservoir State Management: Operational")
-    print(f"   Architecture compliance: DTESN-ARCHITECTURE.md")  
-    print(f"   Real-time performance: ≤1ms constraint validated")
-    print(f"   Integration ready: P-System membranes, B-Series differentials")
+    print("\n✅ ESN Reservoir State Management: Operational")
+    print("   Architecture compliance: DTESN-ARCHITECTURE.md")  
+    print("   Real-time performance: ≤1ms constraint validated")
+    print("   Integration ready: P-System membranes, B-Series differentials")

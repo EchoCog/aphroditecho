@@ -1,15 +1,12 @@
 #!/usr/bin/env python3
 import curses
-import asyncio
 import json
 import time
-import os
 import argparse
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Dict
 import psutil
-import signal
 from enum import Enum
 
 class StreamType(Enum):

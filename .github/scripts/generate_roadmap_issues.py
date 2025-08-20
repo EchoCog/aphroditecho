@@ -7,7 +7,7 @@ Parses roadmap markdown files and creates GitHub issues for incomplete tasks.
 import os
 import re
 import sys
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Optional
 from github import Github
 from datetime import datetime
 

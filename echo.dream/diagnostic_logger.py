@@ -8,9 +8,8 @@ for diagnostic and debugging purposes, with options for retention and analysis.
 import logging
 import random
 import uuid
-import json
 from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional, Union
+from typing import Dict, List, Optional, Union
 import threading
 import time
 

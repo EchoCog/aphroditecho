@@ -11,7 +11,7 @@ evolving its internal state using random improvement and constraints from other 
 
 import asyncio
 import random
-from typing import Any, Dict, List, Optional
+from typing import Any, List, Optional
 from datetime import datetime
 
 # Import standardized Echo components
@@ -339,14 +339,14 @@ async def main():
         emitter.update(worker.pattern_name, worker.state)
     
     # Run evolution cycles
-    print(f"\n🔄 Running evolution cycles...")
+    print("\n🔄 Running evolution cycles...")
     for cycle in range(5):
         print(f"\n=== Global Cycle {cycle+1} ===")
         await run_cycle(workers, emitter)
         await asyncio.sleep(0.5)  # Delay between global cycles
     
     # Display final results
-    print(f"\n📊 Final States:")
+    print("\n📊 Final States:")
     for worker in workers:
         echo_result = worker.echo(None, echo_value=1.0)
         if echo_result.success:
@@ -356,7 +356,7 @@ async def main():
     # Show emitter state
     emitter_echo = emitter.echo(None, echo_value=1.0)
     if emitter_echo.success:
-        print(f"\n🔗 Constraint Emitter State:")
+        print("\n🔗 Constraint Emitter State:")
         for pattern, value in emitter_echo.data['emitter_values'].items():
             print(f"  {pattern}: {value:.2f}")
 

@@ -4,9 +4,6 @@ import pyautogui
 import logging
 import time
 import random
-from pynput import mouse, keyboard
-from PIL import Image
-from io import BytesIO
 from ml_system import MLSystem
 import json
 from pathlib import Path

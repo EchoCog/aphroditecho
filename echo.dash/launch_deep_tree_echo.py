@@ -12,8 +12,7 @@ New functionality: Standardized Echo component for programmatic integration
 import sys
 import asyncio
 import logging
-import argparse
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 from datetime import datetime
 
 # Import unified launcher for original functionality

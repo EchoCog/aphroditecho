@@ -325,28 +325,28 @@ def print_stats(corpus_stats, token_stats):
     print("="*80)
     
     # Corpus statistics
-    print(f"\n📊 CORPUS OVERVIEW:")
+    print("\n📊 CORPUS OVERVIEW:")
     print(f"  • Total files: {corpus_stats['total_files']}")
     print(f"  • Total characters: {corpus_stats['total_chars']:,}")
     print(f"  • Total words: {corpus_stats['total_words']:,}")
     print(f"  • Average file size: {corpus_stats['avg_file_size']:.1f} characters")
     
-    print(f"\n📂 FILE TYPES:")
+    print("\n📂 FILE TYPES:")
     for ext, count in corpus_stats['file_types'].items():
         print(f"  • {ext or 'no extension'}: {count} files")
     
-    print(f"\n📄 LARGEST FILES:")
+    print("\n📄 LARGEST FILES:")
     for i, (file_path, size) in enumerate(corpus_stats['largest_files'][:5], 1):
         print(f"  {i}. {os.path.basename(file_path)}: {size:,} characters")
     
     # Token statistics
-    print(f"\n🔤 TOKENIZATION:")
+    print("\n🔤 TOKENIZATION:")
     print(f"  • Total tokens: {token_stats['total_tokens']:,}")
     print(f"  • Unique tokens: {token_stats['unique_tokens']:,}")
     print(f"  • Vocabulary coverage: {token_stats['vocab_coverage_percent']:.2f}%")
     print(f"  • Average token length: {token_stats['avg_token_length']:.2f} characters")
     
-    print(f"\n📊 TRAIN/VAL SPLIT:")
+    print("\n📊 TRAIN/VAL SPLIT:")
     train_tokens = int(token_stats['total_tokens'] * TRAIN_RATIO)
     val_tokens = token_stats['total_tokens'] - train_tokens
     print(f"  • Training set: {train_tokens:,} tokens ({TRAIN_RATIO*100:.0f}%)")
@@ -406,7 +406,6 @@ def generate_hypergraph_samples():
         List of (file_path, content) tuples containing synthetic samples
     """
     import random
-    import uuid
     
     samples = []
     
@@ -729,7 +728,7 @@ def main():
     
     elapsed_time = time.time() - start_time
     print(f"\n✅ Data preparation complete in {elapsed_time:.2f} seconds!")
-    print(f"📦 Output files:")
+    print("📦 Output files:")
     print(f"   • {train_output_path} ({os.path.getsize(train_output_path)/1024/1024:.2f} MB)")
     print(f"   • {val_output_path} ({os.path.getsize(val_output_path)/1024/1024:.2f} MB)")
     print(f"   • {metadata_path}")

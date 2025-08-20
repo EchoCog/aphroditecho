@@ -7,7 +7,6 @@ from pathlib import Path
 from typing import Optional, Dict, Tuple, List, Union
 import os
 import subprocess
-import sys
 
 # Enhanced display environment detection
 DISPLAY_AVAILABLE = 'DISPLAY' in os.environ

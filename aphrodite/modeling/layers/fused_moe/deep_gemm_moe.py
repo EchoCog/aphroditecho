@@ -2,7 +2,6 @@ import functools
 from typing import Any, Optional
 
 import torch
-from loguru import logger
 from tqdm import tqdm
 
 import aphrodite.common.envs as env

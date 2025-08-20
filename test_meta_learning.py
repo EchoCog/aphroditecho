@@ -8,7 +8,7 @@ and integration with evolution engine.
 import asyncio
 import numpy as np
 from typing import Dict, Any, Tuple
-from unittest.mock import Mock, AsyncMock
+from unittest.mock import Mock
 
 # Import the components under test
 from echo_self.meta_learning import (

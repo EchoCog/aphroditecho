@@ -8,7 +8,6 @@ import logging
 from datetime import datetime
 import json
 import os
-import numpy as np
 import matplotlib.pyplot as plt
 
 logger = logging.getLogger(__name__)

@@ -12,7 +12,6 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from bseries_tree_classifier import (
-    BSeriesTreeClassifier,
     TreeStructureType,
     create_bseries_classifier
 )

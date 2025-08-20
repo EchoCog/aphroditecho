@@ -1,6 +1,6 @@
 name: 🤖 VM-Daemon-Sys MLOps Orchestration
 
-on:
+"on":
   push:
     branches: [ main, develop ]
     paths:

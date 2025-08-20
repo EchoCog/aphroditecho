@@ -25,8 +25,7 @@ import sys
 import unittest
 import time
 import threading
-from typing import List, Dict
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 # Import the P-System membrane modules
 try:
@@ -646,7 +645,7 @@ def run_all_tests():
             for test, traceback in result.failures + result.errors:
                 print(f"    FAILED: {test}")
     
-    print(f"\n" + "=" * 60)
+    print("\n" + "=" * 60)
     print(f"Test Results: {total_tests - total_failures}/{total_tests} tests passed")
     
     if overall_result:

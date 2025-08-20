@@ -14,8 +14,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from echo_component_base import (
-    EchoComponent, MemoryEchoComponent, ProcessingEchoComponent,
-    EchoConfig, EchoResponse, create_echo_component,
+    MemoryEchoComponent, ProcessingEchoComponent,
+    EchoConfig, create_echo_component,
     validate_echo_component, get_echo_component_info
 )
 

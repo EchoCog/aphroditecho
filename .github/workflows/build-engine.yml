@@ -1,6 +1,6 @@
 name: 🚀 Aphrodite Engine Build Automation
 
-on:
+"on":
   push:
     branches: [ main, develop ]
     paths:

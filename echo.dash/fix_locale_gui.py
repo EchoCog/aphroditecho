@@ -5,7 +5,6 @@ import sys
 import logging
 import signal
 import argparse
-import threading
 import socket
 
 # Set up logging to file instead of console
@@ -32,7 +31,6 @@ def patch_ttkbootstrap_locale():
     """Monkey patch ttkbootstrap to fix the locale issue"""
     try:
         # Find the ttkbootstrap dialogs module
-        import importlib.util
         import sys
         from pathlib import Path
         
@@ -165,7 +163,6 @@ def main():
     
     try:
         # Now try to import tkinter
-        import tkinter as tk
         from tkinterdnd2 import TkinterDnD
         
         # Import necessary components

@@ -7,8 +7,7 @@ import logging
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
-from deep_tree_echo import DeepTreeEcho, TreeNode
-from emotional_dynamics import CoreEmotion
+from deep_tree_echo import DeepTreeEcho
 from differential_emotion_theory import DETEmotion
 
 # Configure logging
@@ -226,7 +225,7 @@ def test_emotion_regulation():
     
     if anger_nodes:
         target_node = anger_nodes[0]
-        print(f"\nApplying reappraisal regulation to node with high anger:")
+        print("\nApplying reappraisal regulation to node with high anger:")
         print(f"'{target_node.content}'")
         
         # Apply reappraisal regulation to the anger

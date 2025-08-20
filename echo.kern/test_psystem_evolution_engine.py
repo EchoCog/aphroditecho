@@ -21,11 +21,9 @@ License: MIT
 
 import sys
 import unittest
-import time
 import threading
 import multiprocessing
-from unittest.mock import patch, MagicMock
-from typing import List, Dict
+from unittest.mock import patch
 
 # Import the evolution engine and dependencies
 try:
@@ -579,7 +577,7 @@ def run_all_tests():
                 print(f"    FAILED: {test}")
                 print(f"    ERROR: {traceback}")
     
-    print(f"\n" + "=" * 60)
+    print("\n" + "=" * 60)
     print(f"Test Results: {total_tests - total_failures}/{total_tests} tests passed")
     
     if overall_result:

@@ -1,5 +1,4 @@
 import asyncio
-import copy
 import time
 import weakref
 from functools import partial

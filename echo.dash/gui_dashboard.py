@@ -1,17 +1,14 @@
 import tkinter as tk
-from tkinter import ttk, messagebox, scrolledtext
-from tkinterdnd2 import DND_FILES, TkinterDnD
-from tkintertable import TableCanvas, TableModel
+from tkinter import ttk, messagebox
+from tkinterdnd2 import TkinterDnD
 from activity_regulation import ActivityRegulator
 import threading
 import psutil
-import os
 import json
 import time
-import csv
 from pathlib import Path
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import ttkbootstrap as ttkb
 from ttkbootstrap import Style
 from tooltip import Tooltip
@@ -19,7 +16,6 @@ import networkx as nx
 from deep_tree_echo import DeepTreeEcho, TreeNode
 from ml_system import MLSystem
 import numpy as np
-import matplotlib.cm as cm
 import matplotlib.colors as mcolors
 from memory_management import HypergraphMemory, MemoryType  # Import memory management
 import logging

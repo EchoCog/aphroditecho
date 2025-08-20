@@ -8,13 +8,10 @@ to optimize neural architecture parameters and evolution strategies.
 import asyncio
 import logging
 from typing import Dict, Any, Tuple
-from datetime import datetime
 
 # Import meta-learning components
 from echo_self.meta_learning import (
-    MetaLearningOptimizer, 
-    MetaLearningConfig,
-    DTESNMetaLearningBridge
+    MetaLearningConfig
 )
 from echo_self.core.evolution_engine import EchoSelfEvolutionEngine, EvolutionConfig, Individual
 
@@ -207,7 +204,7 @@ async def demonstrate_meta_learning():
         print(f"   Total experiences collected: {len(engine.meta_optimizer.experience_replay.experiences)}")
         
         if recommendations:
-            print(f"\n   Top Architecture Recommendations:")
+            print("\n   Top Architecture Recommendations:")
             for i, rec in enumerate(recommendations):
                 print(f"     {i+1}. Fitness: {rec['expected_fitness']:.4f}")
                 print(f"        Params: {rec['architecture_params']}")
@@ -215,14 +212,14 @@ async def demonstrate_meta_learning():
         # Show top performers
         top_performers = engine.meta_optimizer.experience_replay.get_top_performers(3)
         if top_performers:
-            print(f"\n   Top Performing Architectures:")
+            print("\n   Top Performing Architectures:")
             for i, perf in enumerate(top_performers):
                 print(f"     {i+1}. Fitness: {perf.fitness_score:.4f} (Gen {perf.generation})")
                 print(f"        Params: {perf.architecture_params}")
         
         # Show final meta-parameters
         final_meta_params = engine.meta_optimizer.meta_parameters
-        print(f"\n   Final Meta-Parameters:")
+        print("\n   Final Meta-Parameters:")
         for param, value in final_meta_params.items():
             print(f"     {param}: {value:.4f}")
     
@@ -237,7 +234,7 @@ async def demonstrate_meta_learning():
         
         # Simulate DTESN metrics extraction
         dtesn_metrics = await engine.dtesn_bridge.extract_dtesn_metrics()
-        print(f"   Current DTESN Performance:")
+        print("   Current DTESN Performance:")
         print(f"     Membrane efficiency: {dtesn_metrics.membrane_efficiency:.3f}")
         print(f"     Reservoir stability: {dtesn_metrics.reservoir_stability:.3f}")
         print(f"     B-Series convergence: {dtesn_metrics.b_series_convergence:.3f}")
@@ -249,9 +246,9 @@ async def demonstrate_meta_learning():
     improvement = (best_fitnesses[-1] - best_fitnesses[0]) / best_fitnesses[0] * 100
     print(f"   ✅ Fitness improvement: {improvement:.1f}%")
     print(f"   ✅ Meta-learning experiences: {len(engine.meta_optimizer.experience_replay.experiences) if engine.meta_optimizer else 0}")
-    print(f"   ✅ Parameter adaptations applied based on experience")
-    print(f"   ✅ Architecture recommendations generated")
-    print(f"   ✅ DTESN integration functional")
+    print("   ✅ Parameter adaptations applied based on experience")
+    print("   ✅ Architecture recommendations generated")
+    print("   ✅ DTESN integration functional")
     
     print("\n🎯 Meta-Learning System Acceptance Criteria Met:")
     print("   ✓ System learns from previous evolution attempts")
@@ -272,7 +269,7 @@ async def main():
     try:
         results = await demonstrate_meta_learning()
         
-        print(f"\n🏆 Demonstration completed successfully!")
+        print("\n🏆 Demonstration completed successfully!")
         print(f"   Final improvement: {results['improvement_percentage']:.1f}%")
         print(f"   Recommendations generated: {len(results['final_recommendations'])}")
         

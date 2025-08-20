@@ -4,7 +4,6 @@ from __future__ import annotations
 from typing import Optional
 
 import torch
-from loguru import logger
 
 import aphrodite.common.envs as envs
 import aphrodite.modeling.layers.fused_moe.modular_kernel as mk

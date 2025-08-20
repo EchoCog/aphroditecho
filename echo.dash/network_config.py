@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 import os
-import json
 import logging
-import requests
 from pathlib import Path
 import socket
 import netifaces

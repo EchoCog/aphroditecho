@@ -8,14 +8,13 @@ Provides CI/CD integration, performance monitoring, and regression detection.
 """
 
 import sys
-import os
 import subprocess
 import json
 import time
 import argparse
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple
+from typing import Dict
 
 class DTESNTestAutomation:
     """DTESN integration test automation framework"""
@@ -279,7 +278,7 @@ class DTESNTestAutomation:
         total_duration = time.time() - start_time
         coverage_target_met = self.check_coverage_target(test_results)
         
-        print(f"\n📊 Final Results")
+        print("\n📊 Final Results")
         print("================")
         print(f"Total runtime: {total_duration:.2f} seconds")
         print(f"Tests passed: {test_results['summary']['passed']}/{test_results['summary']['total']}")

@@ -2,7 +2,6 @@ from collections.abc import Iterable, Mapping, Sequence
 from typing import Literal, Optional, TypedDict, Union
 
 import torch
-from loguru import logger
 from torch import nn
 from transformers import BatchFeature, PaliGemmaConfig
 

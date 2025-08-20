@@ -12,7 +12,6 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from oeis_a000081_enumerator import (
-    OEIS_A000081_Enumerator, 
     create_enhanced_validator, 
     validate_membrane_hierarchy_enhanced,
     KNOWN_A000081_VALUES

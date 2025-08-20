@@ -3,7 +3,6 @@
 Test script to validate the comprehensive architecture documentation
 """
 
-import os
 import re
 from pathlib import Path
 

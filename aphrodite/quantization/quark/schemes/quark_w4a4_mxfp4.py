@@ -2,7 +2,6 @@ from typing import Any, Callable, Optional
 
 import torch
 import torch.nn.functional as F
-from loguru import logger
 
 from aphrodite.common.logger import log_once
 from aphrodite.modeling.parameter import (GroupQuantScaleParameter,

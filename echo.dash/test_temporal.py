@@ -9,7 +9,6 @@ import unittest
 import asyncio
 import logging
 import sys
-from unittest.mock import Mock, patch, AsyncMock
 from pathlib import Path
 
 # Add the current directory to the path for imports
@@ -96,7 +95,7 @@ class TestTemporal(unittest.TestCase):
             # Test that it can be awaited without crashing
             try:
                 await subgear.execute()
-            except Exception as e:
+            except Exception:
                 # Even if it fails, we've verified the async interface works
                 pass
 
@@ -120,7 +119,7 @@ class TestTemporal(unittest.TestCase):
         if asyncio.iscoroutinefunction(coregear.run_cycle):
             try:
                 await coregear.run_cycle()
-            except Exception as e:
+            except Exception:
                 # Even if it fails, we've verified the async interface works
                 pass
 

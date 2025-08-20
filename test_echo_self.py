@@ -19,13 +19,9 @@ def test_basic_imports():
     
     try:
         # Test core imports
-        from core.interfaces import Individual, EvolutionConfig, Population
-        from core.evolution_engine import EchoSelfEvolutionEngine
-        from core.operators import MutationOperator, SelectionOperator
         print("✓ Core modules imported successfully")
         
         # Test neural imports
-        from neural.topology_individual import NeuralTopologyIndividual
         print("✓ Neural modules imported successfully")
         
         # Test integration imports (may fail if dependencies not available)
@@ -48,7 +44,6 @@ def test_individual_creation():
     print("\nTesting individual creation and operations...")
     
     try:
-        from core.interfaces import Individual
         from neural.topology_individual import NeuralTopologyIndividual
         
         # Create a simple genome
@@ -177,7 +172,7 @@ async def test_evolution_engine():
         
         # Initialize population
         await engine.initialize_population(create_genome)
-        print(f"✓ Population initialized")
+        print("✓ Population initialized")
         
         # Get initial stats
         initial_pop = engine.current_population
@@ -190,7 +185,7 @@ async def test_evolution_engine():
         
         # Run evolution
         final_population = await engine.evolve()
-        print(f"✓ Evolution completed")
+        print("✓ Evolution completed")
         
         # Get final stats  
         final_stats = final_population.calculate_statistics()
@@ -207,13 +202,13 @@ async def test_evolution_engine():
             print(f"  Best network: {summary['num_layers']} layers, types: {summary['layer_types']}")
         
         # Validate acceptance criteria
-        print(f"\n🎯 Acceptance Criteria Validation:")
+        print("\n🎯 Acceptance Criteria Validation:")
         
         # Check if evolution worked
         if final_stats['best'] >= initial_stats['best']:
-            print(f"✅ Evolution maintained or improved fitness")
+            print("✅ Evolution maintained or improved fitness")
         else:
-            print(f"⚠️  Final fitness lower than initial (may happen with small test)")
+            print("⚠️  Final fitness lower than initial (may happen with small test)")
             
         # Check network diversity
         network_types = set()
@@ -228,11 +223,11 @@ async def test_evolution_engine():
             
         # Check topology evolution capability
         if any(len(ind.genome.get('layers', [])) != 2 for ind in final_population.individuals):
-            print(f"✅ Network topologies evolved beyond initial structure")
+            print("✅ Network topologies evolved beyond initial structure")
         else:
-            print(f"⚠️  Topologies remained similar (may happen with small test)")
+            print("⚠️  Topologies remained similar (may happen with small test)")
         
-        print(f"\n🎉 Core functionality validated: Engine can evolve neural network topologies!")
+        print("\n🎉 Core functionality validated: Engine can evolve neural network topologies!")
         
         return True
         

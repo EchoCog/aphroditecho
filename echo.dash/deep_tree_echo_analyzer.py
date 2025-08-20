@@ -9,7 +9,6 @@ and implement fixes for architecture gaps, migration tasks, and fragment issues.
 Based on the workflow file: .github/workflows/deep-tree-echo-auto-issues.yml
 """
 
-import os
 import json
 import re
 from pathlib import Path

@@ -10,12 +10,9 @@ allowing agents to:
 4. Store evolution history in cognitive memory
 """
 
-import os
-import sys
 import logging
 import asyncio
-import json
-from typing import Dict, List, Any, Optional, Set, Tuple
+from typing import Dict, List
 from datetime import datetime
 import random
 
@@ -23,7 +20,6 @@ import random
 from echo_evolution import (
     EchoAgent, 
     EvolutionNetwork, 
-    ResourceMonitor, 
     EvolutionMemory
 )
 
@@ -32,7 +28,6 @@ from cognitive_architecture import (
     CognitiveArchitecture, 
     Memory, 
     Goal, 
-    PersonalityTrait, 
     MemoryType
 )
 
@@ -225,7 +220,7 @@ class CognitiveEvolutionBridge:
         # Generate exploration goal if average state is high
         if summary["average_state"] > 0.7:
             goals.append(Goal(
-                description=f"Explore new evolution patterns",
+                description="Explore new evolution patterns",
                 priority=0.7,
                 deadline=None,
                 context={

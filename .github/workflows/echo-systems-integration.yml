@@ -1,6 +1,6 @@
 name: 🌟 Echo Systems Full Integration
 
-on:
+"on":
   push:
     branches: [ main ]
     paths:

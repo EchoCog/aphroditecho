@@ -221,7 +221,7 @@ class DepthWiseConv2d(nn.Module):
     def forward(self, x, size):
         B, N, C = x.shape
         H, W = size
-        assert N == H * W
+        assert H * W == N
 
         x = self.dw(x.transpose(1, 2).view(B, C, H, W))
         size = (x.size(-2), x.size(-1))
@@ -376,7 +376,7 @@ class WindowAttention(nn.Module):
 
         H, W = size
         B, L, C = x.shape
-        assert L == H * W, "input feature has wrong size"
+        assert H * W == L, "input feature has wrong size"
 
         x = x.view(B, H, W, C)
 

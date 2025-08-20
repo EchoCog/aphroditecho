@@ -3,7 +3,6 @@ from typing import Optional
 
 import torch
 import torch.nn as nn
-from loguru import logger
 from transformers import LlamaConfig
 
 from aphrodite.common.config import AphroditeConfig

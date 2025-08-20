@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type
 import torch
 import torch.distributed
 import torch.nn.functional as F
-from loguru import logger
 
 from aphrodite import _custom_ops as ops
 from aphrodite.aphrodite_flash_attn import (flash_attn_varlen_func,

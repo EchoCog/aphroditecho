@@ -54,7 +54,7 @@ MAX_RANGE = {
 try:
     MAX_RANGE[torch.float8_e4m3fnuz] = torch.finfo(torch.float8_e4m3fnuz).max
     # float8_e4m3fnuz data type is 8-bit floating point consist of Exponent: 4, Mantissa: 3, bias: 8 with 1 sign bit. It's supported by Gaudi2.
-except AttributeError as e:
+except AttributeError:
     pass
 
 
@@ -64,7 +64,7 @@ def get_fullscale(dtype, device, exp_bias=None):
     if device == "GAUDI2" and dtype == torch.float8_e4m3fn:
         try:
             fullscale = MAX_RANGE[torch.float8_e4m3fnuz]
-        except AttributeError as e:
+        except AttributeError:
             pass
     else:
         fullscale = MAX_RANGE[dtype]

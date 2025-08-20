@@ -12,7 +12,7 @@ evolving its internal state using random improvement and constraints from other 
 
 import asyncio
 import random
-from typing import Any, Dict, List, Optional
+from typing import Any, List, Optional
 from datetime import datetime
 
 # Import standardized Echo components for new interfaces

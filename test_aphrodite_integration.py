@@ -8,7 +8,6 @@ import sys
 import asyncio
 import logging
 from pathlib import Path
-from typing import Dict, Any
 
 # Add modules to path
 repo_root = Path(__file__).parent

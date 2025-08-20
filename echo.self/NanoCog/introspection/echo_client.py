@@ -6,10 +6,9 @@ Extends the basic AtomSpace client with Echo Self specific functionality.
 """
 
 import requests
-import json
 import time
 import random
-from typing import Dict, List, Any, Optional
+from typing import Dict, Any
 from .atomspace_client import AtomSpaceClient
 
 class EchoSelfClient(AtomSpaceClient):

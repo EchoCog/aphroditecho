@@ -5,7 +5,6 @@ from typing import Generic, NamedTuple, Optional, TypeVar, Union, cast
 
 import numpy as np
 import numpy.typing as npt
-from loguru import logger
 from PIL import Image
 
 import aphrodite.common.envs as envs

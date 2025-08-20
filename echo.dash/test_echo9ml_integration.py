@@ -7,8 +7,6 @@ and the existing cognitive architecture framework.
 
 import unittest
 import tempfile
-import json
-from pathlib import Path
 from echo9ml_integration import EnhancedCognitiveArchitecture, create_enhanced_cognitive_architecture
 from cognitive_architecture import MemoryType
 

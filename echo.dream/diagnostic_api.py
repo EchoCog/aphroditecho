@@ -6,13 +6,13 @@ and configuring the diagnostic logging system.
 """
 
 from flask import jsonify, request, render_template
-from flask_login import login_required, current_user
+from flask_login import login_required
 import logging
 from datetime import datetime, timedelta
 
 from app import app
 from database import db
-from models_diagnostic import ThoughtLog, DreamLog, ChatLog, DiagnosticConfig
+from models_diagnostic import ThoughtLog, DreamLog, ChatLog
 from diagnostic_logger import diagnostic_logger
 
 logger = logging.getLogger(__name__)

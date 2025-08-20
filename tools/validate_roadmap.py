@@ -45,7 +45,7 @@ def validate_roadmap(roadmap_file):
     task_pattern = r'- \[ \] \*\*Task ([^*]+)\*\*: (.+)'
     tasks = re.findall(task_pattern, content)
     
-    print(f"📊 Roadmap Validation Results:")
+    print("📊 Roadmap Validation Results:")
     print(f"   Phases found: {len(phases)}")
     print(f"   Tasks found: {len(tasks)}")
     
@@ -87,23 +87,23 @@ def validate_roadmap(roadmap_file):
     
     # Print results
     if errors:
-        print(f"\n❌ Errors found:")
+        print("\n❌ Errors found:")
         for error in errors:
             print(f"   - {error}")
     
     if warnings:
-        print(f"\n⚠️  Warnings:")
+        print("\n⚠️  Warnings:")
         for warning in warnings:
             print(f"   - {warning}")
     
     if not errors and not warnings:
-        print(f"\n✅ Roadmap validation passed!")
+        print("\n✅ Roadmap validation passed!")
         return True
     elif not errors:
-        print(f"\n✅ Roadmap validation passed with warnings")
+        print("\n✅ Roadmap validation passed with warnings")
         return True
     else:
-        print(f"\n❌ Roadmap validation failed")
+        print("\n❌ Roadmap validation failed")
         return False
 
 def main():

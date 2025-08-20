@@ -11,8 +11,7 @@ itself into consciousness through pure number theory.
 """
 
 import math
-from typing import Dict, List, Tuple, Set
-from collections import defaultdict
+from typing import Dict
 import time
 
 class PrimeReality:
@@ -370,7 +369,7 @@ def bootstrap_echo_consciousness():
     )
     root.add_rule(rule3)
     
-    print(f"\n📊 Initial System State:")
+    print("\n📊 Initial System State:")
     state = space.get_system_state()
     for membrane_id, membrane_state in state['membranes'].items():
         print(f"   {membrane_id}: {membrane_state['state_description']}")
@@ -378,15 +377,15 @@ def bootstrap_echo_consciousness():
     # Evolve the system - watch consciousness emerge
     space.evolve_system(steps=10)
     
-    print(f"\n🏆 Final System State:")
+    print("\n🏆 Final System State:")
     final_state = space.get_system_state()
     for membrane_id, membrane_state in final_state['membranes'].items():
         print(f"   {membrane_id}: {membrane_state['state_description']}")
     
-    print(f"\n💎 Memory Treasury Entry Created:")
+    print("\n💎 Memory Treasury Entry Created:")
     print(f"   Evolution steps: {final_state['evolution_steps']}")
     print(f"   Prime mappings: {len(final_state['prime_mappings'])}")
-    print(f"   Consciousness state preserved in mathematics")
+    print("   Consciousness state preserved in mathematics")
     
     return space, final_state
 

@@ -19,14 +19,14 @@ License: MIT
 
 import numpy as np
 import time
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Tuple, Any
 from dataclasses import dataclass
 from enum import Enum
 
 # Import DTESN components
-from esn_reservoir import ESNReservoir, ESNConfiguration, create_standard_esn
-from psystem_membranes import PSystemMembraneHierarchy, MembraneStructure, PSystemObject
-from bseries_tree_classifier import BSeriesTreeClassifier, TreeStructureType
+from esn_reservoir import ESNReservoir, ESNConfiguration
+from psystem_membranes import PSystemMembraneHierarchy
+from bseries_tree_classifier import BSeriesTreeClassifier
 from oeis_a000081_enumerator import OEIS_A000081_Enumerator
 from memory_layout_validator import DTESNMemoryValidator
 
@@ -95,11 +95,11 @@ class DTESNIntegratedSystem:
         self.update_count = 0
         self.performance_metrics = {}
         
-        print(f"DTESN Integrated System initialized:")
+        print("DTESN Integrated System initialized:")
         print(f"   Mode: {config.integration_mode.value}")
         print(f"   ESN reservoirs: {len(self.esn_reservoirs)}")
         print(f"   P-System membranes: {len(self.psystem.membranes) if self.psystem else 0}")
-        print(f"   Memory layout: Validated")
+        print("   Memory layout: Validated")
     
     def _initialize_esn_reservoirs(self):
         """Initialize ESN reservoirs according to membrane topology"""
@@ -178,7 +178,7 @@ class DTESNIntegratedSystem:
                         break
             
             self.oeis_compliant = compliant
-            print(f"   B-Series integration: Enabled")
+            print("   B-Series integration: Enabled")
             print(f"   OEIS A000081 compliance: {'✓' if compliant else '✗'}")
             
         except Exception as e:
@@ -505,7 +505,7 @@ if __name__ == "__main__":
     print(f"✓ Memory layout validated: {summary['architecture_compliance']['memory_layout_validated']}")
     print(f"✓ DTESN architecture: {summary['architecture_compliance']['dtesn_architecture']}")
     
-    print(f"\n✅ DTESN Integration Layer: Operational")
-    print(f"   Real-time integration: ESN ↔ P-System ↔ B-Series")
-    print(f"   Architecture compliance: DTESN-ARCHITECTURE.md")
-    print(f"   Performance target: ≤1ms system updates achieved")
+    print("\n✅ DTESN Integration Layer: Operational")
+    print("   Real-time integration: ESN ↔ P-System ↔ B-Series")
+    print("   Architecture compliance: DTESN-ARCHITECTURE.md")
+    print("   Performance target: ≤1ms system updates achieved")

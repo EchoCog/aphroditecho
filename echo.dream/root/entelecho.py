@@ -9,7 +9,7 @@ The name 'entelecho' derives from Aristotle's entelechy - the realization of pot
 import logging
 import uuid
 from datetime import datetime
-from typing import Dict, List, Any, Optional, Tuple, Set
+from typing import Dict, List, Any
 from collections import defaultdict
 
 logger = logging.getLogger(__name__)

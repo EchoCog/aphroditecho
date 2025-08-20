@@ -15,7 +15,6 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from bseries_differential_calculator import (
     BSeriesDifferentialCalculator,
-    DifferentialFunction,
     create_differential_function,
     SingleNodeEvaluator,
     LinearChainEvaluator,

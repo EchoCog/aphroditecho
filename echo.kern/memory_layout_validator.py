@@ -21,8 +21,7 @@ Usage:
 """
 
 import sys
-import os
-from typing import Dict, List, Tuple, Optional, NamedTuple
+from typing import Dict, List, Tuple
 from dataclasses import dataclass
 from enum import Enum
 
@@ -480,10 +479,10 @@ if __name__ == "__main__":
         for error in summary["validation_errors"]:
             print(f"  ❌ {error}")
     else:
-        print(f"\n✅ All validation checks passed!")
+        print("\n✅ All validation checks passed!")
     
     # Export summary as JSON if requested
     if len(sys.argv) > 1 and sys.argv[1] == "--json":
         with open("dtesn_memory_layout.json", "w") as f:
             json.dump(summary, f, indent=2)
-        print(f"\nMemory layout summary exported to dtesn_memory_layout.json")
+        print("\nMemory layout summary exported to dtesn_memory_layout.json")

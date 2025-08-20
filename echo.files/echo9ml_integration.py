@@ -8,9 +8,9 @@ and enhanced cognitive capabilities.
 
 import logging
 import time
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional
 from echo9ml import Echo9mlSystem, PersonaTraitType
-from cognitive_architecture import CognitiveArchitecture, PersonalityTrait, Memory, MemoryType
+from cognitive_architecture import CognitiveArchitecture, Memory, MemoryType
 
 logger = logging.getLogger(__name__)
 

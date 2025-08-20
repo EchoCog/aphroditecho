@@ -12,7 +12,7 @@ import json
 import logging
 import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 from datetime import datetime
 
 # Import standardized Echo components
@@ -537,7 +537,7 @@ def demonstrate_introspection_cycle(cognitive_system: Any, cycle_num: int):
         print(f"{'='*60}")
         print("📊 Cognitive State Analysis:")
         print("   Analyzing current system state through introspection...")
-        print(f"\n🔍 Performing recursive introspection...")
+        print("\n🔍 Performing recursive introspection...")
         print(f"⏱️  Introspection completed in {data['introspection_time']:.2f} seconds")
         print(f"📝 Generated prompt length: {data['prompt_length']} characters")
         print("📝 Prompt preview (first 300 chars):")
@@ -552,7 +552,7 @@ def demonstrate_introspection_cycle(cognitive_system: Any, cycle_num: int):
             else:
                 print(f"   {key}: {value}")
         
-        print(f"\n🎯 Generating introspection-enhanced goals...")
+        print("\n🎯 Generating introspection-enhanced goals...")
         print(f"Generated {data['goals_generated']} goals:")
         for i, goal in enumerate(data['goals_preview'], 1):
             print(f"   {i}. {goal['description']}")

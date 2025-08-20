@@ -22,9 +22,7 @@ import prometheus_client
 import pydantic
 import regex as re
 import uvloop
-import yaml
-from fastapi import (APIRouter, Depends, FastAPI, Form, HTTPException, Request,
-                     UploadFile)
+from fastapi import (APIRouter, Depends, FastAPI, Form, HTTPException, Request)
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import (HTMLResponse, JSONResponse, Response,

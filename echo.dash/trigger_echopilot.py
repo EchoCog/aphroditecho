@@ -267,7 +267,7 @@ def create_issues(outputs):
     dependency_issues = parse_output(outputs.get('dependency_issues', '[]'))
     documentation_gaps = parse_output(outputs.get('documentation_gaps', '[]'))
     
-    print(f"📊 Analysis Results:")
+    print("📊 Analysis Results:")
     print(f"  - Code Quality Issues: {len(code_quality_issues)}")
     print(f"  - Architecture Gaps: {len(architecture_gaps)}")
     print(f"  - Test Coverage Gaps: {len(test_coverage_gaps)}")
@@ -329,7 +329,7 @@ def create_issues(outputs):
             print(f"✅ Would create issue: {title}")
             print(f"   File: {file}")
             print(f"   Issues Found: {len(issues)}")
-            print(f"   Sample issues:")
+            print("   Sample issues:")
             for issue in issues[:3]:
                 if 'message' in issue:
                     print(f"     - Line {issue.get('line', 'N/A')}: {issue.get('message', 'Unknown issue')}")
@@ -360,7 +360,7 @@ def main():
     # Create issues
     issues_created = create_issues(outputs)
     
-    print(f"\n✅ EchoPilot run complete!")
+    print("\n✅ EchoPilot run complete!")
     print(f"Total issues that would be created: {issues_created}")
 
 if __name__ == "__main__":

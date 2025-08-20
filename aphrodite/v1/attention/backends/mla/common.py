@@ -191,7 +191,6 @@ from dataclasses import dataclass, field
 from typing import ClassVar, Generic, Optional, TypeVar, Union
 
 import torch
-from loguru import logger
 
 import aphrodite.common.envs as envs
 from aphrodite import _custom_ops as ops

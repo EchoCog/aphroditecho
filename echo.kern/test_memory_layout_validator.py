@@ -12,10 +12,7 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from memory_layout_validator import (
-    DTESNMemoryValidator,
-    MemoryRegion,
     MemoryRegionType,
-    MembraneLevel,
     create_memory_validator,
     validate_custom_layout
 )

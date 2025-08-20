@@ -19,9 +19,7 @@ import os
 import time
 import random
 import math
-import threading
 from typing import List, Dict, Any
-import json
 import subprocess
 
 # Add parent directory to path
@@ -271,15 +269,15 @@ def run_dtesn_performance_suite(runs_per_test: int = 10,
     """
     print("Echo.Kern DTESN Performance Test Suite")
     print("=" * 50)
-    print(f"Target thresholds:")
-    print(f"  Membrane Evolution: ≤ 10μs")
-    print(f"  B-Series Computation: ≤ 100μs")
-    print(f"  ESN State Update: ≤ 1ms")
-    print(f"  Context Switch: ≤ 5μs")
-    print(f"  Memory Access: ≤ 100ns")
-    print(f"  OEIS Validation: ≤ 1ms")
-    print(f"  Web Response: ≤ 100ms")
-    print(f"  JavaScript Execution: ≤ 50ms")
+    print("Target thresholds:")
+    print("  Membrane Evolution: ≤ 10μs")
+    print("  B-Series Computation: ≤ 100μs")
+    print("  ESN State Update: ≤ 1ms")
+    print("  Context Switch: ≤ 5μs")
+    print("  Memory Access: ≤ 100ns")
+    print("  OEIS Validation: ≤ 1ms")
+    print("  Web Response: ≤ 100ms")
+    print("  JavaScript Execution: ≤ 50ms")
     print()
     
     # Create framework and test suite

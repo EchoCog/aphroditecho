@@ -7,14 +7,11 @@ Provides neural-symbolic integration and bridges symbolic reasoning
 with the Python-based Deep Tree Echo cognitive architecture.
 """
 
-import subprocess
 import json
 import logging
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Union, Tuple
+from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
-import tempfile
-import os
 
 logger = logging.getLogger(__name__)
 

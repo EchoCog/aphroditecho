@@ -8,7 +8,7 @@ It manages the organization of workspace elements, their structural relationship
 import logging
 import uuid
 from datetime import datetime
-from typing import Dict, List, Any, Optional, Tuple, Set
+from typing import Dict, List, Any, Tuple
 from collections import defaultdict
 
 logger = logging.getLogger(__name__)

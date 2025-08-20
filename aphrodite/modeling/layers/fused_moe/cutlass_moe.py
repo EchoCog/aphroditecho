@@ -2,7 +2,6 @@
 from typing import Any, Callable, Optional
 
 import torch
-from loguru import logger
 
 import aphrodite.modeling.layers.fused_moe.modular_kernel as mk
 from aphrodite import _custom_ops as ops

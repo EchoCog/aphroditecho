@@ -12,7 +12,6 @@ This implementation provides a practical enumeration system that validates
 against known values and can be extended for larger computations.
 """
 
-import functools
 from typing import List, Dict, Tuple
 
 
@@ -100,7 +99,6 @@ class OEIS_A000081_Enumerator:
         alpha = 2.95576
         
         # Asymptotic formula: A000081(n) ~ D * α^n * n^(-3/2)
-        import math
         estimate = D * (alpha ** n) * (n ** -1.5)
         
         return int(round(estimate))
@@ -247,7 +245,7 @@ def main():
             print(f"  {error}")
     
     # Test individual term access
-    print(f"\nIndividual term tests:")
+    print("\nIndividual term tests:")
     test_indices = [0, 1, 2, 3, 4, 5, 10]
     for i in test_indices:
         computed_term = enumerator.get_term(i)
@@ -259,7 +257,7 @@ def main():
             print(f"  a({i}) = {computed_term} (estimated)")
     
     # Test enhanced validation function
-    print(f"\nTesting enhanced membrane hierarchy validation:")
+    print("\nTesting enhanced membrane hierarchy validation:")
     
     # Valid hierarchy (levels 0-4: 1, 1, 1, 2, 4)
     valid_hierarchy = [1, 1, 1, 2, 4]
@@ -278,7 +276,7 @@ def main():
             print(f"    {error}")
     
     # Test utility functions
-    print(f"\nUtility function tests:")
+    print("\nUtility function tests:")
     print(f"  A000081(5) = {enumerator.get_term(5)} trees")
     print(f"  Is 9 trees valid for 5 nodes? {enumerator.is_valid_tree_count(5, 9)}")
     print(f"  Is 10 trees valid for 5 nodes? {enumerator.is_valid_tree_count(5, 10)}")

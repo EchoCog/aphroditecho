@@ -1,5 +1,4 @@
 import torch
-from loguru import logger
 
 from aphrodite.common.logger import log_once
 from aphrodite.platforms import current_platform

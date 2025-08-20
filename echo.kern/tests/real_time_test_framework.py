@@ -27,10 +27,9 @@ import os
 import threading
 import json
 import statistics
-from typing import Dict, List, Callable, Any, Tuple, Optional
+from typing import Dict, List, Callable, Any, Optional
 from dataclasses import dataclass, asdict
 from datetime import datetime, timezone
-import subprocess
 import requests
 
 # Add parent directory to path for imports

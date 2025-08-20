@@ -5,7 +5,6 @@ from dataclasses import dataclass
 from typing import Any, Generic, Optional, Union
 
 import torch
-from loguru import logger
 from typing_extensions import TypeVar
 
 from aphrodite.common.logger import log_once

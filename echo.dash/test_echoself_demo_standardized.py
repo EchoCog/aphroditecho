@@ -10,8 +10,7 @@ backward compatibility.
 import unittest
 import logging
 import sys
-import json
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 from pathlib import Path
 
 # Add the current directory to the path for imports

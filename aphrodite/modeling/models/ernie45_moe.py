@@ -23,7 +23,6 @@ from collections.abc import Iterable
 from typing import Any, Optional, Union
 
 import torch
-from loguru import logger
 from torch import nn
 from transformers import PretrainedConfig
 

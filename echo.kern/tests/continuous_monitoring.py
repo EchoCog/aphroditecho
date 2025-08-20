@@ -30,7 +30,7 @@ import signal
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from tests.real_time_test_framework import RealTimeTestFramework, create_test_framework
+from tests.real_time_test_framework import create_test_framework
 
 @dataclass
 class MonitoringData:
@@ -277,7 +277,7 @@ class ContinuousMonitor:
                         try:
                             result = op_func()
                             success = True
-                        except Exception as e:
+                        except Exception:
                             result = False
                             success = False
                         end_time = time.perf_counter_ns()

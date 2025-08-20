@@ -3,15 +3,11 @@ import time
 import logging
 import cv2
 import random
-from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
+from playwright.sync_api import sync_playwright
 import numpy as np
-from PIL import Image
-import io
 from urllib.parse import urlparse
-import base64
 from dotenv import load_dotenv
 from deep_tree_echo import DeepTreeEcho, TreeNode
-import requests
 from datetime import datetime
 import json
 

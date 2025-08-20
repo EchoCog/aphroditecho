@@ -5,10 +5,8 @@ import logging
 import os
 from datetime import datetime
 import json
-import subprocess
 from pathlib import Path
 import platform
-import requests
 
 # Set up logging with rotation
 logging.basicConfig(

@@ -19,7 +19,6 @@ if TYPE_CHECKING:
     from aphrodite.v1.core.sched.output import SchedulerOutput
     from aphrodite.v1.worker.gpu_input_batch import InputBatch
 
-from loguru import logger
 
 import aphrodite.common.envs as envs
 from aphrodite.distributed.kv_transfer.kv_connector.utils import (

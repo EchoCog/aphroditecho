@@ -26,7 +26,7 @@ import re
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Tuple, Any, Optional
+from typing import Dict, List, Any
 
 # Configure validation logging for comprehensive safety tracking
 logging.basicConfig(

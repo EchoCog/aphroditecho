@@ -8,14 +8,12 @@ This module implements the recursive self-model integration with hypergraph enco
 and adaptive attention allocation as specified in the Echoself vision.
 """
 
-import os
 import json
 import logging
 import time
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Tuple, Union
+from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass, field
-from collections import defaultdict
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -523,7 +521,7 @@ def main():
     
     # Show attention metrics
     metrics = introspector.get_attention_metrics()
-    print(f"\n=== ATTENTION METRICS ===")
+    print("\n=== ATTENTION METRICS ===")
     for key, value in metrics.items():
         print(f"{key}: {value}")
     
