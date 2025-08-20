@@ -466,5 +466,3 @@ class EchoSelfEvolutionEngine:
                                         self.dtesn_kernel is not None,
             'meta_learning_enabled': self.meta_optimizer is not None
         }
-        
-        logger.info(f"Checkpoint loaded from {filepath}")
