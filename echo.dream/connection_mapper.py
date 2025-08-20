@@ -9,7 +9,6 @@ import json
 import logging
 import uuid
 import re
-from typing import Dict, List, Set, Optional, Any, Tuple, Union
 from collections import defaultdict
 import numpy as np
 import networkx as nx
@@ -170,8 +169,7 @@ class DynamicConnectionMapper:
         try:
             # Import models here to avoid circular imports
             from models_mapper import KnowledgeDomain as DBKnowledgeDomain
-            from models_mapper import ConceptNode as DBConceptNode
-            from models_mapper import DomainConnection, ConceptConnection
+            from models_mapper import DomainConnection
             
             # Load domains
             db_domains = DBKnowledgeDomain.query.all()
@@ -808,7 +806,7 @@ class DynamicConnectionMapper:
                             "domain_name": domain.name,
                             "betweenness_score": betweenness_score,
                             "domain_type": domain.domain_type,
-                            "description": f"Bridge domain connecting disparate knowledge areas"
+                            "description": "Bridge domain connecting disparate knowledge areas"
                         })
             except:
                 # Skip if there's an issue calculating betweenness (e.g., disconnected graph)
@@ -1092,7 +1090,6 @@ class DynamicConnectionMapper:
         Reload all data from the database into the in-memory structures.
         Used after importing data or making significant changes.
         """
-        from database import db
         from models_mapper import KnowledgeDomain, ConceptNode, DomainConnection, ConceptConnection
         
         # Clear existing data

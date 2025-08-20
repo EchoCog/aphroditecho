@@ -3,7 +3,6 @@ from typing import Optional
 
 import numpy as np
 import torch
-from loguru import logger
 from torch.nn.functional import scaled_dot_product_attention
 
 from aphrodite.attention.backends.abstract import (AttentionBackend,

@@ -7,11 +7,9 @@ are working correctly, especially the browser automation features.
 
 import os
 import sys
-import time
 import subprocess
 import importlib.util
 import logging
-from pathlib import Path
 
 # Configure logging
 logging.basicConfig(

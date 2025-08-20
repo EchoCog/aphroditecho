@@ -21,7 +21,7 @@ from enum import Enum
 import time
 import json
 import logging
-from collections import deque, defaultdict
+from collections import deque
 from pathlib import Path
 
 # Configure logging

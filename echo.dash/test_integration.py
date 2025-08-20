@@ -54,7 +54,7 @@ def test_integration():
     
     # Analyze echo patterns after introspection
     echo_analysis = echo_system.analyze_echo_patterns()
-    print(f"\nEcho Analysis after introspection:")
+    print("\nEcho Analysis after introspection:")
     print(f"- Total nodes: {echo_analysis['total_nodes']}")
     print(f"- Resonant nodes: {echo_analysis['resonant_nodes']}")
     print(f"- Average echo: {echo_analysis['avg_echo']:.3f}")

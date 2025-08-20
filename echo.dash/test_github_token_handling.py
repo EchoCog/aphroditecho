@@ -6,8 +6,6 @@ in cronbot.py and copilot_suggestions.py
 
 import os
 import sys
-import tempfile
-import json
 import unittest
 from unittest.mock import patch, mock_open
 from io import StringIO

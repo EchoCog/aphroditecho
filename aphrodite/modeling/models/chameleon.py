@@ -5,7 +5,6 @@ from typing import Annotated, Any, Literal, Optional, Union
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from loguru import logger
 from transformers import (BatchFeature, ChameleonConfig, ChameleonProcessor,
                           ChameleonVQVAEConfig)
 

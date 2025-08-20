@@ -7,8 +7,6 @@ import requests
 from urllib.parse import urljoin
 from dotenv import load_dotenv
 import psutil
-import threading
-from queue import Queue
 
 # Load environment variables
 load_dotenv()

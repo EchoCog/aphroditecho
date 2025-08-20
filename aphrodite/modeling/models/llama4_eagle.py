@@ -19,7 +19,6 @@ from typing import Optional
 
 import torch
 import torch.nn as nn
-from loguru import logger
 
 from aphrodite.common.config import AphroditeConfig
 from aphrodite.compilation.decorators import support_torch_compile

@@ -9,7 +9,6 @@ testing hypergraph pattern generation, enhanced introspection, and evaluation me
 import os
 import sys
 import tempfile
-from typing import List, Dict, Any
 
 # Add NanoCog to path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -27,7 +26,7 @@ def test_hypergraph_pattern_generation():
         # Show sample content
         if samples:
             sample_file, sample_content = samples[0]
-            print(f"Sample pattern preview:")
+            print("Sample pattern preview:")
             print(sample_content[:200] + "..." if len(sample_content) > 200 else sample_content)
         
         return True
@@ -194,7 +193,7 @@ def test_automated_evaluation_loop():
             
             # Check status
             status = eval_loop.get_evaluation_status()
-            print(f"✓ Evaluation loop test completed")
+            print("✓ Evaluation loop test completed")
             print(f"  Evaluation count: {status['evaluation_count']}")
             
             return True
@@ -221,7 +220,7 @@ def test_prepare_script_integration():
         samples = prepare.generate_hypergraph_samples()
         assert len(samples) > 0, "No hypergraph samples generated"
         
-        print(f"✓ prepare.py integration successful")
+        print("✓ prepare.py integration successful")
         print(f"  Generated {len(samples)} hypergraph samples")
         
         return True

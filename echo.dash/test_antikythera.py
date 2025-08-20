@@ -8,7 +8,6 @@ Tests the celestial gear-based scheduling system functionality.
 import unittest
 import logging
 import sys
-from unittest.mock import Mock, patch, MagicMock
 from pathlib import Path
 
 # Add the current directory to the path for imports
@@ -89,7 +88,7 @@ class TestAntikythera(unittest.TestCase):
             try:
                 gear.execute_cycle()
                 # If it doesn't crash, that's good
-            except Exception as e:
+            except Exception:
                 # Method exists and was called
                 pass
 
@@ -106,7 +105,7 @@ class TestAntikythera(unittest.TestCase):
             try:
                 gear.optimize()
                 # If it doesn't crash, that's good
-            except Exception as e:
+            except Exception:
                 # Method exists and was called
                 pass
 
@@ -123,7 +122,7 @@ class TestAntikythera(unittest.TestCase):
             try:
                 sub_gear.execute_task()
                 # If it doesn't crash, that's good
-            except Exception as e:
+            except Exception:
                 # Method exists and was called
                 pass
 
@@ -184,7 +183,7 @@ class TestAntikythera(unittest.TestCase):
         # We expect at least some structure to be available
         total_available = len(available_classes) + len(available_functions)
         self.assertGreater(total_available, 0,
-                          f"No expected classes or functions found in module")
+                          "No expected classes or functions found in module")
 
     @unittest.skipIf(not ANTIKYTHERA_AVAILABLE, "antikythera not available") 
     def test_celestial_gear_attributes(self):

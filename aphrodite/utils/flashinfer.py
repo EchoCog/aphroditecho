@@ -12,7 +12,6 @@ import os
 from typing import Any, Callable, NoReturn, Optional
 
 import requests
-from loguru import logger
 
 import aphrodite.common.envs as envs
 from aphrodite.common.logger import log_once

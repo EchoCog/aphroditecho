@@ -9,7 +9,6 @@ from typing import Any, Optional
 
 # this line makes it possible to directly load `libcudart.so` using `ctypes`
 import torch  # noqa
-from loguru import logger
 
 import aphrodite.common.envs as envs
 

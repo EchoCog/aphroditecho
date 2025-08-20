@@ -46,7 +46,7 @@ def demonstrate_introspection_cycle(cognitive_system: CognitiveArchitecture,
     
     if prompt:
         print(f"📝 Generated prompt length: {len(prompt)} characters")
-        print(f"📝 Prompt preview (first 300 chars):")
+        print("📝 Prompt preview (first 300 chars):")
         print(f"   {prompt[:300]}...")
     else:
         print("❌ No introspection prompt generated")
@@ -129,7 +129,7 @@ def demonstrate_hypergraph_export(cognitive_system: CognitiveArchitecture):
             with open(export_path) as f:
                 data = json.load(f)
             
-            print(f"📈 Export Statistics:")
+            print("📈 Export Statistics:")
             print(f"   Total nodes: {len(data.get('nodes', []))}")
             print(f"   Attention decisions: {len(data.get('attention_history', []))}")
             
@@ -137,7 +137,7 @@ def demonstrate_hypergraph_export(cognitive_system: CognitiveArchitecture):
             nodes = data.get('nodes', [])
             if nodes:
                 sorted_nodes = sorted(nodes, key=lambda n: n.get('salience_score', 0), reverse=True)
-                print(f"   Top 5 most salient files:")
+                print("   Top 5 most salient files:")
                 for i, node in enumerate(sorted_nodes[:5], 1):
                     print(f"     {i}. {node['id']}: {node['salience_score']:.3f}")
         

@@ -2,7 +2,6 @@ from fractions import Fraction
 from typing import Callable, Optional, Union
 
 import torch
-from loguru import logger
 from torch.nn import Parameter
 
 from aphrodite.distributed import get_tensor_model_parallel_rank

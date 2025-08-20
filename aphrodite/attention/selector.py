@@ -5,7 +5,6 @@ from functools import cache
 from typing import Generator, Optional, Union
 
 import torch
-from loguru import logger
 
 import aphrodite.common.envs as envs
 from aphrodite.attention.backends.abstract import AttentionBackend

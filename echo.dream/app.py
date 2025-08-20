@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify, request, redirect, url_for, flash, session
+from flask import Flask, render_template, jsonify, request, redirect, url_for, flash
 from jinja2.exceptions import TemplateNotFound
 import logging
 import os
@@ -43,7 +43,6 @@ init_app(app)
 app.register_blueprint(mapper_api, url_prefix='/api/mapper')
 
 # Import the models for the connection mapper
-from models_mapper import KnowledgeDomain, ConceptNode, DomainConnection, ConceptConnection, ConnectionPattern
 
 # Create database tables for all models
 with app.app_context():
@@ -1196,7 +1195,6 @@ def get_thought_process():
     """Get thought process data for visualization."""
     from models_diagnostic import ThoughtLog
     import json
-    import random
     from datetime import datetime, timedelta
     
     # Get query parameters

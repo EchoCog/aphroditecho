@@ -12,10 +12,7 @@ This script validates the key components of the evolved cronbot system:
 import json
 import os
 import sys
-import tempfile
-import shutil
 from datetime import datetime
-from pathlib import Path
 
 def test_introspection_system():
     """Test the AI introspection system"""
@@ -246,7 +243,7 @@ def main():
     with open("enhanced_cronbot_test_results.json", "w") as f:
         json.dump(test_results, f, indent=2)
     
-    print(f"\nTest results saved to: enhanced_cronbot_test_results.json")
+    print("\nTest results saved to: enhanced_cronbot_test_results.json")
     
     return 0 if all_passed else 1
 

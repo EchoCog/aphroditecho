@@ -201,7 +201,7 @@ async def demonstrate_deep_tree_echo_fusion():
         aar_orchestrator.performance_stats['total_requests'] += 1
         aar_orchestrator.performance_stats['avg_response_time'] = 0.1 + step * 0.05
     
-    print(f"\n🎯 FUSION RESULTS:")
+    print("\n🎯 FUSION RESULTS:")
     print(f"   🧠 Final best cognitive fitness: {evolution_engine.best_individual.fitness:.3f}")
     print(f"   🎭 AAR requests processed: {aar_orchestrator.performance_stats['total_requests']}")
     print(f"   ⚡ Average response time: {aar_orchestrator.performance_stats['avg_response_time']:.3f}s")

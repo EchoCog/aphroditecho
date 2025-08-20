@@ -3,7 +3,6 @@ from collections.abc import Iterable
 from typing import Any, Optional
 
 import torch
-from loguru import logger
 from torch import nn
 
 from aphrodite.attention import Attention

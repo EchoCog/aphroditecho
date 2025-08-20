@@ -9,13 +9,12 @@ This addresses the "Fragmented Memory System" architecture gap identified
 in the Deep Tree Echo analysis.
 """
 
-import os
 import json
 import time
 import logging
 # import numpy as np  # Optional dependency
 from pathlib import Path
-from typing import Dict, List, Set, Tuple, Optional, Any, Union
+from typing import Dict, List, Set, Tuple, Optional, Any
 from enum import Enum
 from dataclasses import dataclass, field, asdict
 from collections import defaultdict, deque

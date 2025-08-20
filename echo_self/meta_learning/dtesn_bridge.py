@@ -5,8 +5,7 @@ Connects meta-learning optimizer with DTESN kernel components including
 membrane computing, B-Series ridges, and ESN reservoir dynamics.
 """
 
-from typing import Dict, List, Any, Optional, Tuple
-import asyncio
+from typing import Dict, List, Any
 import logging
 from dataclasses import dataclass
 import random

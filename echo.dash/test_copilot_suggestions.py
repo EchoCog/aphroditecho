@@ -10,8 +10,6 @@ This test verifies:
 """
 
 import os
-import json
-import tempfile
 import unittest
 from unittest.mock import patch, mock_open, MagicMock
 import copilot_suggestions

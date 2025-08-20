@@ -12,9 +12,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from cognitive_architecture import CognitiveArchitecture, Memory, MemoryType
-from unified_echo_memory import UnifiedEchoMemory, MemoryNode, EchoMemoryConfig
-from echo_component_base import EchoConfig
-from memory_management import memory_system, HypergraphMemory
+from memory_management import memory_system
 
 def demonstrate_unified_memory_system():
     """Show the unified memory system in action"""
@@ -46,7 +44,7 @@ def demonstrate_unified_memory_system():
     print("🔹 Legacy Mode:")
     cognitive_legacy = CognitiveArchitecture(use_unified_memory=False)
     print(f"  Uses unified memory: {cognitive_legacy.use_unified_memory}")
-    print(f"  Memory storage: Local dictionary")
+    print("  Memory storage: Local dictionary")
     
     # Unified mode  
     print("🔹 Unified Mode:")
@@ -97,8 +95,8 @@ def demonstrate_unified_memory_system():
         memory_node = memory.to_memory_node()
         converted_back = Memory.from_memory_node(memory_node)
         
-        print(f"   ✅ Stored in legacy system")
-        print(f"   ✅ Stored in unified system") 
+        print("   ✅ Stored in legacy system")
+        print("   ✅ Stored in unified system") 
         print(f"   ✅ Conversion preserves data: {converted_back.content == memory.content}")
     
     print(f"\nLegacy system now has {len(cognitive_legacy.memories)} memories")

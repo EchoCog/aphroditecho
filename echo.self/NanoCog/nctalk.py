@@ -18,13 +18,11 @@ import json
 import time
 import random
 import argparse
-from typing import List, Dict, Any, Optional, Tuple
+from typing import Dict, Any
 from datetime import datetime
-from contextlib import nullcontext
 
 import torch
 import tiktoken
-import numpy as np
 
 # Add the parent directory to sys.path to import nanoGPT modules
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -464,7 +462,6 @@ class DiagnosticMode:
             return {}
         
         try:
-            import requests
             
             # This is a mock implementation - in a real system, you would query
             # the actual AtomSpace REST API endpoints
@@ -652,10 +649,10 @@ class NanoCogCLI:
         """
         if RICH_AVAILABLE:
             if role.lower() == "user":
-                self.console.print(f"[bold green]User:[/bold green]", end=" ")
+                self.console.print("[bold green]User:[/bold green]", end=" ")
                 self.console.print(content)
             elif role.lower() == "assistant":
-                self.console.print(f"[bold blue]NanoCog:[/bold blue]", end=" ")
+                self.console.print("[bold blue]NanoCog:[/bold blue]", end=" ")
                 # Check if content has code blocks and render as markdown if so
                 if "```" in content:
                     self.console.print(Markdown(content))

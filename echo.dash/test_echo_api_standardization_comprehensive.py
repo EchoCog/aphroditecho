@@ -245,7 +245,7 @@ def test_backward_compatibility():
     
     try:
         # Test original echopilot functions
-        from echopilot import ESMWorker, ConstraintEmitter, run_cycle
+        from echopilot import ESMWorker, ConstraintEmitter
         
         # Create original components
         worker = ESMWorker("test_pattern", 0.5)

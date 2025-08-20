@@ -27,7 +27,6 @@ from typing import Optional, Union
 
 import torch
 import torch.nn as nn
-from loguru import logger
 
 from aphrodite.common.config import AphroditeConfig
 from aphrodite.common.sequence import IntermediateTensors

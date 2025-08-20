@@ -5,11 +5,10 @@ This module provides API routes for interacting with the memory system,
 including temporal cycles, memory nodes, and pattern matching.
 """
 
-from flask import jsonify, request, Response
+from flask import jsonify, request
 from flask_login import login_required, current_user
 import logging
 import json
-import networkx as nx
 from datetime import datetime
 
 from app import app

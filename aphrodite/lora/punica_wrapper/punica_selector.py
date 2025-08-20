@@ -1,4 +1,3 @@
-from loguru import logger
 
 from aphrodite.platforms import current_platform
 from aphrodite.utils import resolve_obj_by_qualname

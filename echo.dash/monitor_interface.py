@@ -1,13 +1,10 @@
 import curses
-import asyncio
 import logging
 import time
 import json
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Optional
 import psutil
-import signal
 
 class MonitorInterface:
     def __init__(self, screen):

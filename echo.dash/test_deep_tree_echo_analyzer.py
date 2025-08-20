@@ -10,7 +10,6 @@ import unittest
 import logging
 import sys
 import tempfile
-import json
 from unittest.mock import Mock, patch, mock_open
 from pathlib import Path
 from datetime import datetime

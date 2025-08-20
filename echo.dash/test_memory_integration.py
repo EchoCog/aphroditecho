@@ -7,15 +7,12 @@ unified while maintaining backward compatibility.
 """
 
 import sys
-import os
 from pathlib import Path
 
 # Add project directory to path  
 sys.path.insert(0, str(Path(__file__).parent))
 
 from cognitive_architecture import CognitiveArchitecture, Memory, MemoryType
-from unified_echo_memory import UnifiedEchoMemory, EchoMemoryConfig
-from echo_component_base import EchoConfig
 from memory_management import memory_system
 
 def test_memory_system_unification():
@@ -40,7 +37,7 @@ def test_memory_system_unification():
     cognitive_types = set([t.value for t in CognitiveMemoryType])
     
     print(f"  ✅ Unified memory types: {len(unified_types)} types")
-    print(f"  ✅ All systems use same MemoryType enum")
+    print("  ✅ All systems use same MemoryType enum")
     
     # Test 2: Memory compatibility layer
     print("\n📋 Test 2: Memory compatibility layer")
@@ -117,7 +114,7 @@ def test_memory_system_unification():
 if __name__ == "__main__":
     try:
         test_memory_system_unification()
-        print(f"\n🌟 Integration test passed - Fragmented Memory System issue resolved!")
+        print("\n🌟 Integration test passed - Fragmented Memory System issue resolved!")
     except Exception as e:
         print(f"\n❌ Integration test failed: {e}")
         sys.exit(1)

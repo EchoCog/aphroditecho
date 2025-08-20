@@ -8,7 +8,6 @@ from typing import (TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type,
 
 import numpy as np
 import torch
-from loguru import logger
 
 from aphrodite.attention import (AttentionMetadata, AttentionMetadataBuilder,
                                  AttentionState)

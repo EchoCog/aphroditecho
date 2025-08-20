@@ -8,7 +8,7 @@ timeline/phase/event structures for tracking time-based elements.
 import logging
 import uuid
 from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional, Set
+from typing import Dict, List, Any
 
 logger = logging.getLogger(__name__)
 

@@ -8,9 +8,9 @@ EmotionalMemory.md to incorporate emotional states into Deep Tree Echo's process
 
 import logging
 import numpy as np
-from typing import Dict, List, Tuple, Optional, Any, Union
+from typing import Dict, List, Tuple
 from dataclasses import dataclass, field
-from enum import Enum, auto
+from enum import Enum
 
 # Julia integration
 try:

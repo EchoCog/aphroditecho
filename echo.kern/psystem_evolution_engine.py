@@ -23,18 +23,15 @@ Version: 1.0
 
 import sys
 import time
-import asyncio
 import threading
 import multiprocessing
 from abc import ABC, abstractmethod
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import Dict, List, Set, Any, Optional, Tuple, Union, Callable, Iterator
+from typing import Dict, List, Any, Optional, Tuple
 import logging
-import queue
-import json
-from collections import defaultdict, deque
+from collections import deque
 import statistics
 
 # Import the existing P-System infrastructure
@@ -584,7 +581,7 @@ if __name__ == "__main__":
     print(f"Evolution engine: {engine}")
     
     # Run evolution cycles
-    print(f"\nRunning evolution cycles...")
+    print("\nRunning evolution cycles...")
     
     for cycle in range(5):
         metrics = engine.evolve_system(system)
@@ -600,7 +597,7 @@ if __name__ == "__main__":
             break
     
     # Display final statistics
-    print(f"\nFinal Performance Statistics:")
+    print("\nFinal Performance Statistics:")
     stats = engine.get_performance_statistics()
     for key, value in stats.items():
         if isinstance(value, dict):
@@ -611,7 +608,7 @@ if __name__ == "__main__":
             print(f"  {key}: {value}")
     
     # Show optimization recommendations
-    print(f"\nOptimization Recommendations:")
+    print("\nOptimization Recommendations:")
     recommendations = engine.optimize_configuration()
     if recommendations:
         for key, value in recommendations.items():

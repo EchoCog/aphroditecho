@@ -1,11 +1,8 @@
 import numpy as np
-import tensorflow as tf
 from tensorflow.keras import layers, models
 import cv2
-from PIL import Image
 import logging
 from pathlib import Path
-import pickle
 import json
 from datetime import datetime
 from typing import Dict, List, Tuple, Optional

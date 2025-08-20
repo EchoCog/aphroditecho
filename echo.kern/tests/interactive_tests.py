@@ -19,8 +19,7 @@ import os
 import time
 import json
 import subprocess
-import threading
-from typing import Dict, List, Any, Optional
+from typing import Dict, Any
 import requests
 from urllib.parse import urljoin
 
@@ -405,7 +404,7 @@ class InteractiveTestSuite:
                 'end_time': time.time()
             }
             
-            print(f"\nInteractive Test Summary:")
+            print("\nInteractive Test Summary:")
             print(f"Total Tests: {total_tests}")
             print(f"Passed: {passed_tests}")
             print(f"Pass Rate: {pass_rate:.1f}%")

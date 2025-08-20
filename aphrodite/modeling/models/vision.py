@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 from typing import Final, Generic, Optional, Protocol, TypeVar, Union
 
 import torch
-from loguru import logger
 from transformers import PretrainedConfig
 
 from aphrodite.attention.selector import get_env_variable_attn_backend

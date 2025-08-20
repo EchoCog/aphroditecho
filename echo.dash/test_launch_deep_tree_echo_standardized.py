@@ -10,8 +10,7 @@ backward compatibility with the original launcher functionality.
 import unittest
 import logging
 import sys
-import asyncio
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 from pathlib import Path
 
 # Add the current directory to the path for imports

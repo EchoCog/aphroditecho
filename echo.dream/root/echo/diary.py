@@ -8,7 +8,7 @@ It manages journals, entries, reflections, and meaning-making processes for work
 import logging
 import uuid
 from datetime import datetime
-from typing import Dict, List, Any, Optional, Tuple, Set
+from typing import Dict, List, Any
 from collections import defaultdict
 
 logger = logging.getLogger(__name__)

@@ -18,7 +18,6 @@ from typing import Annotated, Any, Literal, Optional, Union
 import regex as re
 import torch
 import torch.nn as nn
-from loguru import logger
 from transformers import (BatchFeature, CLIPVisionConfig, PretrainedConfig,
                           ProcessorMixin)
 

@@ -13,7 +13,6 @@ import json
 import logging
 from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
-from pathlib import Path
 
 # Add NanoCog to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

@@ -3,10 +3,8 @@
 Test script to validate the enhanced Echoevo.md structure and content
 """
 
-import os
 import re
 import yaml
-import json
 from pathlib import Path
 
 

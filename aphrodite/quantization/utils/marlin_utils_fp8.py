@@ -1,7 +1,6 @@
 from typing import Optional
 
 import torch
-from loguru import logger
 
 import aphrodite._custom_ops as ops
 from aphrodite.common.logger import log_once

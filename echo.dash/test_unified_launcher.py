@@ -12,7 +12,7 @@ import tempfile
 import unittest
 import logging
 from pathlib import Path
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 
 # Add current directory to path to import our modules
 sys.path.insert(0, str(Path(__file__).parent))

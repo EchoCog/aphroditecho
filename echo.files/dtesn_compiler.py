@@ -23,9 +23,8 @@ Options:
 
 import sys
 import re
-import json
 import argparse
-from typing import Dict, List, Any, Optional, Tuple
+from typing import List, Tuple
 from dataclasses import dataclass, field
 from enum import Enum
 
@@ -423,8 +422,6 @@ def generate_legacy_documentation():
     print("Generating legacy Echo-Kernel specification documentation...")
     
     # Use the original echo_kernel_spec.py logic to maintain compatibility
-    import subprocess
-    import os
     
     # Create the specification content
     spec_content = """# Echo-Kernel Specification v1.0

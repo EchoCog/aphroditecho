@@ -10,7 +10,6 @@ import json
 import sys
 import os
 from typing import Dict, List, Any
-from datetime import datetime
 
 def load_config(config_path: str) -> Dict[str, Any]:
     """Load and validate the kernel features configuration."""

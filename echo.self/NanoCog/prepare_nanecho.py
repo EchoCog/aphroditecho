@@ -9,17 +9,13 @@ Based on prepare.py but focused on Echo Self content and characteristics.
 """
 
 import os
-import sys
 import json
 import argparse
 import glob
 import tiktoken
 import numpy as np
-from pathlib import Path
 import random
-import re
-import markdown
-from typing import List, Dict, Any, Tuple
+from typing import List, Tuple
 
 # Echo Self specific training templates
 ECHO_SELF_TEMPLATES = {
@@ -315,7 +311,7 @@ def prepare_echo_self_dataset(echo_depth: int = 3, persona_weight: float = 0.7, 
     train_ids.tofile(train_path)
     val_ids.tofile(val_path)
     
-    print(f"✅ Saved training data:")
+    print("✅ Saved training data:")
     print(f"  Train: {len(train_ids)} tokens -> {train_path}")
     print(f"  Val: {len(val_ids)} tokens -> {val_path}")
     
@@ -338,7 +334,7 @@ def prepare_echo_self_dataset(echo_depth: int = 3, persona_weight: float = 0.7, 
         json.dump(metadata, f, indent=2)
     
     print(f"📊 Saved metadata to {metadata_path}")
-    print(f"🌟 NanEcho dataset preparation complete!")
+    print("🌟 NanEcho dataset preparation complete!")
     
     return len(train_ids), len(val_ids)
 
@@ -359,7 +355,7 @@ def main():
         output_dir=args.output_dir
     )
     
-    print(f"\n🎯 Dataset Summary:")
+    print("\n🎯 Dataset Summary:")
     print(f"   Echo Depth: {args.echo_depth}")
     print(f"   Persona Weight: {args.persona_weight}")
     print(f"   Training Tokens: {train_tokens:,}")

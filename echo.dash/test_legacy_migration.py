@@ -6,7 +6,6 @@ This validates that deprecated legacy files have been properly archived
 and are no longer present in the root directory.
 """
 
-import os
 from pathlib import Path
 
 

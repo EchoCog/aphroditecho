@@ -2,7 +2,6 @@ from typing import Optional
 
 import numpy
 import torch
-from loguru import logger
 
 import aphrodite.common.envs as envs
 from aphrodite import _custom_ops as ops

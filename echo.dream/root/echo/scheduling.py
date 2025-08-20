@@ -8,7 +8,7 @@ It manages schedules, tasks, events, and time-related organization for workspace
 import logging
 import uuid
 from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional, Tuple, Set
+from typing import Dict, List, Any
 from collections import defaultdict
 
 logger = logging.getLogger(__name__)

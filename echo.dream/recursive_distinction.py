@@ -9,8 +9,7 @@ distinction structures that can be persisted to a database.
 
 import re
 import json
-import networkx as nx
-from typing import Union, List, Dict, Any, Tuple, Optional, Callable
+from typing import Union, List, Dict, Any, Optional, Callable
 from models import RecursiveDistinction, SelfReferentialNode, NodeConnection, HyperGNN
 from database import db
 

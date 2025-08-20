@@ -251,12 +251,12 @@ def run_comprehensive_test():
     
     if result.wasSuccessful():
         print("✅ All tests passed! Echo Memory Demo standardization is successful.")
-        print(f"\n📊 Test Results:")
+        print("\n📊 Test Results:")
         print(f"   Tests run: {result.testsRun}")
         print(f"   Failures: {len(result.failures)}")
         print(f"   Errors: {len(result.errors)}")
         
-        print(f"\n🎯 Standardization Benefits Validated:")
+        print("\n🎯 Standardization Benefits Validated:")
         print("   ✅ Component passes Echo validation")
         print("   ✅ Consistent EchoResponse format")
         print("   ✅ Proper error handling")

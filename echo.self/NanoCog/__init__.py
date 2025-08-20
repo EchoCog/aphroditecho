@@ -45,8 +45,6 @@ def create_server(model_path, device="cuda", port=8080, host="0.0.0.0"):
     Returns:
         Configured FastAPI app
     """
-    import sys
-    import os
     from .server import app, ModelConfig
     
     # Create and load model

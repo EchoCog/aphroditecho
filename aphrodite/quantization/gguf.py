@@ -3,7 +3,6 @@ from typing import Any, Callable, Optional
 import gguf
 import torch
 from gguf import GGMLQuantizationType as WeightType
-from loguru import logger
 from torch.nn.parameter import Parameter, UninitializedParameter
 
 from aphrodite import _custom_ops as ops

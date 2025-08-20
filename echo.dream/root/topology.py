@@ -7,7 +7,7 @@ It defines the structural relationships between components in the system.
 
 import uuid
 import logging
-from typing import Dict, List, Tuple, Any, Optional, Set
+from typing import Dict, List, Tuple, Any, Optional
 from collections import defaultdict
 
 logger = logging.getLogger(__name__)

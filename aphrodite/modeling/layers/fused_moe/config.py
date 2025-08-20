@@ -5,7 +5,6 @@ import torch
 from compressed_tensors.quantization import (QuantizationArgs,
                                              QuantizationStrategy,
                                              QuantizationType)
-from loguru import logger
 
 import aphrodite.common.envs as envs
 from aphrodite.common.logger import log_once

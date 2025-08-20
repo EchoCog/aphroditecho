@@ -17,7 +17,6 @@ from collections.abc import Iterable
 from typing import Optional, Union
 
 import torch
-from loguru import logger
 from torch import nn
 from transformers.models.gemma3n.configuration_gemma3n import Gemma3nTextConfig
 

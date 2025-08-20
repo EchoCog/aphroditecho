@@ -7,7 +7,7 @@ including different memory types, temporal cycles, and pattern associations.
 from datetime import datetime
 import json
 from database import db
-from models import User, SelfReferentialNode
+from models import User
 
 # Association table for memory cycles and memory nodes
 memory_cycle_association = db.Table('memory_cycle_association',

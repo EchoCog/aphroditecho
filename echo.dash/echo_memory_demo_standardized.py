@@ -10,8 +10,7 @@ showing before/after migration patterns.
 """
 
 from echo_component_base import MemoryEchoComponent, EchoConfig, EchoResponse
-from typing import Any, Dict, List, Optional
-import json
+from typing import Any, Dict
 import time
 from datetime import datetime
 

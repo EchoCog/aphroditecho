@@ -9,10 +9,8 @@ goal processing, and personality traits.
 import unittest
 import logging
 import sys
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 from pathlib import Path
-import tempfile
-import json
 
 # Add the current directory to the path for imports
 sys.path.insert(0, str(Path(__file__).parent))

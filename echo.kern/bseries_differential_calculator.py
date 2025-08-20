@@ -17,8 +17,6 @@ Examples:
 - Tree •[••] (star): F(τ) = f''(y) · [f(y), f(y)]
 """
 
-import sys
-import math
 from typing import Callable, List, Dict, Tuple, Optional, Any
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
@@ -278,7 +276,7 @@ class BSeriesDifferentialCalculator:
                     # Add h * α(τ) * F(τ)(y) to result
                     result += h * alpha * f_tau
                     
-                except (ValueError, AttributeError) as e:
+                except (ValueError, AttributeError):
                     # Skip trees that can't be evaluated (missing derivatives, etc.)
                     continue
         
@@ -399,7 +397,7 @@ def main():
     print("\n✅ Function validation passed")
     
     # Evaluate elementary differentials for each tree
-    print(f"\nElementary Differential Evaluations:")
+    print("\nElementary Differential Evaluations:")
     supported_trees = calculator.get_supported_trees()
     
     for tree_info in supported_trees[:10]:  # Show first 10 trees
@@ -431,7 +429,7 @@ def main():
     except Exception as e:
         print(f"  B-Series step error: {e}")
     
-    print(f"\n✅ B-Series elementary differential calculator operational")
+    print("\n✅ B-Series elementary differential calculator operational")
 
 
 if __name__ == "__main__":

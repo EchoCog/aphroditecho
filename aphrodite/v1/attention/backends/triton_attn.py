@@ -4,7 +4,6 @@ from functools import cache
 from typing import ClassVar, Optional
 
 import torch
-from loguru import logger
 
 from aphrodite import _custom_ops as ops
 from aphrodite.attention.backends.abstract import (AttentionBackend,

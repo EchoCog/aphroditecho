@@ -10,12 +10,9 @@ This implements the "Standardize Extension APIs" migration task identified
 by the Deep Tree Echo analysis.
 """
 
-import os
-import re
 import ast
-import sys
 from pathlib import Path
-from typing import Dict, List, Tuple, Any, Optional
+from typing import Dict, List
 from dataclasses import dataclass
 
 
@@ -206,7 +203,7 @@ class EchoAPIStandardizer:
                             if not any(base in a.current_inheritance 
                                      for base in ['EchoComponent', 'MemoryEchoComponent', 'ProcessingEchoComponent']))
         
-        report.append(f"## Summary")
+        report.append("## Summary")
         report.append(f"- Total Echo components found: {total_components}")
         report.append(f"- Components needing migration: {needs_migration}")
         report.append(f"- Components already standardized: {total_components - needs_migration}")
@@ -384,7 +381,7 @@ if init_result.success:
             analysis = self.analysis_results[file_path]
             print(f"   - {file_path} → {analysis.recommended_base_class}")
         
-        print(f"\n💡 Recommendation: Start with simple migrations first!")
+        print("\n💡 Recommendation: Start with simple migrations first!")
         print("=" * 60)
 
 

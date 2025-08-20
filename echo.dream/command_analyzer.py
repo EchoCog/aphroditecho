@@ -5,7 +5,7 @@ Parses natural language commands into executable code for recursion operations.
 """
 import re
 import logging
-from typing import Dict, List, Union, Optional, Tuple
+from typing import Dict
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

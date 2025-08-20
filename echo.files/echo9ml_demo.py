@@ -252,17 +252,17 @@ def demonstrate_cognitive_snapshot():
     for trait_name, value in snapshot['persona_kernel']['traits'].items():
         print(f"   {trait_name}: {value:.3f}")
     
-    print(f"\n🔗 Hypergraph Structure:")
+    print("\n🔗 Hypergraph Structure:")
     print(f"   Nodes: {snapshot['hypergraph']['node_count']}")
     print(f"   Edges: {snapshot['hypergraph']['edge_count']}")
     print(f"   Active nodes: {len(snapshot['hypergraph']['active_nodes'])}")
     
-    print(f"\n👁️  Attention Focus (Top 3):")
+    print("\n👁️  Attention Focus (Top 3):")
     for item, attention in snapshot['attention']['top_focus'][:3]:
         print(f"   {item}: {attention:.2f}")
     
     if snapshot['meta_cognitive']['recent_suggestions']:
-        print(f"\n💡 Recent Suggestions:")
+        print("\n💡 Recent Suggestions:")
         for suggestion in snapshot['meta_cognitive']['recent_suggestions'][:3]:
             print(f"   {suggestion['type']}: {suggestion['description']}")
     

@@ -18,7 +18,6 @@ from typing import Optional, Union
 
 import torch
 import torch.nn.functional as F
-from loguru import logger
 from torch import nn
 from transformers import Gemma3TextConfig
 

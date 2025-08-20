@@ -1,5 +1,4 @@
 import json
-import base64
 import os
 import time
 from datetime import datetime
@@ -125,7 +124,7 @@ def apply_improvement(improvement, introspection_data=None):
     logger.info(f"Applying improvement: {improvement}")
     
     if introspection_data and introspection_data.get('introspection_status') == 'success':
-        logger.info(f"Improvement applied with AI introspection context")
+        logger.info("Improvement applied with AI introspection context")
         logger.info(f"Files analyzed: {introspection_data.get('files_analyzed', 0)}")
         
         # Log high salience files for context
@@ -239,7 +238,7 @@ def main():
 
     write_note(new_note)
 
-    logger.info(f"Enhanced self-improvement cycle complete.")
+    logger.info("Enhanced self-improvement cycle complete.")
     logger.info(f"Result: {result}, Assessment: {assessment}")
     logger.info(f"Introspection enhanced: {new_note['introspection_enhanced']}")
     logger.info(f"Files analyzed: {new_note['files_analyzed']}")

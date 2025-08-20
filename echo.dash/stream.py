@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-import curses
 import sys
-import os
 from pathlib import Path
 import subprocess
 

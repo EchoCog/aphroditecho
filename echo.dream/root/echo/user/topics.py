@@ -8,7 +8,7 @@ forum/thread/message structures for discussions and knowledge organization.
 import logging
 import uuid
 from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional, Set
+from typing import Dict, List, Any
 
 logger = logging.getLogger(__name__)
 

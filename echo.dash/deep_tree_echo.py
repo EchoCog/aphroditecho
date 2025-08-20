@@ -5,8 +5,8 @@ import numpy as np
 from collections import deque
 from pathlib import Path
 from ml_system import MLSystem
-from emotional_dynamics import EmotionalDynamics, EmotionalState, CoreEmotion
-from differential_emotion_theory import DifferentialEmotionSystem, DETState, DETEmotion, EmotionalScript
+from emotional_dynamics import EmotionalDynamics, EmotionalState
+from differential_emotion_theory import DifferentialEmotionSystem, DETState, DETEmotion
 
 @dataclass
 class SpatialContext:

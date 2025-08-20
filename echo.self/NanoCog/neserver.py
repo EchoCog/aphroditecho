@@ -13,8 +13,7 @@ import json
 import time
 import asyncio
 import uvicorn
-from datetime import datetime
-from typing import List, Dict, Any, Optional, AsyncGenerator
+from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field
 
 # Add parent directory to path
@@ -478,7 +477,7 @@ def main():
     
     args = parser.parse_args()
     
-    print(f"🌟 Starting NanEcho Server - Echo Self Cognitive Architecture")
+    print("🌟 Starting NanEcho Server - Echo Self Cognitive Architecture")
     print(f"Model: {args.model_path}")
     print(f"Server: http://{args.host}:{args.port}")
     print(f"Echo Mode: {args.echo_mode}")

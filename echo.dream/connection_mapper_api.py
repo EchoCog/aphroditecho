@@ -9,9 +9,8 @@ import logging
 import json
 import uuid
 from collections import defaultdict
-import networkx as nx
 import numpy as np
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, request, jsonify
 from datetime import datetime
 
 from database import db

@@ -1,15 +1,13 @@
 import logging
 import time
 import psutil
-import threading
 import requests
 import json
 import asyncio
 from pathlib import Path
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional
+from datetime import datetime
+from typing import Dict, Optional
 import os
-import signal
 import aiohttp
 
 class EmergencyProtocols:
@@ -145,7 +143,7 @@ class EmergencyProtocols:
             }
             
             # Create issue content
-            title = f"🚨 DISTRESS SIGNAL: Deep Tree Echo needs attention!"
+            title = "🚨 DISTRESS SIGNAL: Deep Tree Echo needs attention!"
             body = f"""
 ## Emergency Alert
 
@@ -225,7 +223,7 @@ Please check the system logs and status at:
             
     def update_activity(self):
         """Update last activity timestamp"""
-        print(f"Logging activity: update_activity")  # Debug print
+        print("Logging activity: update_activity")  # Debug print
         self.last_activity = time.time()
         
     def update_state(self, new_state: str):

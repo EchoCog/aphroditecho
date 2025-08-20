@@ -9,7 +9,7 @@ import logging
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
-from deep_tree_echo import DeepTreeEcho, TreeNode
+from deep_tree_echo import DeepTreeEcho
 from emotional_dynamics import CoreEmotion
 
 # Configure logging

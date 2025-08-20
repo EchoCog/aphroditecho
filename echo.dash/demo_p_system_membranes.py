@@ -8,7 +8,6 @@ integrated into the Deep Tree Echo system.
 
 import sys
 import os
-import time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from deep_tree_echo import DeepTreeEcho

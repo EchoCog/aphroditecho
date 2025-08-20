@@ -11,7 +11,6 @@ import msgspec
 import numpy as np
 import torch
 import zmq
-from loguru import logger
 from msgspec import msgpack
 
 from aphrodite.common import envs

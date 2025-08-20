@@ -13,11 +13,11 @@ It provides mechanisms for:
 
 import logging
 import numpy as np
-from typing import Dict, List, Tuple, Optional, Any, Union
+from typing import Dict, List, Tuple
 from dataclasses import dataclass, field
-from enum import Enum, IntEnum
+from enum import IntEnum
 from collections import deque
-from emotional_dynamics import EmotionalDynamics, EmotionalState, CoreEmotion
+from emotional_dynamics import EmotionalDynamics, CoreEmotion
 
 # Julia integration
 try:

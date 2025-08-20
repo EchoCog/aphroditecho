@@ -21,12 +21,10 @@ License: MIT
 import unittest
 import numpy as np
 import time
-from typing import List, Dict
 
 # Import the ESN reservoir module
 from esn_reservoir import (
-    ESNReservoir, ESNConfiguration, ReservoirState, ReservoirMetrics,
-    create_standard_esn, create_fast_esn, create_large_esn
+    ESNReservoir, ESNConfiguration, ReservoirState, create_standard_esn, create_fast_esn, create_large_esn
 )
 
 
@@ -201,7 +199,7 @@ class TestESNPerformance(unittest.TestCase):
         self.assertEqual(summary['total_updates'], 100)
         self.assertLessEqual(summary['timing_statistics']['violation_rate'], 0.1)  # ≤10% violations
         
-        print(f"✓ Timing constraint validation:")
+        print("✓ Timing constraint validation:")
         print(f"   Mean time: {mean_time:.1f}μs")
         print(f"   Max time: {max_time:.1f}μs")
         print(f"   Violation rate: {summary['timing_statistics']['violation_rate']:.3f}")

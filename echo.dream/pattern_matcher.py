@@ -7,13 +7,11 @@ enabling the recognition of similar patterns across different contexts.
 
 import logging
 import random
-import json
-from typing import Dict, List, Any, Optional, Set, Tuple
-from datetime import datetime
+from typing import Dict, List, Optional, Tuple
 
 from database import db
 from models_memory import (
-    MemoryNode, MemoryAssociation, PatternTemplate, MemoryCycle
+    MemoryNode, MemoryAssociation, PatternTemplate
 )
 
 logger = logging.getLogger(__name__)

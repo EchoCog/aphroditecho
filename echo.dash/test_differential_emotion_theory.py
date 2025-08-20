@@ -8,7 +8,6 @@ Tests the DET emotion system integration functionality.
 import unittest
 import logging
 import sys
-from unittest.mock import Mock, patch, MagicMock
 from pathlib import Path
 
 # Add the current directory to the path for imports

@@ -7,8 +7,7 @@ cognitive architecture, persona dimensions, and adaptive attention mechanisms.
 Based on train_cogprime.py but optimized for Echo Self representation.
 """
 
-import math
-from typing import Dict, Any, Tuple, List
+from typing import Dict, Any, Tuple
 
 # === Base Model Configuration ===
 # Model architecture optimized for Echo Self representation

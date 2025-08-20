@@ -13,14 +13,12 @@ Usage:
         print(summary)
 """
 
-import os
-import time
 import json
 import re
 import logging
-from typing import Dict, List, Any, Optional, Union, Tuple
+from typing import Dict, List, Any, Optional
 from datetime import datetime
-from collections import defaultdict, Counter
+from collections import defaultdict
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -300,7 +298,7 @@ class AtomSpaceClient:
             response = self._make_request("GET", "atoms/sti", params=params)
             return response.get("atoms", [])
         except requests.exceptions.RequestException:
-            logger.warning(f"Failed to get atoms by STI, returning empty list")
+            logger.warning("Failed to get atoms by STI, returning empty list")
             return []
     
     def get_atoms_by_lti(self, 
@@ -326,7 +324,7 @@ class AtomSpaceClient:
             response = self._make_request("GET", "atoms/lti", params=params)
             return response.get("atoms", [])
         except requests.exceptions.RequestException:
-            logger.warning(f"Failed to get atoms by LTI, returning empty list")
+            logger.warning("Failed to get atoms by LTI, returning empty list")
             return []
     
     def get_attention_statistics(self) -> Dict[str, Any]:

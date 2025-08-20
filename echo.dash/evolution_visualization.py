@@ -11,15 +11,12 @@ including:
 """
 
 import os
-import sys
 import logging
 import asyncio
-import json
 import time
-from typing import Dict, List, Any, Optional, Tuple
+from typing import List, Optional
 from datetime import datetime
 import random
-import math
 
 try:
     import matplotlib.pyplot as plt
@@ -31,7 +28,7 @@ except ImportError:
     logging.warning("Matplotlib not available. Visualization will be limited to terminal.")
 
 # Import our evolution systems
-from echo_evolution import EchoAgent, EvolutionNetwork
+from echo_evolution import EvolutionNetwork
 from cognitive_evolution import CognitiveEvolutionBridge
 
 # Configure logging
@@ -571,7 +568,6 @@ class VisualizationManager:
 async def main():
     """Main function demonstrating visualization capabilities"""
     from echo_evolution import EchoAgent, EvolutionNetwork
-    from cognitive_architecture import CognitiveArchitecture
     from cognitive_evolution import CognitiveEvolutionBridge
     
     # Create evolution network
