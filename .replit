@@ -1,0 +1,8 @@
+modules = ["cpp-clang14", "python-3.12", "web", "c-clang14"]
+run = "ls"
+
+[nix]
+channel = "stable-25_05"
+
+[deployment]
+run = ["sh", "-c", "ls"]
