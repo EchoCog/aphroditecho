@@ -1,0 +1,18 @@
+---
+source: tests/hook_fn.rs
+expression: data
+---
+RUN
+prog ___internal___ _choice_fn
+
+# OUTPUT
+argc__args=( prog )
+argc__cmd_arg_index=0
+argc__positionals=(  )
+_argc_before
+_choice_fn
+_argc_after
+exit
+
+# BUILD_OUTPUT
+error: unsupported ___internal___ command

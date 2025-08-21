@@ -1,0 +1,19 @@
+---
+source: tests/validate.rs
+expression: data
+---
+RUN
+prog test1 --ce abc --ce val
+
+# OUTPUT
+command cat >&2 <<-'EOF' 
+error: invalid value `val` for `<CE>`
+  [possible values: abc, def, ghi]
+EOF
+exit 1
+
+# BUILD_OUTPUT
+error: invalid value `val` for `<CE>`
+  [possible values: abc, def, ghi]
+
+

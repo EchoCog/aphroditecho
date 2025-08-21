@@ -1,0 +1,19 @@
+---
+source: tests/validate.rs
+expression: data
+---
+RUN
+prog foo
+
+# OUTPUT
+command cat >&2 <<-'EOF' 
+error: the following required arguments were not provided:
+  --ao <AO>
+EOF
+exit 1
+
+# BUILD_OUTPUT
+error: the following required arguments were not provided:
+  --ao <AO>
+
+

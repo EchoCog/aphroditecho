@@ -1,0 +1,65 @@
+---
+source: tests/compgen.rs
+expression: data
+---
+************ COMPGEN `prog ` ************
+__argc_value=path	/color:default
+
+************ COMPGEN `prog -` ************
+-a	/color:cyan
+--fb	/color:cyan
+-b	/color:cyan
+--fc	/color:cyan
+-f	/color:cyan
+-sa	/color:cyan
+-e	/color:cyan,bold
+--oa	/color:cyan,bold
+-p	/color:cyan,bold
+-help	/color:cyan
+-h	/color:cyan
+-version	/color:cyan
+-V	/color:cyan
+
+************ COMPGEN `prog --` ************
+--fb	/color:cyan
+--fc	/color:cyan
+--oa	/color:cyan,bold
+
+************ COMPGEN `prog -a` ************
+-ab	/color:cyan
+-af	/color:cyan
+-ae	/color:cyan,bold
+-ap	/color:cyan,bold
+
+************ COMPGEN `prog -a ` ************
+__argc_value=path	/color:default
+
+************ COMPGEN `prog -af` ************
+-afb	/color:cyan
+-aff	/color:cyan
+-afe	/color:cyan,bold
+-afp	/color:cyan,bold
+
+************ COMPGEN `prog -af ` ************
+__argc_value=path	/color:default
+
+************ COMPGEN `prog -ae` ************
+
+
+************ COMPGEN `prog -ae ` ************
+__argc_value=FILE	/color:default
+
+************ COMPGEN `prog -abe` ************
+
+
+************ COMPGEN `prog -abe ` ************
+__argc_value=FILE	/color:default
+
+************ COMPGEN `prog -s` ************
+-sa	/color:cyan
+
+************ COMPGEN `prog -sa` ************
+-sa	/color:cyan
+
+************ COMPGEN `prog -sa ` ************
+__argc_value=path	/color:default

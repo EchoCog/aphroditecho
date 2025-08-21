@@ -1,0 +1,17 @@
+---
+source: tests/validate.rs
+expression: data
+---
+RUN
+prog test1 --unknown
+
+# OUTPUT
+command cat >&2 <<-'EOF' 
+error: unexpected argument `--unknown` found
+EOF
+exit 1
+
+# BUILD_OUTPUT
+error: unexpected argument `--unknown` found
+
+

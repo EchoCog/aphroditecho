@@ -1,0 +1,60 @@
+---
+source: tests/spec.rs
+expression: data
+---
+************ RUN ************
+prog test1 -af
+
+# OUTPUT
+argc_a=1
+argc_fb=1
+argc__args=( prog test1 -af )
+argc__fn=test1
+argc__positionals=(  )
+test1
+
+# RUN_OUTPUT
+error: unexpected argument `-af` found
+
+************ RUN ************
+prog test1 -ae e
+
+# OUTPUT
+argc_a=1
+argc_e=e
+argc__args=( prog test1 -ae e )
+argc__fn=test1
+argc__positionals=(  )
+test1
+
+# RUN_OUTPUT
+error: unexpected argument `-ae` found
+
+************ RUN ************
+prog test1 -afe e
+
+# OUTPUT
+argc_a=1
+argc_fb=1
+argc_e=e
+argc__args=( prog test1 -afe e )
+argc__fn=test1
+argc__positionals=(  )
+test1
+
+# RUN_OUTPUT
+error: unexpected argument `-afe` found
+
+************ RUN ************
+prog test1 -ao v1 v2
+
+# OUTPUT
+argc_a=1
+argc_od=( v1 v2 )
+argc__args=( prog test1 -ao v1 v2 )
+argc__fn=test1
+argc__positionals=(  )
+test1
+
+# RUN_OUTPUT
+error: unexpected argument `-ao` found

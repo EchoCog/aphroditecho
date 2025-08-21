@@ -1,0 +1,29 @@
+---
+source: tests/validate.rs
+expression: data
+---
+RUN
+prog test2
+
+# OUTPUT
+command cat >&2 <<-'EOF' 
+error: the following required arguments were not provided:
+  --oa <OA>
+  --ob <OB>...
+  --oc <OC>...
+  --oca <OCA>
+  --ocb <OCB>...
+  --occ <OCC>...
+EOF
+exit 1
+
+# BUILD_OUTPUT
+error: the following required arguments were not provided:
+  --oa <OA>
+  --ob <OB>...
+  --oc <OC>...
+  --oca <OCA>
+  --ocb <OCB>...
+  --occ <OCC>...
+
+

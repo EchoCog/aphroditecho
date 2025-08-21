@@ -1,0 +1,19 @@
+---
+source: tests/validate.rs
+expression: data
+---
+RUN
+prog test1 --ca val
+
+# OUTPUT
+command cat >&2 <<-'EOF' 
+error: invalid value `val` for `<CA>`
+  [possible values: x, y, z]
+EOF
+exit 1
+
+# BUILD_OUTPUT
+error: invalid value `val` for `<CA>`
+  [possible values: x, y, z]
+
+

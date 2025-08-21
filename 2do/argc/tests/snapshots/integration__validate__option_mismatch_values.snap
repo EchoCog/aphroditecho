@@ -1,0 +1,17 @@
+---
+source: tests/validate.rs
+expression: data
+---
+RUN
+prog test1 -o file1
+
+# OUTPUT
+command cat >&2 <<-'EOF' 
+error: incorrect number of values for `--od <FILE> <FILE>`
+EOF
+exit 1
+
+# BUILD_OUTPUT
+error: incorrect number of values for `--od <FILE> <FILE>`
+
+

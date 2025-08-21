@@ -1,0 +1,36 @@
+---
+source: tests/compgen.rs
+expression: data
+---
+************ COMPGEN Bash `prog --oa A/` ************
+A/B
+
+************ COMPGEN Elvish `prog --oa A/` ************
+A/B	1	B		default
+A/B/	0	B/		default
+
+************ COMPGEN Fish `prog --oa A/` ************
+A/B
+A/B/
+
+************ COMPGEN Nushell `prog --oa A/` ************
+A/B 
+A/B/
+
+************ COMPGEN Powershell `prog --oa A/` ************
+A/B	1	B		39
+A/B/	0	B/		39
+
+************ COMPGEN Xonsh `prog --oa A/` ************
+A/B	1	B	
+A/B/	0	B/	
+
+************ COMPGEN Zsh `prog --oa A/` ************
+A/B 	B	B	39
+A/B/	B/	B/	39
+
+************ COMPGEN Tcsh `prog --oa A/` ************
+A/B
+A/B/
+
+

@@ -1,0 +1,30 @@
+---
+source: tests/compgen.rs
+expression: data
+---
+************ COMPGEN `sudo cmd ` ************
+__argc_filter=	/color:default
+cmd	/color:default
+ok	/color:default
+
+************ COMPGEN `sudo cmd -` ************
+__argc_filter=	/color:default
+cmd -	/color:default
+ok	/color:default
+
+************ COMPGEN `sudo cmd --` ************
+__argc_filter=	/color:default
+cmd --	/color:default
+ok	/color:default
+
+************ COMPGEN `sudo cmd --foo` ************
+__argc_filter=	/color:default
+cmd --foo	/color:default
+ok	/color:default
+
+************ COMPGEN `sudo cmd foo` ************
+__argc_filter=	/color:default
+cmd foo	/color:default
+ok	/color:default
+
+

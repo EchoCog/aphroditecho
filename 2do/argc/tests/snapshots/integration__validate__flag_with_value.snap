@@ -1,0 +1,17 @@
+---
+source: tests/validate.rs
+expression: data
+---
+RUN
+prog test1 -a=3
+
+# OUTPUT
+command cat >&2 <<-'EOF' 
+error: flag `-a` don't accept any value
+EOF
+exit 1
+
+# BUILD_OUTPUT
+error: flag `-a` don't accept any value
+
+

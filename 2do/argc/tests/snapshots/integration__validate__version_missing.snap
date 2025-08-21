@@ -1,0 +1,30 @@
+---
+source: tests/validate.rs
+expression: data
+---
+************ RUN ************
+prog --version
+
+# OUTPUT
+command cat >&2 <<-'EOF' 
+prog 0.0.0
+EOF
+exit 0
+
+# RUN_OUTPUT
+prog 0.0.0
+
+************ RUN ************
+prog cmd --version
+
+# OUTPUT
+argc__args=( prog cmd --version )
+argc__fn=cmd
+argc__positionals=( --version )
+cmd --version
+
+# RUN_OUTPUT
+argc__args=([0]="prog" [1]="cmd" [2]="--version")
+argc__fn=cmd
+argc__positionals=([0]="--version")
+cmd --version

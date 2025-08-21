@@ -1,0 +1,13 @@
+---
+source: tests/compgen.rs
+expression: data
+---
+************ COMPGEN `prog ` ************
+cmda	/color:magenta	cmd-line1
+cmdb	/color:magenta	line
+help	/color:magenta	Show help for a command
+
+************ COMPGEN `prog cmda ` ************
+__argc_value=BAR	/color:default
+
+

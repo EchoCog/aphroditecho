@@ -1,0 +1,31 @@
+---
+source: tests/spec.rs
+expression: data
+---
+************ RUN ************
+prog -o1 -Dv1=foo -Dv2 bar
+
+# OUTPUT
+declare -A argc_o
+argc_o["1"]=1
+declare -A argc_D
+argc_D["v1"]=foo
+argc_D["v2"]=bar
+argc__args=( prog -o1 '-Dv1=foo' -Dv2 bar )
+argc__positionals=(  )
+
+# RUN_OUTPUT
+error: unexpected argument `-o1` found
+
+************ RUN ************
+prog -v-
+
+# OUTPUT
+argc_v_=1
+argc__args=( prog -v- )
+argc__positionals=(  )
+
+# RUN_OUTPUT
+argc__args=([0]="prog" [1]="-v-")
+argc__positionals=()
+argc_v_=1

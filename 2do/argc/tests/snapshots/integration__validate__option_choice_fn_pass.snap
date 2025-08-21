@@ -1,0 +1,19 @@
+---
+source: tests/validate.rs
+expression: data
+---
+RUN
+prog test1 --cc val
+
+# OUTPUT
+argc_cc=val
+argc__args=( prog test1 --cc val )
+argc__fn=test1
+argc__positionals=(  )
+test1
+
+# BUILD_OUTPUT
+error: invalid value `val` for `<CC>`
+  [possible values: abc, def, ghi]
+
+

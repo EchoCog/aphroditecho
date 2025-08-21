@@ -1,0 +1,24 @@
+---
+source: tests/hook_fn.rs
+expression: data
+---
+RUN
+prog cmd
+
+# OUTPUT
+argc__args=( prog cmd )
+argc__fn=cmd
+argc__positionals=(  )
+_argc_before
+cmd
+_argc_after
+
+# BUILD_OUTPUT
+before
+argc__args=([0]="prog" [1]="cmd")
+argc__fn=cmd
+argc__positionals=()
+cmd
+after
+
+

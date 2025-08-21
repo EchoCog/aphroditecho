@@ -1,0 +1,17 @@
+---
+source: tests/main_fn.rs
+expression: data
+---
+RUN
+prog abc
+
+# OUTPUT
+command cat >&2 <<-'EOF' 
+error: `prog` requires a subcommand but 'abc' is not one of them
+  [subcommands: cmd]
+EOF
+exit 1
+
+# BUILD_OUTPUT
+error: `prog` requires a subcommand but one was not provided
+  [subcommands: cmd]

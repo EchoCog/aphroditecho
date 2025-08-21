@@ -1,0 +1,50 @@
+---
+source: tests/param_fn.rs
+expression: data
+---
+************ RUN ************
+prog ___internal___ _choice_fn
+
+# OUTPUT
+argc__args=( prog )
+argc__cmd_arg_index=0
+argc__positionals=(  )
+_choice_fn
+exit
+
+# RUN_OUTPUT
+error: unsupported ___internal___ command
+
+************ RUN ************
+prog ___internal___ _choice_fn prog test1 --cc 
+
+# OUTPUT
+argc_cc=''
+argc__args=( prog test1 --cc '' )
+argc__cmd_arg_index=1
+argc__cmd_fn=test1
+argc__option=argc_cc
+argc__positionals=(  )
+_choice_fn
+exit
+
+# RUN_OUTPUT
+error: unsupported ___internal___ command
+
+************ RUN ************
+prog ___internal___ _choice_fn prog test1 -a --oa oa --cc 
+
+# OUTPUT
+argc_a=1
+argc_oa=oa
+argc_cc=''
+argc__args=( prog test1 -a --oa oa --cc '' )
+argc__cmd_arg_index=1
+argc__cmd_fn=test1
+argc__option=argc_cc
+argc__positionals=(  )
+_choice_fn
+exit
+
+# RUN_OUTPUT
+error: unsupported ___internal___ command

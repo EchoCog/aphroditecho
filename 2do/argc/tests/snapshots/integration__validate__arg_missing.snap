@@ -1,0 +1,18 @@
+---
+source: tests/validate.rs
+expression: data
+---
+RUN
+prog cmd_required_multi_arg
+
+# OUTPUT
+command cat >&2 <<-'EOF' 
+error: the following required arguments were not provided:
+  <VAL>...
+EOF
+exit 1
+
+# BUILD_OUTPUT
+error: the required environments `<VAL>...` were not provided
+
+

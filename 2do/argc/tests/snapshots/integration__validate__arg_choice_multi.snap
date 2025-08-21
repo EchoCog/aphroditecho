@@ -1,0 +1,19 @@
+---
+source: tests/validate.rs
+expression: data
+---
+RUN
+prog cmd_multi_arg_with_choice_fn abc val
+
+# OUTPUT
+command cat >&2 <<-'EOF' 
+error: invalid value `val` for `[VAL]...`
+  [possible values: abc, def, ghi]
+EOF
+exit 1
+
+# BUILD_OUTPUT
+error: invalid value `val` for `[VAL]...`
+  [possible values: abc, def, ghi]
+
+

@@ -1,0 +1,121 @@
+---
+source: tests/compgen.rs
+expression: data
+---
+************ COMPGEN `prog ` ************
+__argc_value=FILE	/color:default
+
+************ COMPGEN `prog -` ************
+--fc	/color:cyan
+-f	/color:cyan
+--oa	/color:cyan,bold
+-a	/color:cyan,bold
+--ob	/color:cyan,bold
+-b	/color:cyan,bold
+--oc	/color:cyan,bold
+-c	/color:cyan,bold
+--od	/color:cyan,bold
+-d	/color:cyan,bold
+--oe	/color:cyan,bold
+-e	/color:cyan,bold
+--help	/color:cyan
+-h	/color:cyan
+--version	/color:cyan
+-V	/color:cyan
+
+************ COMPGEN `prog --` ************
+--fc	/color:cyan
+--oa	/color:cyan,bold
+--ob	/color:cyan,bold
+--oc	/color:cyan,bold
+--od	/color:cyan,bold
+--oe	/color:cyan,bold
+--help	/color:cyan
+--version	/color:cyan
+
+************ COMPGEN `prog -- ` ************
+__argc_value=FILE	/color:default
+
+************ COMPGEN `prog -f ` ************
+__argc_value=FILE	/color:default
+
+************ COMPGEN `prog --fc ` ************
+__argc_value=FILE	/color:default
+
+************ COMPGEN `prog -a ` ************
+__argc_value=DIR	/color:default
+
+************ COMPGEN `prog -a d1` ************
+__argc_value=DIR	/color:default
+
+************ COMPGEN `prog -a d1 ` ************
+__argc_value=FILE	/color:default
+
+************ COMPGEN `prog -b ` ************
+__argc_value=CMD	/color:default
+
+************ COMPGEN `prog -b d1` ************
+__argc_value=CMD	/color:default
+
+************ COMPGEN `prog -b d1 ` ************
+__argc_value=DIR+	/color:default
+
+************ COMPGEN `prog -b d1 d2` ************
+__argc_value=DIR+	/color:default
+
+************ COMPGEN `prog -b d1 d2 ` ************
+__argc_value=DIR+	/color:default
+
+************ COMPGEN `prog -c ` ************
+__argc_value=DIR+	/color:default
+
+************ COMPGEN `prog -c d1` ************
+__argc_value=DIR+	/color:default
+
+************ COMPGEN `prog -c d1 ` ************
+__argc_value=DIR+	/color:default
+
+************ COMPGEN `prog -d d1` ************
+__argc_value=DIR	/color:default
+
+************ COMPGEN `prog -d d1 ` ************
+__argc_value=FILE	/color:default
+
+************ COMPGEN `prog -d d1 d2` ************
+__argc_value=FILE	/color:default
+
+************ COMPGEN `prog -d d1 d2 ` ************
+__argc_value=FILE	/color:default
+
+************ COMPGEN `prog -e d1 ` ************
+__argc_value=DIR+	/color:default
+
+************ COMPGEN `prog -a d1 -c d2 -` ************
+--fc	/color:cyan
+-f	/color:cyan
+--oa	/color:cyan,bold
+-a	/color:cyan,bold
+--ob	/color:cyan,bold
+-b	/color:cyan,bold
+--od	/color:cyan,bold
+-d	/color:cyan,bold
+--oe	/color:cyan,bold
+-e	/color:cyan,bold
+--help	/color:cyan
+-h	/color:cyan
+--version	/color:cyan
+-V	/color:cyan
+
+************ COMPGEN `prog v1` ************
+__argc_value=FILE	/color:default
+
+************ COMPGEN `prog v1 ` ************
+__argc_value=FILE	/color:default
+
+************ COMPGEN `prog v1 v2` ************
+__argc_value=FILE	/color:default
+
+************ COMPGEN `prog v1 v2 ` ************
+__argc_value=FILE	/color:default
+
+

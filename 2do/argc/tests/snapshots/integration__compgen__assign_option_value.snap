@@ -1,0 +1,40 @@
+---
+source: tests/compgen.rs
+expression: data
+---
+************ COMPGEN `prog --oa=abc` ************
+__argc_filter=	/color:default
+ARGC_COMPGEN=1	/color:default
+ARGC_CWORD=abc	/color:default
+ARGC_LAST_ARG=--oa=abc	/color:default
+ARGC_VARS=YXJnY19vYT1hYmM7YXJnY19fYXJncz0oIHByb2cgJy0tb2E9YWJjJyApO2FyZ2NfX2NtZF9hcmdfaW5kZXg9MDthcmdjX19vcHRpb249YXJnY19vYTthcmdjX19wb3NpdGlvbmFscz0oICApOw==	/color:default
+argc__args=([0]="prog" [1]="--oa=abc")	/color:default
+argc__cmd_arg_index=0	/color:default
+argc__option=argc_oa	/color:default
+argc__positionals=()	/color:default
+argc_oa=abc	/color:default
+
+************ COMPGEN `prog oa=abc` ************
+__argc_filter=	/color:default
+ARGC_COMPGEN=1	/color:default
+ARGC_CWORD=oa=abc	/color:default
+ARGC_LAST_ARG=oa=abc	/color:default
+ARGC_VARS=YXJnY192YWw9J29hPWFiYyc7YXJnY19fYXJncz0oIHByb2cgJ29hPWFiYycgKTthcmdjX19jbWRfYXJnX2luZGV4PTA7YXJnY19fcG9zaXRpb25hbHM9KCAnb2E9YWJjJyApOw==	/color:default
+argc__args=([0]="prog" [1]="oa=abc")	/color:default
+argc__cmd_arg_index=0	/color:default
+argc__positionals=([0]="oa=abc")	/color:default
+argc_val=oa=abc	/color:default
+
+************ COMPGEN `prog -- --oa=abc` ************
+__argc_filter=	/color:default
+ARGC_COMPGEN=1	/color:default
+ARGC_CWORD=--oa=abc	/color:default
+ARGC_LAST_ARG=--oa=abc	/color:default
+ARGC_VARS=YXJnY192YWw9Jy0tb2E9YWJjJzthcmdjX19hcmdzPSggcHJvZyAtLSAnLS1vYT1hYmMnICk7YXJnY19fY21kX2FyZ19pbmRleD0wO2FyZ2NfX2Rhc2g9MDthcmdjX19wb3NpdGlvbmFscz0oICctLW9hPWFiYycgKTs=	/color:default
+argc__args=([0]="prog" [1]="--" [2]="--oa=abc")	/color:default
+argc__cmd_arg_index=0	/color:default
+argc__dash=0	/color:default
+argc__positionals=([0]="--oa=abc")	/color:default
+argc_val=--oa=abc	/color:default
+
+

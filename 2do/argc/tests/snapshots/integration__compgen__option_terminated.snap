@@ -1,0 +1,24 @@
+---
+source: tests/compgen.rs
+expression: data
+---
+************ COMPGEN `prog --oa` ************
+--oa	/color:cyan,bold
+
+************ COMPGEN `prog --oa ` ************
+__argc_filter=	/color:default
+ok	/color:default
+
+************ COMPGEN `prog --oa --` ************
+__argc_filter=	/color:default
+ok	/color:default
+
+************ COMPGEN `prog --oa v1 v2` ************
+__argc_filter=	/color:default
+ok	/color:default
+
+************ COMPGEN `prog --oa -- ` ************
+__argc_filter=	/color:default
+ok	/color:default
+
+

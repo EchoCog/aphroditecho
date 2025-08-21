@@ -1,0 +1,22 @@
+---
+source: tests/main_fn.rs
+expression: data
+---
+RUN
+prog abc
+
+# OUTPUT
+argc_val=abc
+argc__args=( prog abc )
+argc__fn=main
+argc__positionals=( abc )
+main abc
+
+# BUILD_OUTPUT
+argc__args=([0]="prog" [1]="abc")
+argc__fn=main
+argc__positionals=([0]="abc")
+argc_val=abc
+main abc
+
+

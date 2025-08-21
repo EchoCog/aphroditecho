@@ -1,0 +1,39 @@
+---
+source: tests/spec.rs
+expression: data
+---
+************ RUN ************
+prog cmda --ob a
+
+# OUTPUT
+argc_ob=a
+argc__args=( prog cmda --ob a )
+argc__fn=cmda
+argc__positionals=(  )
+cmda
+
+# RUN_OUTPUT
+argc__args=([0]="prog" [1]="cmda" [2]="--ob" [3]="a")
+argc__fn=cmda
+argc__positionals=()
+argc_ob=a
+cmda
+
+************ RUN ************
+prog cmdb --ob x
+
+# OUTPUT
+argc_ob=x
+argc__args=( prog cmdb --ob x )
+argc__fn=cmdb
+argc__positionals=(  )
+cmdb
+
+# RUN_OUTPUT
+argc__args=([0]="prog" [1]="cmdb" [2]="--ob" [3]="x")
+argc__fn=cmdb
+argc__positionals=()
+argc_ob=x
+cmdb
+
+

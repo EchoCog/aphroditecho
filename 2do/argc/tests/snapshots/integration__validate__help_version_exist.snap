@@ -1,0 +1,40 @@
+---
+source: tests/validate.rs
+expression: data
+---
+************ RUN ************
+prog -h
+
+# OUTPUT
+command cat >&2 <<-'EOF' 
+Test argc
+
+USAGE: prog [OPTIONS]
+
+OPTIONS:
+  -h, --help
+  -V, --version
+
+EOF
+exit 0
+
+# RUN_OUTPUT
+Test argc
+
+USAGE: prog [OPTIONS]
+
+OPTIONS:
+  -h, --help
+  -V, --version
+
+************ RUN ************
+prog -V
+
+# OUTPUT
+command cat >&2 <<-'EOF' 
+prog 1.0.0
+EOF
+exit 0
+
+# RUN_OUTPUT
+prog 1.0.0

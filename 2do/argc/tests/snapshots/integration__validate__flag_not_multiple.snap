@@ -1,0 +1,17 @@
+---
+source: tests/validate.rs
+expression: data
+---
+RUN
+prog test1 -a -a
+
+# OUTPUT
+command cat >&2 <<-'EOF' 
+error: the argument `-a` cannot be used multiple times
+EOF
+exit 1
+
+# BUILD_OUTPUT
+error: the argument `-a` cannot be used multiple times
+
+

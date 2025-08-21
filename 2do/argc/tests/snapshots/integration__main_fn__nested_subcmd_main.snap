@@ -1,0 +1,20 @@
+---
+source: tests/main_fn.rs
+expression: data
+---
+RUN
+prog cmd
+
+# OUTPUT
+argc__args=( prog cmd )
+argc__fn=cmd::main
+argc__positionals=(  )
+cmd::main
+
+# BUILD_OUTPUT
+argc__args=([0]="prog" [1]="cmd")
+argc__fn=cmd::main
+argc__positionals=()
+cmd::main
+
+

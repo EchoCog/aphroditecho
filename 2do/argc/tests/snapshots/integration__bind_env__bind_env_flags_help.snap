@@ -1,0 +1,31 @@
+---
+source: tests/bind_env.rs
+expression: "format!(r#\"\n# OUTPUT\n{output}\n\n# BUILD_OUTPUT\n{build_output}\n\"#)"
+---
+# OUTPUT
+How to bind env to param
+
+USAGE: bind-envs flags [OPTIONS]
+
+OPTIONS:
+      --fa1    [env: FA1]
+      --fa2    [env: FA2]
+      --fa3    [env: FA]
+      --fc...  [env: FC]
+      --fd     [env: FD]
+  -h, --help
+
+
+
+# BUILD_OUTPUT
+How to bind env to param
+
+USAGE: prog flags [OPTIONS]
+
+OPTIONS:
+      --fa1    [env: FA1]
+      --fa2    [env: FA2]
+      --fa3    [env: FA]
+      --fc...  [env: FC]
+      --fd     [env: FD]
+  -h, --help

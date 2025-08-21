@@ -1,0 +1,17 @@
+---
+source: tests/validate.rs
+expression: data
+---
+RUN
+prog cmd_arg v1 v2
+
+# OUTPUT
+command cat >&2 <<-'EOF' 
+error: unexpected argument `v2` found
+EOF
+exit 1
+
+# BUILD_OUTPUT
+error: unexpected argument `v2` found
+
+

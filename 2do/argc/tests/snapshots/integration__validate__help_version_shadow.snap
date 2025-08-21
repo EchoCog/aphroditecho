@@ -1,0 +1,31 @@
+---
+source: tests/validate.rs
+expression: data
+---
+************ RUN ************
+prog -h
+
+# OUTPUT
+argc_host=1
+argc__args=( prog -h )
+argc__positionals=(  )
+
+# RUN_OUTPUT
+argc__args=([0]="prog" [1]="-h")
+argc__positionals=()
+argc_host=1
+
+************ RUN ************
+prog -V
+
+# OUTPUT
+argc_verify=1
+argc__args=( prog -V )
+argc__positionals=(  )
+
+# RUN_OUTPUT
+argc__args=([0]="prog" [1]="-V")
+argc__positionals=()
+argc_verify=1
+
+
