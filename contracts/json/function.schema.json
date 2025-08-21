@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://echo.cog/contracts/function.schema.json",
+  "title": "FunctionSpec",
+  "type": "object",
+  "required": ["name", "description", "params", "safety_class", "cost_unit", "impl_ref"],
+  "properties": {
+    "name": {"type": "string", "pattern": "^[a-zA-Z0-9_.-]{3,64}$"},
+    "description": {"type": "string", "maxLength": 4096},
+    "params": {"type": "object"},
+    "safety_class": {"type": "string", "enum": ["low", "medium", "high", "critical"]},
+    "cost_unit": {"type": "number", "minimum": 0},
+    "impl_ref": {"type": "string"},
+    "tags": {"type": "array", "items": {"type": "string"}},
+    "allow_network": {"type": "boolean"}
+  },
+  "additionalProperties": false
+}
