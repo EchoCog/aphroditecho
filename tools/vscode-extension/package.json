@@ -1,0 +1,56 @@
+{
+  "name": "echo-export-integration",
+  "displayName": "Echo Copilot Export Integration",
+  "description": "Adds menu and keybinding wrappers for GitHub Copilot Chat export/debug commands.",
+  "version": "0.1.0",
+  "publisher": "echocog",
+  "engines": {
+    "vscode": ">=1.85.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": [],
+  "main": "dist/extension.js",
+  "scripts": {
+    "vscode:prepublish": "npm run build",
+    "build": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.4.0",
+    "@types/node": "^18.19.0"
+  },
+  "contributes": {
+    "commands": [
+      { "command": "echoExt.exportPromptArchive", "title": "Copilot: Export Prompt Archive" },
+      { "command": "echoExt.exportLogItem", "title": "Copilot: Export Chat Log Item" },
+      { "command": "echoExt.exportAll", "title": "Copilot: Export Full Chat Session" },
+      { "command": "echoExt.genericChatExport", "title": "Chat: Export Conversation" }
+    ],
+    "menus": {
+      "commandPalette": [
+        { "command": "echoExt.exportPromptArchive" },
+        { "command": "echoExt.exportLogItem" },
+        { "command": "echoExt.exportAll" },
+        { "command": "echoExt.genericChatExport" }
+      ],
+      "view/title": [
+        {
+          "command": "echoExt.exportAll",
+          "when": "view == workbench.panel.chatSidebar",
+          "group": "navigation@99"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "echoExt.exportLogItem",
+          "when": "resourceLangId == markdown",
+          "group": "z_commands"
+        }
+      ]
+    },
+    "keybindings": [
+      { "command": "echoExt.exportAll", "key": "ctrl+alt+e", "when": "view == workbench.panel.chatSidebar" }
+    ]
+  }
+}

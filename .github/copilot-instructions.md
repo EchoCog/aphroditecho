@@ -314,3 +314,97 @@ python examples/aphrodite_engine_example.py --model microsoft/DialoGPT-medium
 
 ---
 *Last updated: Based on comprehensive repository exploration and validation. All linting command timings and tool functionality verified. Installation timing estimates based on complexity analysis. Some advanced functionality pending full installation validation.*
+
+## VS Code Extension Integration: Adding Copilot Chat Export/Debug Commands to Menus
+
+To surface GitHub Copilot Chat internal export/debug commands inside custom menus or views, wrap them in your own extension commands. You cannot (reliably) reference another extension's command IDs directly in all menu contribution points unless you also declare them in your `contributes.commands` and (optionally) add contextual gating.
+
+### Target Commands (original IDs)
+```
+github.copilot.chat.debug.exportPromptArchive
+github.copilot.chat.debug.exportLogItem
+github.copilot.chat.debug.export
+workbench.action.chat.export
+```
+
+### Implementation Steps
+1. Create (or update) a VS Code extension within this repo (e.g. `tools/vscode-extension/`).
+2. Declare wrapper commands in `package.json` under `contributes.commands`.
+3. Map wrapper implementations to the original command IDs using `vscode.commands.executeCommand` in `activate`.
+4. Contribute wrapper commands to desired menus (`commandPalette`, `view/title`, `editor/context`, custom tree views, etc.).
+5. (Optional) Add keybindings and context `when` clauses for precise placement.
+6. Use the command `Developer: Inspect Context Keys` in VS Code to discover suitable context keys for `when` expressions (e.g., active view, resource language, chat focus states).
+
+### Example `package.json` Snippet
+```jsonc
+{
+    "contributes": {
+        "commands": [
+            { "command": "echoExt.exportPromptArchive", "title": "Copilot: Export Prompt Archive" },
+            { "command": "echoExt.exportLogItem", "title": "Copilot: Export Chat Log Item" },
+            { "command": "echoExt.exportAll", "title": "Copilot: Export Full Chat Session" },
+            { "command": "echoExt.genericChatExport", "title": "Chat: Export Conversation" }
+        ],
+        "menus": {
+            "commandPalette": [
+                { "command": "echoExt.exportPromptArchive" },
+                { "command": "echoExt.exportLogItem" },
+                { "command": "echoExt.exportAll" },
+                { "command": "echoExt.genericChatExport" }
+            ],
+            "view/title": [
+                {
+                    "command": "echoExt.exportAll",
+                    "when": "view == workbench.panel.chatSidebar",
+                    "group": "navigation@99"
+                }
+            ],
+            "editor/context": [
+                {
+                    "command": "echoExt.exportLogItem",
+                        "when": "resourceLangId == markdown",
+                        "group": "z_commands"
+                }
+            ]
+        },
+        "keybindings": [
+            { "command": "echoExt.exportAll", "key": "ctrl+alt+e", "when": "view == workbench.panel.chatSidebar" }
+        ]
+    }
+}
+```
+
+### Example `extension.ts`
+```ts
+import * as vscode from 'vscode';
+
+export function activate(ctx: vscode.ExtensionContext) {
+    const wrap = (alias: string, target: string) =>
+        vscode.commands.registerCommand(alias, (...args) =>
+            vscode.commands.executeCommand(target, ...args)
+        );
+
+    ctx.subscriptions.push(
+        wrap('echoExt.exportPromptArchive', 'github.copilot.chat.debug.exportPromptArchive'),
+        wrap('echoExt.exportLogItem', 'github.copilot.chat.debug.exportLogItem'),
+        wrap('echoExt.exportAll', 'github.copilot.chat.debug.export'),
+        wrap('echoExt.genericChatExport', 'workbench.action.chat.export')
+    );
+}
+
+export function deactivate() {}
+```
+
+### Notes & Best Practices
+- Always provide clear user-facing titles (avoid leaking internal IDs).
+- Group menu items logically (use `group` ordering tokens like `navigation@99`).
+- If a target command requires arguments, inject them in the wrapper before delegating.
+- Keep wrappers tiny: no business logic; just delegate for stability.
+- Version-control the extension inside the repo if it becomes part of standard tooling.
+
+### Optional Enhancements
+- Add telemetry (respecting privacy) to measure feature usage.
+- Provide a composite command to batch-export multiple artifacts.
+- Add a status bar item that triggers `echoExt.exportAll` when a chat session is active.
+
+This standardized approach lets internal or third-party command capabilities surface within custom orchestrations and developer UX flows without modifying upstream extensions.
