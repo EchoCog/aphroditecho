@@ -1,0 +1,294 @@
+--> uv add setuptools setuptools-scm torch numpy packaging pytest pyyaml
+Resolved 27 packages in 15.07s
+  × Failed to build `aphrodite-engine @ file:///home/runner/workspace`
+  ├─▶ The build backend returned an error
+  ╰─▶ Call to `setuptools.build_meta.build_editable` failed (exit status: 1)
+
+      [stdout]
+      running editable_wheel
+      creating /home/runner/workspace/.cache/uv/builds-v0/.tmpyyQLwY/.tmp-m7j_z4wf/aphrodite_engine.egg-info
+      writing /home/runner/workspace/.cache/uv/builds-v0/.tmpyyQLwY/.tmp-m7j_z4wf/aphrodite_engine.egg-info/PKG-INFO
+      writing dependency_links to
+      /home/runner/workspace/.cache/uv/builds-v0/.tmpyyQLwY/.tmp-m7j_z4wf/aphrodite_engine.egg-info/dependency_links.txt
+      writing entry points to
+      /home/runner/workspace/.cache/uv/builds-v0/.tmpyyQLwY/.tmp-m7j_z4wf/aphrodite_engine.egg-info/entry_points.txt
+      writing requirements to
+      /home/runner/workspace/.cache/uv/builds-v0/.tmpyyQLwY/.tmp-m7j_z4wf/aphrodite_engine.egg-info/requires.txt
+      writing top-level names to
+      /home/runner/workspace/.cache/uv/builds-v0/.tmpyyQLwY/.tmp-m7j_z4wf/aphrodite_engine.egg-info/top_level.txt
+      writing manifest file
+      '/home/runner/workspace/.cache/uv/builds-v0/.tmpyyQLwY/.tmp-m7j_z4wf/aphrodite_engine.egg-info/SOURCES.txt'
+      reading manifest template 'MANIFEST.in'
+      adding license file 'LICENSE'
+      writing manifest file
+      '/home/runner/workspace/.cache/uv/builds-v0/.tmpyyQLwY/.tmp-m7j_z4wf/aphrodite_engine.egg-info/SOURCES.txt'
+      creating
+      '/home/runner/workspace/.cache/uv/builds-v0/.tmpyyQLwY/.tmp-m7j_z4wf/aphrodite_engine-0.1.dev23+g8b2821a8c.d20250821.dist-info'
+      creating
+      /home/runner/workspace/.cache/uv/builds-v0/.tmpyyQLwY/.tmp-m7j_z4wf/aphrodite_engine-0.1.dev23+g8b2821a8c.d20250821.dist-info/WHEEL
+      running build_py
+      running build_ext
+      RAM heuristic: ~2 GiB avail -> num_jobs=1 (8 GiB/job). If you think this is too low or too high, set MAX_JOBS to
+      a higher value.
+
+      [stderr]
+      /home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages/torch/_subclasses/functional_tensor.py:276:
+      UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at
+      /pytorch/torch/csrc/utils/tensor_numpy.cpp:81.)
+        cpu = _conversion_method_template(device=torch.device("cpu"))
+      /home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages/setuptools_scm/git.py:202:
+      UserWarning: "/home/runner/workspace" is shallow and may cause errors
+        warnings.warn(f'"{wd.path}" is shallow and may cause errors')
+      /nix/store/p79bgyzmmmddi554ckwzbqlavbkw07zh-bash-5.2p37/bin/sh: line 1: lsmod: command not found
+      /nix/store/p79bgyzmmmddi554ckwzbqlavbkw07zh-bash-5.2p37/bin/sh: line 1: lsmod: command not found
+      /home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages/setuptools_scm/_integration/version_inference.py:51:
+      UserWarning: version of None already set
+        warnings.warn(self.message)
+      /home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages/setuptools/config/_apply_pyprojecttoml.py:75:
+      _MissingDynamic: `optional-dependencies` defined outside of `pyproject.toml` is ignored.
+      !!
+
+              ********************************************************************************
+              The following seems to be defined outside of `pyproject.toml`:
+
+              `optional-dependencies = {'bench': ['pandas', 'datasets'], 'tensorizer': ['tensorizer==2.10.1'],
+      'fastsafetensors': ['fastsafetensors>=0.1.10'], 'runai': ['runai-model-streamer>=0.13.3',
+      'runai-model-streamer-s3', 'boto3'], 'audio': ['librosa', 'soundfile', 'mistral_common[audio]'], 'video': [],
+      'flashinfer': ['flashinfer-python==0.2.9']}`
+
+              According to the spec (see the link below), however, setuptools CANNOT
+              consider this value unless `optional-dependencies` is listed as `dynamic`.
+
+      
+      https://packaging.python.org/en/latest/specifications/pyproject-toml/#declaring-project-metadata-the-project-table
+
+              To prevent this problem, you can list `optional-dependencies` under `dynamic` or alternatively
+              remove the `[project]` table from your file and rely entirely on other means of
+              configuration.
+              ********************************************************************************
+
+      !!
+        _handle_missing_dynamic(dist, project_table)
+      /home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages/setuptools/config/_apply_pyprojecttoml.py:82:
+      SetuptoolsDeprecationWarning: `project.license` as a TOML table is deprecated
+      !!
+
+              ********************************************************************************
+              Please use a simple string containing a SPDX expression for `project.license`. You can also use
+      `project.license-files`. (Both options available on setuptools>=77.0.0).
+
+              By 2026-Feb-18, you need to update your project and remove deprecated calls
+              or your builds will no longer be supported.
+
+              See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+              ********************************************************************************
+
+      !!
+        corresp(dist, value, root_dir)
+      /home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages/setuptools/config/_apply_pyprojecttoml.py:82:
+      SetuptoolsWarning: `install_requires` overwritten in `pyproject.toml` (dependencies)
+        corresp(dist, value, root_dir)
+      /home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages/setuptools/config/_apply_pyprojecttoml.py:82:
+      SetuptoolsWarning: `extras_require` overwritten in `pyproject.toml` (optional-dependencies)
+        corresp(dist, value, root_dir)
+      /home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages/setuptools/config/_apply_pyprojecttoml.py:61:
+      SetuptoolsDeprecationWarning: License classifiers are deprecated.
+      !!
+
+              ********************************************************************************
+              Please consider removing the following classifiers in favor of a SPDX license expression:
+
+              License :: OSI Approved :: GNU Affero General Public License v3
+
+              See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+              ********************************************************************************
+
+      !!
+        dist._finalize_license_expression()
+      /home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages/setuptools/dist.py:759:
+      SetuptoolsDeprecationWarning: License classifiers are deprecated.
+      !!
+
+              ********************************************************************************
+              Please consider removing the following classifiers in favor of a SPDX license expression:
+
+              License :: OSI Approved :: GNU Affero General Public License v3
+
+              See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+              ********************************************************************************
+
+      !!
+        self._finalize_license_expression()
+      CMake Error: The current CMakeCache.txt directory /home/runner/workspace/CMakeCache.txt is different than the
+      directory /workspace/aphroditecho where CMakeCache.txt was created. This may result in binaries being created in
+      the wrong place. If you are not sure, reedit the CMakeCache.txt
+      Traceback (most recent call last):
+        File
+      "/home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages/setuptools/command/editable_wheel.py",
+      line 139, in run
+          self._create_wheel_file(bdist_wheel)
+        File
+      "/home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages/setuptools/command/editable_wheel.py",
+      line 340, in _create_wheel_file
+          files, mapping = self._run_build_commands(dist_name, unpacked, lib, tmp)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        File
+      "/home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages/setuptools/command/editable_wheel.py",
+      line 263, in _run_build_commands
+          self._run_build_subcommands()
+        File
+      "/home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages/setuptools/command/editable_wheel.py",
+      line 290, in _run_build_subcommands
+          self.run_command(name)
+        File
+      "/home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages/setuptools/_distutils/cmd.py",
+      line 357, in run_command
+          self.distribution.run_command(command)
+        File "/home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages/setuptools/dist.py",
+      line 1104, in run_command
+          super().run_command(command)
+        File
+      "/home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages/setuptools/_distutils/dist.py",
+      line 1021, in run_command
+          cmd_obj.run()
+        File "<string>", line 382, in run
+        File
+      "/home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages/setuptools/command/build_ext.py",
+      line 99, in run
+          _build_ext.run(self)
+        File
+      "/home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages/setuptools/_distutils/command/build_ext.py",
+      line 368, in run
+          self.build_extensions()
+        File "<string>", line 341, in build_extensions
+        File "<string>", line 318, in configure
+        File "/nix/store/vnvdzw4182wb2ifzi0cczhv80yfnpx1q-python3-3.12.11/lib/python3.12/subprocess.py", line 413,
+      in check_call
+          raise CalledProcessError(retcode, cmd)
+      subprocess.CalledProcessError: Command '['cmake', '/home/runner/workspace', '-G',
+      'Ninja', '-DCMAKE_BUILD_TYPE=RelWithDebInfo', '-DAPHRODITE_TARGET_DEVICE=cpu',
+      '-DAPHRODITE_PYTHON_EXECUTABLE=/home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/bin/python',
+      '-DAPHRODITE_PYTHON_PATH=/nix/store/zz7i75jb78idaz0rb1y1i4rzdyxq28vf-sitecustomize/lib/python/site-packages:/nix/store/dlz9jb8127sn1mj7986p9s8r3nxjlcl7-python3.12-pip-25.0.1/lib/python3.12/site-packages:/nix/store/vnvdzw4182wb2ifzi0cczhv80yfnpx1q-python3-3.12.11/lib/python312.zip:/nix/store/vnvdzw4182wb2ifzi0cczhv80yfnpx1q-python3-3.12.11/lib/python3.12:/nix/store/vnvdzw4182wb2ifzi0cczhv80yfnpx1q-python3-3.12.11/lib/python3.12/lib-dynload:/home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages:/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages:/nix/store/x1zyfp26gnxkbbspkwhh3f9n13r3z18p-python3.12-setuptools-80.7.1/lib/python3.12/site-packages:/home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages/setuptools/_vendor',
+      '-DFETCHCONTENT_BASE_DIR=/home/runner/workspace/.deps', '-DCMAKE_JOB_POOL_COMPILE:STRING=compile',
+      '-DCMAKE_JOB_POOLS:STRING=compile=1']' returned non-zero exit status 1.
+      /home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages/setuptools/_distutils/dist.py:1021:
+      _DebuggingTips: Problem in editable installation.
+      !!
+
+              ********************************************************************************
+              An error happened while installing `aphrodite-engine` in editable mode.
+
+              The following steps are recommended to help debug this problem:
+
+              - Try to install the project normally, without using the editable mode.
+                Does the error still persist?
+                (If it does, try fixing the problem before attempting the editable mode).
+              - If you are using binary extensions, make sure you have all OS-level
+                dependencies installed (e.g. compilers, toolchains, binary libraries, ...).
+              - Try the latest version of setuptools (maybe the error was already fixed).
+              - If you (or your project dependencies) are using any setuptools extension
+                or customization, make sure they support the editable mode.
+
+              After following the steps above, if the problem still persists and
+              you think this is related to how setuptools handles editable installations,
+              please submit a reproducible example
+              (see https://stackoverflow.com/help/minimal-reproducible-example) to:
+
+                  https://github.com/pypa/setuptools/issues
+
+              See https://setuptools.pypa.io/en/latest/userguide/development_mode.html for details.
+              ********************************************************************************
+
+      !!
+        cmd_obj.run()
+      Traceback (most recent call last):
+        File "<string>", line 11, in <module>
+        File
+      "/home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages/setuptools/build_meta.py",
+      line 468, in build_editable
+          return self._build_with_temp_dir(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^
+        File
+      "/home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages/setuptools/build_meta.py",
+      line 404, in _build_with_temp_dir
+          self.run_setup()
+        File
+      "/home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages/setuptools/build_meta.py",
+      line 317, in run_setup
+          exec(code, locals())
+        File "<string>", line 672, in <module>
+        File "/home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages/setuptools/__init__.py",
+      line 117, in setup
+          return distutils.core.setup(**attrs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        File
+      "/home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages/setuptools/_distutils/core.py",
+      line 186, in setup
+          return run_commands(dist)
+                 ^^^^^^^^^^^^^^^^^^
+        File
+      "/home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages/setuptools/_distutils/core.py",
+      line 202, in run_commands
+          dist.run_commands()
+        File
+      "/home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages/setuptools/_distutils/dist.py",
+      line 1002, in run_commands
+          self.run_command(cmd)
+        File "/home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages/setuptools/dist.py",
+      line 1104, in run_command
+          super().run_command(command)
+        File
+      "/home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages/setuptools/_distutils/dist.py",
+      line 1021, in run_command
+          cmd_obj.run()
+        File
+      "/home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages/setuptools/command/editable_wheel.py",
+      line 139, in run
+          self._create_wheel_file(bdist_wheel)
+        File
+      "/home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages/setuptools/command/editable_wheel.py",
+      line 340, in _create_wheel_file
+          files, mapping = self._run_build_commands(dist_name, unpacked, lib, tmp)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        File
+      "/home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages/setuptools/command/editable_wheel.py",
+      line 263, in _run_build_commands
+          self._run_build_subcommands()
+        File
+      "/home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages/setuptools/command/editable_wheel.py",
+      line 290, in _run_build_subcommands
+          self.run_command(name)
+        File
+      "/home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages/setuptools/_distutils/cmd.py",
+      line 357, in run_command
+          self.distribution.run_command(command)
+        File "/home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages/setuptools/dist.py",
+      line 1104, in run_command
+          super().run_command(command)
+        File
+      "/home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages/setuptools/_distutils/dist.py",
+      line 1021, in run_command
+          cmd_obj.run()
+        File "<string>", line 382, in run
+        File
+      "/home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages/setuptools/command/build_ext.py",
+      line 99, in run
+          _build_ext.run(self)
+        File
+      "/home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages/setuptools/_distutils/command/build_ext.py",
+      line 368, in run
+          self.build_extensions()
+        File "<string>", line 341, in build_extensions
+        File "<string>", line 318, in configure
+        File "/nix/store/vnvdzw4182wb2ifzi0cczhv80yfnpx1q-python3-3.12.11/lib/python3.12/subprocess.py", line 413,
+      in check_call
+          raise CalledProcessError(retcode, cmd)
+      subprocess.CalledProcessError: Command '['cmake', '/home/runner/workspace', '-G',
+      'Ninja', '-DCMAKE_BUILD_TYPE=RelWithDebInfo', '-DAPHRODITE_TARGET_DEVICE=cpu',
+      '-DAPHRODITE_PYTHON_EXECUTABLE=/home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/bin/python',
+      '-DAPHRODITE_PYTHON_PATH=/nix/store/zz7i75jb78idaz0rb1y1i4rzdyxq28vf-sitecustomize/lib/python/site-packages:/nix/store/dlz9jb8127sn1mj7986p9s8r3nxjlcl7-python3.12-pip-25.0.1/lib/python3.12/site-packages:/nix/store/vnvdzw4182wb2ifzi0cczhv80yfnpx1q-python3-3.12.11/lib/python312.zip:/nix/store/vnvdzw4182wb2ifzi0cczhv80yfnpx1q-python3-3.12.11/lib/python3.12:/nix/store/vnvdzw4182wb2ifzi0cczhv80yfnpx1q-python3-3.12.11/lib/python3.12/lib-dynload:/home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages:/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages:/nix/store/x1zyfp26gnxkbbspkwhh3f9n13r3z18p-python3.12-setuptools-80.7.1/lib/python3.12/site-packages:/home/runner/workspace/.cache/uv/builds-v0/.tmpCY6pPB/lib/python3.12/site-packages/setuptools/_vendor',
+      '-DFETCHCONTENT_BASE_DIR=/home/runner/workspace/.deps', '-DCMAKE_JOB_POOL_COMPILE:STRING=compile',
+      '-DCMAKE_JOB_POOLS:STRING=compile=1']' returned non-zero exit status 1.
+
+      hint: This usually indicates a problem with the package or the build environment.
+exit status 1
