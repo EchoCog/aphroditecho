@@ -14,27 +14,36 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "aphrodite-engine"
-authors = [{name = "PygmalionAI"}]
-license = { file = "LICENSE" }
 readme = "README.md"
-description = "Serving LLMs at Scale"
+description = "Aphrodite Engine: An extremely high-performance inference engine for at-scale LLM serving. Built as an OpenAI API drop-in replacement."
+license = {file = "LICENSE"}
+maintainers = [
+    {name = "PygmalionAI", email = "contact@pygmalion.chat"},
+]
+authors = [
+    {name = "PygmalionAI", email = "contact@pygmalion.chat"},
+]
 classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GNU Affero General Public License v3",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
-    "Intended Audience :: Developers",
-    "Intended Audience :: Information Technology",
-    "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
-    "Topic :: Scientific/Engineering :: Information Analysis",
 ]
-requires-python = ">=3.9,<3.13"
-dynamic = [ "version", "dependencies", "optional-dependencies"]
+dynamic = ["version", "optional-dependencies"]
+requires-python = ">=3.9"
 
 [project.urls]
-Homepage="https://github.com/aphrodite-engine/aphrodite-engine"
-Documentation="https://aphrodite.pygmalion.chat"
+homepage = "https://pygmalion.chat"
+documentation = "https://aphrodite.pygmalion.chat"
+repository = "https://github.com/PygmalionAI/aphrodite-engine"
+"Bug Tracker" = "https://github.com/PygmalionAI/aphrodite-engine/issues"
 
 [project.scripts]
 aphrodite = "aphrodite.endpoints.cli.main:main"
