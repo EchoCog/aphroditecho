@@ -16,7 +16,7 @@ build-backend = "setuptools.build_meta"
 name = "aphrodite-engine"
 readme = "README.md"
 description = "Aphrodite Engine: An extremely high-performance inference engine for at-scale LLM serving. Built as an OpenAI API drop-in replacement."
-license = {file = "LICENSE"}
+license = "AGPL-3.0"
 maintainers = [
     {name = "PygmalionAI", email = "contact@pygmalion.chat"},
 ]
@@ -27,7 +27,6 @@ classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: GNU Affero General Public License v3",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.9",
@@ -36,7 +35,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
-dynamic = ["version"]
+dynamic = ["version", "optional-dependencies"]
 requires-python = ">=3.9"
 
 [project.urls]
