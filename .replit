@@ -3,7 +3,7 @@ run = "ls"
 
 [nix]
 channel = "stable-25_05"
-packages = ["libyaml"]
+packages = ["libyaml", "python313Packages.pytest"]
 
 [deployment]
 run = ["sh", "-c", "ls"]

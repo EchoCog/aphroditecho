@@ -1,0 +1,106 @@
+--> uv add pytest pyyaml setuptools setuptools-scm torch numpy packaging
+  × Failed to build `aphrodite-engine @ file:///home/runner/workspace`
+  ├─▶ The build backend returned an error
+  ╰─▶ Call to `setuptools.build_meta.build_editable` failed (exit status: 1)
+
+      [stdout]
+      configuration error: You cannot provide a value for `project.dependencies` and list it under `project.dynamic`
+      at the same time
+      DESCRIPTION:
+          According to PEP 621:  Build back-ends MUST raise an error if the metadata
+          specifies a field statically as well as being listed in dynamic.
+
+      GIVEN VALUE:
+          {
+              "dependencies": [
+                  "numpy",
+                  "packaging",
+                  "pytest",
+                  "pyyaml",
+                  "setuptools",
+                  "setuptools-scm",
+                  "torch"
+              ],
+              "...": " # ...",
+              "dynamic": [
+                  "version",
+                  "dependencies",
+                  "optional-dependencies"
+              ]
+          }
+
+      OFFENDING RULE: 'PEP 621'
+
+      DEFINITION:
+          {
+              "see": "https://packaging.python.org/en/latest/specifications/pyproject-toml/#dynamic"
+          }
+
+      [stderr]
+      /home/runner/workspace/.cache/uv/builds-v0/.tmpdRm0uZ/lib/python3.12/site-packages/torch/_subclasses/functional_tensor.py:276:
+      UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at
+      /pytorch/torch/csrc/utils/tensor_numpy.cpp:81.)
+        cpu = _conversion_method_template(device=torch.device("cpu"))
+      /home/runner/workspace/.cache/uv/builds-v0/.tmpdRm0uZ/lib/python3.12/site-packages/setuptools_scm/git.py:202:
+      UserWarning: "/home/runner/workspace" is shallow and may cause errors
+        warnings.warn(f'"{wd.path}" is shallow and may cause errors')
+      /nix/store/p79bgyzmmmddi554ckwzbqlavbkw07zh-bash-5.2p37/bin/sh: line 1: lsmod: command not found
+      /nix/store/p79bgyzmmmddi554ckwzbqlavbkw07zh-bash-5.2p37/bin/sh: line 1: lsmod: command not found
+      /home/runner/workspace/.cache/uv/builds-v0/.tmpdRm0uZ/lib/python3.12/site-packages/setuptools_scm/_integration/version_inference.py:51:
+      UserWarning: version of None already set
+        warnings.warn(self.message)
+      Traceback (most recent call last):
+        File "<string>", line 14, in <module>
+        File
+      "/home/runner/workspace/.cache/uv/builds-v0/.tmpdRm0uZ/lib/python3.12/site-packages/setuptools/build_meta.py",
+      line 473, in get_requires_for_build_editable
+          return self.get_requires_for_build_wheel(config_settings)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        File
+      "/home/runner/workspace/.cache/uv/builds-v0/.tmpdRm0uZ/lib/python3.12/site-packages/setuptools/build_meta.py",
+      line 331, in get_requires_for_build_wheel
+          return self._get_build_requires(config_settings, requirements=[])
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        File
+      "/home/runner/workspace/.cache/uv/builds-v0/.tmpdRm0uZ/lib/python3.12/site-packages/setuptools/build_meta.py",
+      line 301, in _get_build_requires
+          self.run_setup()
+        File
+      "/home/runner/workspace/.cache/uv/builds-v0/.tmpdRm0uZ/lib/python3.12/site-packages/setuptools/build_meta.py",
+      line 317, in run_setup
+          exec(code, locals())
+        File "<string>", line 672, in <module>
+        File "/home/runner/workspace/.cache/uv/builds-v0/.tmpdRm0uZ/lib/python3.12/site-packages/setuptools/__init__.py",
+      line 117, in setup
+          return distutils.core.setup(**attrs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        File
+      "/home/runner/workspace/.cache/uv/builds-v0/.tmpdRm0uZ/lib/python3.12/site-packages/setuptools/_distutils/core.py",
+      line 160, in setup
+          dist.parse_config_files()
+        File "/home/runner/workspace/.cache/uv/builds-v0/.tmpdRm0uZ/lib/python3.12/site-packages/_virtualenv.py", line
+      20, in parse_config_files
+          result = old_parse_config_files(self, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        File "/home/runner/workspace/.cache/uv/builds-v0/.tmpdRm0uZ/lib/python3.12/site-packages/setuptools/dist.py",
+      line 756, in parse_config_files
+          pyprojecttoml.apply_configuration(self, filename, ignore_option_errors)
+        File
+      "/home/runner/workspace/.cache/uv/builds-v0/.tmpdRm0uZ/lib/python3.12/site-packages/setuptools/config/pyprojecttoml.py",
+      line 72, in apply_configuration
+          config = read_configuration(filepath, True, ignore_option_errors, dist)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        File
+      "/home/runner/workspace/.cache/uv/builds-v0/.tmpdRm0uZ/lib/python3.12/site-packages/setuptools/config/pyprojecttoml.py",
+      line 140, in read_configuration
+          validate(subset, filepath)
+        File
+      "/home/runner/workspace/.cache/uv/builds-v0/.tmpdRm0uZ/lib/python3.12/site-packages/setuptools/config/pyprojecttoml.py",
+      line 61, in validate
+          raise ValueError(f"{error}\n{summary}") from None
+      ValueError: invalid pyproject.toml config: `project.dependencies`.
+      configuration error: You cannot provide a value for `project.dependencies` and list it under `project.dynamic`
+      at the same time
+
+      hint: This usually indicates a problem with the package or the build environment.
+exit status 1
