@@ -1,0 +1,113 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/** Global focus style override. */
+*:focus {
+  @apply outline-none outline-purple-400/50;
+}
+
+@layer base {
+  /**
+   * Scrollbar
+   */
+
+  ::-webkit-scrollbar {
+    @apply h-1 w-1;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-white/10;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-purple-600;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-purple-500;
+  }
+
+  /** For Firefox. */
+  .scrollbar {
+    scrollbar-color: rgb(152 64 160) transparent;
+    scrollbar-width: thin;
+  }
+
+  /**
+   * Focus/accessibility-related utilities.
+   */
+  ._focusable-base {
+    @apply transition-all duration-100;
+  }
+
+  .focusable-field {
+    @apply _focusable-base;
+    @apply bg-white/5 hover:bg-white/[0.075] active:bg-white/20;
+    @apply placeholder:text-white/25;
+  }
+
+  .focusable-icon-button {
+    @apply _focusable-base;
+    @apply text-white/50 hover:text-white focus:text-white;
+  }
+
+  /** Integrates with solid-router - highlights current selection. */
+  .focusable-icon-button.active {
+    @apply text-white;
+  }
+
+  /**
+   * Buttons.
+   */
+  .btn-base {
+    @apply flex gap-1;
+    @apply transition-colors duration-100;
+    @apply rounded-md px-3 py-2;
+  }
+
+  .btn-primary {
+    @apply btn-base;
+    @apply bg-purple-600 enabled:hover:bg-purple-500 enabled:active:bg-purple-400;
+    @apply disabled:cursor-not-allowed disabled:bg-purple-900 disabled:text-white/25;
+  }
+
+  .btn-secondary {
+    @apply btn-base;
+    @apply bg-stone-600 hover:bg-stone-500 active:bg-stone-400;
+  }
+
+  /**
+   * Cards.
+   */
+  .focusable-card {
+    @apply _focusable-base;
+    @apply max-h-96 max-w-[10rem];
+    @apply rounded-md shadow-md;
+    @apply bg-background-lighter hover:bg-zinc-900 active:bg-zinc-800;
+  }
+
+  /**
+   * Other form stuff.
+   */
+  .form-check-input:checked[type="radio"] {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%22-4 -4 8 8%22%3E%3Ccircle r=%222%22 fill=%22%23fff%22/%3E%3C/svg%3E");
+  }
+
+  input[type="range"] {
+    background: rgb(255 255 255 / 0.05);
+    background-image: linear-gradient(rgb(152 64 160), rgb(152 64 160));
+    background-repeat: no-repeat;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    background: rgb(152 64 160);
+    box-shadow: 0 0 2px 0 #555;
+  }
+
+  input[type="range"]::-webkit-slider-runnable-track {
+    box-shadow: none;
+    border: none;
+    background: transparent;
+  }
+}
