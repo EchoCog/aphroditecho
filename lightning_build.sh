@@ -6,12 +6,12 @@ set -e
 echo "🚀 Aphrodite Engine - Lightning Studios A100 Build"
 echo "=================================================="
 
-# Performance configuration for A100 instances
+# Performance configuration for H100/H200 instances (optimized)
 export APHRODITE_TARGET_DEVICE=cuda
 export CMAKE_BUILD_TYPE=Release
-export MAX_JOBS=32  # A100 instances typically have 16-32 cores
-export CCACHE_MAXSIZE=50G  # Ample cache for large C++/CUDA builds
-export CUDA_VISIBLE_DEVICES=0  # Use first A100
+export MAX_JOBS=64  # H100/H200 instances have more cores than A100
+export CCACHE_MAXSIZE=100G  # Larger cache for faster GPUs
+export CUDA_VISIBLE_DEVICES=0  # Use first GPU
 
 # Ensure CUDA environment
 export PATH=/usr/local/cuda/bin:$PATH

@@ -1,0 +1,38 @@
+name: aphrodite-personal-studio
+compute:
+  type: gpu-rtx  # Cost-effective GPU option for personal accounts
+  disk_size: 50   # Conservative disk size
+  auto_shutdown: 30  # Auto-shutdown after 30min idle for cost savings
+
+environment:
+  python_version: "3.11"
+  requirements:
+    - torch>=2.0.0
+    - transformers>=4.30.0
+    - lightning>=2.0.0
+
+cost_optimization:
+  enabled: true
+  max_runtime_hours: 4  # Prevent runaway costs
+  alert_threshold_usd: 10
+  budget_limit_monthly: 100
+
+personal_studio:
+  account_type: developer_pro
+  tier: personal
+  features:
+    - auto_shutdown
+    - cost_monitoring
+    - resource_optimization
+    - idle_detection
+
+build:
+  target_device: cuda
+  max_jobs: 8  # Conservative for personal tier
+  cache_size: 10G
+  
+monitoring:
+  resource_usage: true
+  cost_tracking: true
+  idle_detection: true
+  shutdown_idle_minutes: 30

@@ -11,16 +11,18 @@ import subprocess
 import time
 
 class AphroditeEngineApp(L.LightningWork):
-    """Lightning Work for building and running Aphrodite Engine"""
+    """Lightning Work for building and running Aphrodite Engine - Personal Developer Studio"""
     
     def __init__(self, **kwargs):
         super().__init__(
-            # Use A100 for the build process
-            cloud_compute=CloudCompute("gpu-rtx", disk_size=100),
+            # Use cost-effective GPU for personal developer pro account
+            cloud_compute=CloudCompute("gpu-rtx", disk_size=50, auto_shutdown=30),
             **kwargs
         )
         self.build_complete = False
         self.build_logs = []
+        self.personal_studio = True
+        self.cost_optimization = True
     
     def run(self):
         """Main execution - build and serve Aphrodite Engine"""
@@ -36,14 +38,15 @@ class AphroditeEngineApp(L.LightningWork):
         
         os.chdir("/tmp/aphroditecho")
         
-        # Step 2: Set up environment for A100 build
+        # Step 2: Set up environment for personal developer studio
         env = os.environ.copy()
         env.update({
             "APHRODITE_TARGET_DEVICE": "cuda",
             "CMAKE_BUILD_TYPE": "Release",
-            "MAX_JOBS": "16",  # Lightning instances typically have 16+ cores
-            "CCACHE_MAXSIZE": "30G",
-            "CUDA_VISIBLE_DEVICES": "0"
+            "MAX_JOBS": "8",  # Conservative for personal tier
+            "CCACHE_MAXSIZE": "10G",  # Reduced for cost optimization
+            "CUDA_VISIBLE_DEVICES": "0",
+            "PERSONAL_STUDIO_MODE": "true"
         })
         
         # Step 3: Install dependencies

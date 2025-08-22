@@ -13,18 +13,28 @@ from datetime import datetime
 from pathlib import Path
 
 class LightningManager:
-    """Helper class to manage Lightning AI deployments locally"""
+    """Helper class to manage Lightning AI deployments locally - Personal Developer Studio"""
     
     def __init__(self):
-        self.config_file = Path.home() / ".lightning_config.json"
+        self.config_file = Path.home() / ".lightning_personal_config.json"
         self.config = self.load_config()
+        self.account_type = "personal_developer_pro"
     
     def load_config(self):
-        """Load Lightning AI configuration"""
+        """Load Lightning AI configuration for personal developer account"""
+        default_config = {
+            "account_type": "personal_developer_pro",
+            "cost_optimization": True,
+            "auto_shutdown_minutes": 30,
+            "compute_type": "gpu-rtx"
+        }
+        
         if self.config_file.exists():
             with open(self.config_file, 'r') as f:
-                return json.load(f)
-        return {}
+                loaded_config = json.load(f)
+                default_config.update(loaded_config)
+                return default_config
+        return default_config
     
     def save_config(self):
         """Save Lightning AI configuration"""
@@ -32,17 +42,20 @@ class LightningManager:
             json.dump(self.config, f, indent=2)
     
     def create_deployment_script(self, build_type="cuda"):
-        """Create deployment script for Lightning AI"""
+        """Create deployment script for Lightning AI - Personal Developer Studio"""
         
         script_content = f'''#!/bin/bash
-# Generated Lightning AI deployment script
+# Generated Lightning AI deployment script - Personal Developer Pro
 # Created: {datetime.now().isoformat()}
 # Build Type: {build_type}
+# Account: Personal Developer Pro Studio
 
 set -e
 
-echo "🚀 Aphrodite Engine Lightning AI Deployment"
-echo "============================================"
+echo "🏠 Personal Developer Pro - Aphrodite Engine Lightning AI Deployment"
+echo "=================================================================="
+echo "💰 Cost Optimization: Enabled"
+echo "⏱️ Auto-shutdown: 30 minutes idle"
 
 # Clone repository
 git clone https://github.com/EchoCog/aphroditecho.git /tmp/aphroditecho
