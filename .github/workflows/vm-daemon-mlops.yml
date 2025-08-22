@@ -147,7 +147,7 @@ jobs:
     name: 🎯 AAR Core Orchestration
     runs-on: ubuntu-latest
     needs: validate-echo-architecture
-    if: needs.validate-echo-architecture.outputs.has-aar-core == 'true' && env.AAR_CORE_ENABLED == 'true'
+    if: needs.validate-echo-architecture.outputs.has-aar-core == 'true' && (github.event.inputs.enable_aar_core == 'true' || github.event.inputs.enable_aar_core == null)
     timeout-minutes: 20
     
     steps:
@@ -222,7 +222,7 @@ jobs:
     name: 🧬 Echo-Self AI Evolution
     runs-on: ubuntu-latest
     needs: validate-echo-architecture
-    if: needs.validate-echo-architecture.outputs.has-echo-self == 'true' && env.ECHO_EVOLUTION_ENABLED == 'true'
+    if: needs.validate-echo-architecture.outputs.has-echo-self == 'true' && (github.event.inputs.enable_echo_evolution == 'true' || github.event.inputs.enable_echo_evolution == null)
     timeout-minutes: 30
     
     steps:
