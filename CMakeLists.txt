@@ -31,7 +31,7 @@ install(CODE "set(CMAKE_INSTALL_LOCAL_ONLY TRUE)" ALL_COMPONENTS)
 # Supported python versions.  These versions will be searched in order, the
 # first match will be selected.  These should be kept in sync with setup.py.
 #
-set(PYTHON_SUPPORTED_VERSIONS "3.9" "3.10" "3.11" "3.12")
+set(PYTHON_SUPPORTED_VERSIONS "3.9" "3.10" "3.11" "3.12" "3.13")
 
 # Supported AMD GPU architectures.
 set(HIP_SUPPORTED_ARCHS "gfx906;gfx908;gfx90a;gfx942;gfx950;gfx1030;gfx1100;gfx1101;gfx1200;gfx1201")
@@ -66,6 +66,20 @@ endif()
 #
 append_cmake_prefix_path("torch" "torch.utils.cmake_prefix_path")
 
+#
+# Forward the non-CUDA device extensions to external CMake scripts.
+# This must be done before importing Torch to avoid CUDA detection issues.
+#
+if (NOT APHRODITE_TARGET_DEVICE STREQUAL "cuda" AND
+    NOT APHRODITE_TARGET_DEVICE STREQUAL "rocm")
+    if (APHRODITE_TARGET_DEVICE STREQUAL "cpu")
+        include(${CMAKE_CURRENT_LIST_DIR}/cmake/cpu_extension.cmake)
+    else()
+        return()
+    endif()
+    return()
+endif()
+
 # Ensure the 'nvcc' command is in the PATH
 find_program(NVCC_EXECUTABLE nvcc)
 if (CUDA_FOUND AND NOT NVCC_EXECUTABLE)
@@ -87,19 +101,6 @@ if(DEFINED CMAKE_CUDA_COMPILER_VERSION AND
   set(CUDA_SUPPORTED_ARCHS "6.0;6.1;7.0;7.2;7.5;8.0;8.6;8.7;8.9;9.0;10.0;10.1;12.0")
 else()
   set(CUDA_SUPPORTED_ARCHS "6.0;6.1;7.0;7.2;7.5;8.0;8.6;8.7;8.9;9.0")
-endif()
-
-#
-# Forward the non-CUDA device extensions to external CMake scripts.
-#
-if (NOT APHRODITE_TARGET_DEVICE STREQUAL "cuda" AND
-    NOT APHRODITE_TARGET_DEVICE STREQUAL "rocm")
-    if (APHRODITE_TARGET_DEVICE STREQUAL "cpu")
-        include(${CMAKE_CURRENT_LIST_DIR}/cmake/cpu_extension.cmake)
-    else()
-        return()
-    endif()
-    return()
 endif()
 
 #
