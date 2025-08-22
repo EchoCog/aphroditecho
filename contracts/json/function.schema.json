@@ -7,7 +7,22 @@
   "properties": {
     "name": {"type": "string", "pattern": "^[a-zA-Z0-9_.-]{3,64}$"},
     "description": {"type": "string", "maxLength": 4096},
-    "params": {"type": "object"},
+    "params": {
+      "type": "object",
+      "description": "Map of parameter name -> specification",
+      "propertyNames": {"pattern": "^[A-Za-z_][A-Za-z0-9_]{0,63}$"},
+      "additionalProperties": {
+        "type": "object",
+        "required": ["type", "description"],
+        "properties": {
+          "type": {"type": "string", "maxLength": 64},
+          "description": {"type": "string", "maxLength": 1024},
+          "required": {"type": "boolean"},
+          "default": {}
+        },
+        "additionalProperties": true
+      }
+    },
     "safety_class": {"type": "string", "enum": ["low", "medium", "high", "critical"]},
     "cost_unit": {"type": "number", "minimum": 0},
     "impl_ref": {"type": "string"},
