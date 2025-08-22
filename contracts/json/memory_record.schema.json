@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://echo.cog/contracts/memory_record.schema.json",
+  "title": "MemoryRecord",
+  "type": "object",
+  "required": ["id", "type", "content", "created_at"],
+  "properties": {
+    "id": {"type": "string", "pattern": "^[a-zA-Z0-9_.-]{3,64}$"},
+    "type": {"type": "string", "enum": ["working", "episodic", "semantic", "procedural", "proprioceptive"]},
+    "content": {"type": "string", "maxLength": 65536},
+    "metadata": {"type": "object", "additionalProperties": true},
+    "created_at": {"type": "string", "format": "date-time"},
+    "ttl": {"type": "number", "minimum": 0},
+    "tags": {"type": "array", "items": {"type": "string"}},
+    "source_agent": {"type": "string"},
+    "arena_id": {"type": "string"},
+    "vector_embedding": {"type": "array", "items": {"type": "number"}}
+  },
+  "additionalProperties": false
+}

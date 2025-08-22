@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://echo.cog/contracts/arena_session.schema.json",
+  "title": "ArenaSession",
+  "type": "object",
+  "required": ["id", "name", "created_at", "state", "agents", "memory_scope_ids", "events"],
+  "properties": {
+    "id": {"type": "string", "pattern": "^[a-zA-Z0-9_.-]{3,64}$"},
+    "name": {"type": "string", "maxLength": 256},
+    "description": {"type": "string", "maxLength": 1024},
+    "created_at": {"type": "string", "format": "date-time"},
+    "state": {"type": "string", "enum": ["creating", "active", "paused", "closing", "closed"]},
+    "agents": {"type": "array", "items": {"type": "string"}},
+    "memory_scope_ids": {"type": "array", "items": {"type": "string"}},
+    "events": {"type": "array", "items": {"$ref": "#/definitions/ArenaEvent"}},
+    "metadata": {"type": "object", "additionalProperties": true}
+  },
+  "definitions": {
+    "ArenaEvent": {
+      "type": "object",
+      "required": ["id", "timestamp", "event_type"],
+      "properties": {
+        "id": {"type": "string"},
+        "timestamp": {"type": "string", "format": "date-time"},
+        "event_type": {"type": "string"},
+        "agent_id": {"type": "string"},
+        "data": {"type": "object", "additionalProperties": true},
+        "metadata": {"type": "object", "additionalProperties": true}
+      }
+    }
+  },
+  "additionalProperties": false
+}
