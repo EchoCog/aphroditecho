@@ -5,7 +5,7 @@
 set -e
 
 # Configuration
-LIGHTNING_SSH_HOST="s_01k361x7zy5me4s7s01d24cqzc@ssh.lightning.ai"
+LIGHTNING_SSH_HOST="s_01k38606vyrx8vgc38h5wm9rd9@ssh.lightning.ai"
 REMOTE_WORK_DIR="/tmp/aphroditecho-build"
 LOCAL_REPO_DIR="/workspaces/aphroditecho"
 
