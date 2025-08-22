@@ -44,10 +44,10 @@ name: 🚀 Aphrodite Engine Build Automation
         type: boolean
 
 env:
-  # Build configuration
+  # Build configuration - OPTIMIZED for complex builds
   CMAKE_BUILD_TYPE: Release
-  MAX_JOBS: 2
-  CCACHE_MAXSIZE: 2G
+  MAX_JOBS: 8  # Increased from 2 - significant improvement
+  CCACHE_MAXSIZE: 20G  # Increased from 2G - essential for C++/CUDA builds
   # Echo Systems configuration
   ECHO_ENABLE_DEEP_TREE: true
   ECHO_ENABLE_VM_DAEMON: true
@@ -128,7 +128,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     needs: code-quality
     if: needs.code-quality.outputs.should-build == 'true'
-    timeout-minutes: 120  # 2 hours for complex builds
+    timeout-minutes: 2400  # 40 hours - realistic for 347-step CUDA builds
     continue-on-error: ${{ matrix.experimental }}
     
     strategy:
