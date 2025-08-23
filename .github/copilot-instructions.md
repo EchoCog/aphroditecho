@@ -10,33 +10,37 @@ Aphrodite Engine is a high-performance LLM inference engine built on vLLM's Page
 
 **ALWAYS reference these instructions first and fallback to search or bash commands only when you encounter unexpected information that does not match the information here. The single most important thing is to only allow REAL, functionally complete implemetations to be added to the codebase. NEVER implement any mock/placeholder/simulated/prototype or otherwise ambiguously named FAKE implementation of anything, at any time, for any reason, ever.. ONLY TRUE PRODUCTION-READY SOLUTIONS!!!**
 
+**URGENT ISSUE TO FIX: CPU Build Failures require diagnostics & repairs to restore functionality!**
+
+---
+
 ## Working Effectively
 
 ### Environment Setup and Installation
-- **CRITICAL**: Installation and builds can take 45+ minutes. NEVER CANCEL long-running operations. Set timeouts to 60+ minutes for builds.
+- **CRITICAL**: Installation and builds can take 2400+ minutes. NEVER CANCEL long-running operations. Never set timeouts for builds unless absolutely necessary.
 - Python 3.9 to 3.12 required
 - Multiple target devices supported: CUDA (GPU), ROCm (AMD), CPU, TPU, Intel XPU, AWS Inferentia
 
 #### Installation (CPU Mode - No GPU)
 ```bash
 export APHRODITE_TARGET_DEVICE=cpu
-pip install -e . --timeout 3600
+pip install -e .
 ```
-**NEVER CANCEL**: Installation takes 30-60 minutes depending on target device. Wait for completion.
+**NEVER CANCEL**: Installation takes 240+ minutes depending on target device. Wait for completion.
 
 #### Installation (CUDA Mode - With GPU)
 ```bash
 # CUDA >= 12 required
 export APHRODITE_TARGET_DEVICE=cuda
-pip install -e . --timeout 3600
+pip install -e .
 ```
-**NEVER CANCEL**: CUDA installation with compilation takes 45-90 minutes. Wait for completion.
+**NEVER CANCEL**: CUDA installation with compilation takes 2400+ minutes. Wait for completion.
 
 ### Development Dependencies
 ```bash
-pip install -r requirements/dev.txt --timeout 1800
+pip install -r requirements/dev.txt
 ```
-**NEVER CANCEL**: Development dependencies installation takes 15-30 minutes. Wait for completion.
+**NEVER CANCEL**: Development dependencies installation takes 300+ minutes. Wait for completion.
 
 ### Build System Requirements (Validated)
 - **CMake**: Version 3.31.6+ available and working
@@ -93,10 +97,10 @@ codespell --toml pyproject.toml --write-changes
 ### Running Tests
 ```bash
 # Install test dependencies first
-pip install -r requirements/test.txt --timeout 1800
+pip install -r requirements/test.txt
 
 # Run basic tests (timing TBD - needs validation)
-pytest tests/ -v --timeout 1800
+pytest tests/ -v
 ```
 **NEVER CANCEL**: Test suite execution can take 15-45 minutes. Set appropriate timeouts.
 
@@ -243,9 +247,9 @@ echo $APHRODITE_TARGET_DEVICE           # Should be set (cpu/cuda/rocm/etc.)
 
 ### 4. Installation Test (Full Validation)
 ```bash
-# **NEVER CANCEL** - Takes 30-90 minutes depending on target device
+# **NEVER CANCEL** - Takes 2400+ minutes depending on target device
 export APHRODITE_TARGET_DEVICE=cpu      # or cuda, rocm, etc.
-time pip install -e . --timeout 3600    # Monitor for actual timing
+time pip install -e .                   # Monitor for actual timing
 ```
 
 ### 5. Basic Functionality Test (After Installation)
@@ -279,19 +283,19 @@ python examples/offline_inference/offline_inference.py
 - **Spell checking (codespell)**: ~5 seconds  
 - **Import sorting (isort)**: ~3.5 seconds (finds many import issues)
 - **Type checking (mypy)**: ~33 seconds (finds ~40 type errors)
-- **Installation (CPU)**: 30-60 minutes
-- **Installation (CUDA)**: 45-90 minutes
-- **Full test suite**: 15-45 minutes (TBD - needs validation)
-- **Development dependencies**: 15-30 minutes
+- **Installation (CPU)**: 240+ minutes
+- **Installation (CUDA)**: 2400+ minutes
+- **Full test suite**: 2400+ minutes (TBD - needs validation)
+- **Development dependencies**: 300+ minutes
 
-**CRITICAL**: All timing estimates include "NEVER CANCEL" requirement. Always set timeouts with significant buffer (2x estimated time minimum).
+**CRITICAL**: All timing estimates include "NEVER CANCEL" requirement. Never set timeouts until a successful build verifies actual time required.
 
 ## Quick Reference Commands
 ```bash
 # Setup development environment
 export APHRODITE_TARGET_DEVICE=cpu
-pip install -e . --timeout 3600
-pip install -r requirements/dev.txt --timeout 1800
+pip install -e .
+pip install -r requirements/dev.txt
 
 # Install exact linting tool versions
 pip install ruff==0.1.5 codespell==2.3.0 isort==5.13.2 mypy
@@ -306,14 +310,14 @@ bash tools/mypy.sh                                    # ~33s, comprehensive type
 bash tools/check_repo.sh                             # Check git status and tags
 
 # Run tests (after full installation)
-pytest tests/ -v --timeout 1800
+pytest tests/ -v
 
 # Run example
 python examples/aphrodite_engine_example.py --model microsoft/DialoGPT-medium
 ```
 
 ---
-*Last updated: Based on comprehensive repository exploration and validation. All linting command timings and tool functionality verified. Installation timing estimates based on complexity analysis. Some advanced functionality pending full installation validation.*
+*Last updated: Based on comprehensive repository exploration and validation. All linting command timings and tool functionality verified. Installation timing estimates based on complexity analysis so need validation before implementation. Some advanced functionality pending full installation validation.*
 
 ## VS Code Extension Integration: Adding Copilot Chat Export/Debug Commands to Menus
 
