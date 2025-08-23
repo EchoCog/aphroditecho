@@ -91,6 +91,7 @@ jobs:
       - name: 🧠 Validate Deep Tree Echo Architecture
         id: validation
         run: |
+          set -e
           echo "::group::Architecture Validation"
           
           # Check for core architecture files
@@ -104,7 +105,7 @@ jobs:
           for file in "${architecture_files[@]}"; do
             if [ -f "$file" ]; then
               echo "✅ Found $file"
-              ((valid_count++))
+              valid_count=$((valid_count + 1))
             else
               echo "❌ Missing $file"
             fi
@@ -121,13 +122,16 @@ jobs:
             fi
           done
           
-          # Set validation result
+          # Set validation result and exit with appropriate code
           if [ $valid_count -gt 0 ]; then
             echo "architecture-valid=true" >> $GITHUB_OUTPUT
+            echo "::endgroup::"
+            exit 0
           else
             echo "architecture-valid=false" >> $GITHUB_OUTPUT
+            echo "::endgroup::"
+            exit 1
           fi
-          echo "::endgroup::"
 
       - name: 📊 Generate Architecture Report
         run: |
