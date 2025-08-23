@@ -17,6 +17,11 @@ set(ENABLE_AVX512VNNI $ENV{APHRODITE_CPU_AVX512VNNI})
 
 include_directories("${CMAKE_SOURCE_DIR}/kernels")
 
+#
+# Import PyTorch for CPU extensions to access torch headers and libraries
+#
+find_package(Torch REQUIRED)
+message(STATUS "Found PyTorch ${Torch_VERSION}")
 
 set (ENABLE_NUMA TRUE)
 
