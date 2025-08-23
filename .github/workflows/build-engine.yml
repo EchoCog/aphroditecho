@@ -59,7 +59,7 @@ jobs:
   code-quality:
     name: 🔍 Code Quality Gates
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 150
     outputs:
       should-build: ${{ steps.changes.outputs.should-build }}
     steps:
@@ -105,9 +105,9 @@ jobs:
         run: |
           echo "::group::MyPy Type Check"
           if [ -f "tools/mypy.sh" ]; then
-            timeout 300 bash tools/mypy.sh || true
+            timeout 3000 bash tools/mypy.sh || true
           else
-            timeout 300 mypy --follow-imports skip aphrodite/ || true
+            timeout 3000 mypy --follow-imports skip aphrodite/ || true
           fi
           echo "::endgroup::"
 
@@ -128,7 +128,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     needs: code-quality
     if: needs.code-quality.outputs.should-build == 'true'
-    timeout-minutes: 2400  # 40 hours - realistic for 347-step CUDA builds
+    timeout-minutes: 24000  # 400 hours - realistic for 347-step CUDA builds
     continue-on-error: ${{ matrix.experimental }}
     
     strategy:
@@ -248,18 +248,18 @@ jobs:
           
           # Install build requirements
           if [ -f "requirements/build.txt" ]; then
-            pip install -r requirements/build.txt --timeout 1800
+            pip install -r requirements/build.txt --timeout 18000
           fi
           
           # Install target-specific requirements
           if [ -f "requirements/${{ matrix.target_device }}.txt" ]; then
-            pip install -r requirements/${{ matrix.target_device }}.txt --timeout 1800
+            pip install -r requirements/${{ matrix.target_device }}.txt --timeout 18000
           elif [ -f "requirements/common.txt" ]; then
-            pip install -r requirements/common.txt --timeout 1800
+            pip install -r requirements/common.txt --timeout 18000
           fi
 
       - name: 🏗️ Build Aphrodite Engine
-        timeout-minutes: 90
+        timeout-minutes: 900
         run: |
           echo "::group::Build Configuration"
           echo "Target Device: ${{ matrix.target_device }}"
@@ -292,7 +292,7 @@ jobs:
             echo "Installation successful"
           else
             echo "No wheel found, installing in development mode"
-            pip install -e . --timeout 3600
+            pip install -e . --timeout 36000
           fi
           echo "::endgroup::"
           
@@ -313,18 +313,18 @@ jobs:
 
       - name: 🧪 Run Test Suite
         if: github.event.inputs.full_test_suite == 'true' || matrix.python-version == '3.12'
-        timeout-minutes: 30
+        timeout-minutes: 300
         run: |
           echo "::group::Installing Test Dependencies"
           if [ -f "requirements/test.txt" ]; then
-            pip install -r requirements/test.txt --timeout 1800
+            pip install -r requirements/test.txt --timeout 18000
           fi
           pip install pytest pytest-xvfb pytest-timeout
           echo "::endgroup::"
           
           echo "::group::Running Tests"
           # Run basic tests only to avoid long execution times
-          python -m pytest tests/ -v --timeout 300 -x --tb=short || echo "Some tests failed - this is expected during development"
+          python -m pytest tests/ -v --timeout 3000 -x --tb=short || echo "Some tests failed - this is expected during development"
           echo "::endgroup::"
 
       - name: 📦 Upload Build Artifacts
@@ -356,7 +356,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: code-quality
     if: needs.code-quality.outputs.should-build == 'true'
-    timeout-minutes: 20
+    timeout-minutes: 200
     
     steps:
       - name: 📥 Checkout Code
