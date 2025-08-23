@@ -1,7 +1,7 @@
 #include <cudaTypedefs.h>
 
 #include <c10/cuda/CUDAGuard.h>
-#include <torch/all.h>
+#include <torch/torch.h>
 
 #include <iostream>
 

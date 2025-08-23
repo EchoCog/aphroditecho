@@ -1,7 +1,7 @@
 #include <cudaTypedefs.h>
 
 #include <c10/cuda/CUDAGuard.h>
-#include <torch/all.h>
+#include <torch/torch.h>
 
 #include "cutlass/cutlass.h"
 #include "grouped_mm_c3x.cuh"

@@ -5,7 +5,7 @@
 #include <altivec.h>
 #include <cmath>
 #include <algorithm>
-#include <torch/all.h>
+#include <torch/torch.h>
 
 namespace vec_op {
 

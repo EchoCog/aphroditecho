@@ -7,7 +7,7 @@ Shang and Dang, Xingyu and Han, Song}, journal={arXiv}, year={2023}
 }
  */
 
-#include <torch/all.h>
+#include <torch/torch.h>
 #include <c10/cuda/CUDAGuard.h>
 
 #include "dequantize.cuh"

@@ -2,7 +2,7 @@
 
 #include <ATen/cuda/CUDAContext.h>
 #include <c10/cuda/CUDAGuard.h>
-#include <torch/all.h>
+#include <torch/torch.h>
 
 // clang-format off
 // The cutlass include order matters (annoyingly)

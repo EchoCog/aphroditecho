@@ -6,7 +6,7 @@
 
 #include <cuda_fp8.h>
 
-#include <torch/all.h>
+#include <torch/torch.h>
 
 #include "../vectorization.cuh"
 #include "../vectorization_utils.cuh"

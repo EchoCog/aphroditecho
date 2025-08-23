@@ -9,7 +9,7 @@
 #include <ATen/core/Tensor.h>
 #include <ATen/cuda/CUDAContext.h>
 #include <ATen/DeviceGuard.h>
-#include <torch/all.h>
+#include <torch/torch.h>
 #include <c10/cuda/CUDAGuard.h>
 
 template <typename U, typename V>

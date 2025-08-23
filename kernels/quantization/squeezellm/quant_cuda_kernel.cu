@@ -1,4 +1,4 @@
-#include <torch/all.h>
+#include <torch/torch.h>
 #include <cuda.h>
 #include <cuda_runtime.h>
 #include <cuda_fp16.h>

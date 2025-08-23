@@ -1,5 +1,5 @@
 #include <stddef.h>
-#include <torch/all.h>
+#include <torch/torch.h>
 #include "cutlass/cutlass.h"
 
 #include "scaled_mm_c2x.cuh"

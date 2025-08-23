@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <torch/all.h>
+#include <torch/torch.h>
 
 #if defined ENABLE_CUTLASS_MLA && ENABLE_CUTLASS_MLA
 void cutlass_mla_decode_sm100a(torch::Tensor const& out,

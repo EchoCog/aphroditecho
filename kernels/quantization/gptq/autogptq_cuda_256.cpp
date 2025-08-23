@@ -1,4 +1,4 @@
-#include <torch/all.h>
+#include <torch/torch.h>
 #include <torch/python.h>
 #include <c10/cuda/CUDAGuard.h>
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 #pragma once
-#include <torch/all.h>
+#include <torch/torch.h>
 #include <cuda_fp16.h>
 #include <cuda_runtime.h>
 #include "decoder_xqa_impl_common.h"

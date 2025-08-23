@@ -3,7 +3,7 @@
 #define CPU_TYPES_X86_HPP
 
 #include <immintrin.h>
-#include <torch/all.h>
+#include <torch/torch.h>
 
 #ifndef __AVX2__
 static_assert(false, "AVX2 must be supported for the current implementation.");

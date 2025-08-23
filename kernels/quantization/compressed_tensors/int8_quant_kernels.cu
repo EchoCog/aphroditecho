@@ -1,5 +1,5 @@
 #include <ATen/cuda/CUDAContext.h>
-#include <torch/all.h>
+#include <torch/torch.h>
 
 #ifndef USE_ROCM
   #include "../per_token_group_quant_8bit.h"

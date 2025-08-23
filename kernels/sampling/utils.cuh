@@ -22,7 +22,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <vector>
-#include <torch/all.h>
+#include <torch/torch.h>
 
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)

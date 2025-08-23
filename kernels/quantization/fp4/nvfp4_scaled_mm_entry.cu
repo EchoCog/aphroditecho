@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <torch/all.h>
+#include <torch/torch.h>
 
 #if defined ENABLE_NVFP4_SM100 && ENABLE_NVFP4_SM100
 void cutlass_scaled_fp4_mm_sm100a(torch::Tensor& D, torch::Tensor const& A,

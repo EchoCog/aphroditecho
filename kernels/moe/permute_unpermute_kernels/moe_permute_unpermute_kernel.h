@@ -3,7 +3,7 @@
 // https://github.com/BBuf/tensorrt-llm-moe/tree/master
 
 #include <c10/core/ScalarType.h>
-#include <torch/all.h>
+#include <torch/torch.h>
 #include "dispatch.h"
 #include <cub/cub.cuh>
 #include <cub/device/device_radix_sort.cuh>

@@ -6,7 +6,7 @@ https://github.com/qwopqwop200/GPTQ-for-LLaMa
 #include <cstdint>
 #include <cstdio>
 
-#include <torch/all.h>
+#include <torch/torch.h>
 #include <c10/cuda/CUDAGuard.h>
 #include <ATen/cuda/CUDAContext.h>
 #include <cuda_runtime.h>
