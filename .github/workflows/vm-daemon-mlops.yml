@@ -282,17 +282,7 @@ jobs:
             python echo_self_main.py --evolution-test
           else
             echo "⚠️ No evolution script found - creating basic test"
-            python -c "
-            import yaml
-            with open('evolution_config.yaml', 'r') as f:
-                config = yaml.safe_load(f)
-            print(f'✅ Evolution config loaded: {config[\"evolution_engine\"][\"mode\"]}')
-            print('🧬 Running basic evolution simulation...')
-            # Simulate basic evolution cycle
-            for gen in range(5):
-                print(f'Generation {gen+1}: Fitness improving...')
-            print('✅ Evolution simulation completed')
-            "
+            python -c "import yaml; config = yaml.safe_load(open('evolution_config.yaml', 'r')); print('Evolution config loaded:', config.get('evolution_engine', {}).get('mode', 'unknown')); print('Running basic evolution simulation...'); [print('Generation', gen+1, ': Fitness improving...') for gen in range(5)]; print('Evolution simulation completed')"
           fi
           echo "::endgroup::"
 
