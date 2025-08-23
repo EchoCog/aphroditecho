@@ -203,12 +203,7 @@ jobs:
             python test_aar_core.py
           else
             echo "⚠️ No AAR Core tests found - creating basic validation"
-            python -c "
-            import json
-            with open('aar_config.json', 'r') as f:
-                config = json.load(f)
-            print(f'✅ AAR Config valid: {config}')
-            "
+            python -c "import json; config=json.load(open('aar_config.json')); print(f'✅ AAR Config valid: {config}')"
           fi
           echo "::endgroup::"
 
