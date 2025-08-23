@@ -1,5 +1,12 @@
 name: 🚀 Aphrodite Engine Build Automation
 
+# FIXED: Improved change detection and workflow triggers to prevent skipping builds
+# - Enhanced path filtering to include more relevant directories
+# - Improved change detection logic with better fallback mechanisms
+# - Added debug steps for troubleshooting workflow issues
+# - Added force_build option for manual testing
+# - Fixed YAML syntax issues
+
 "on":
   push:
     branches: [ main, develop ]
@@ -9,7 +16,12 @@ name: 🚀 Aphrodite Engine Build Automation
       - 'pyproject.toml'
       - 'requirements/**'
       - 'CMakeLists.txt'
+      - 'cmake/**'
       - '.github/workflows/build-engine.yml'
+      - 'kernels/**'
+      - 'tests/**'
+      - 'examples/**'
+      - 'docs/**'
   pull_request:
     branches: [ main, develop ]
     paths:
@@ -18,7 +30,12 @@ name: 🚀 Aphrodite Engine Build Automation
       - 'pyproject.toml'
       - 'requirements/**'
       - 'CMakeLists.txt'
+      - 'cmake/**'
       - '.github/workflows/build-engine.yml'
+      - 'kernels/**'
+      - 'tests/**'
+      - 'examples/**'
+      - 'docs/**'
   workflow_dispatch:
     inputs:
       target_device:
@@ -39,6 +56,11 @@ name: 🚀 Aphrodite Engine Build Automation
         type: boolean
       skip_cache:
         description: 'Skip build cache'
+        required: false
+        default: false
+        type: boolean
+      force_build:
+        description: 'Force build even if no changes detected'
         required: false
         default: false
         type: boolean
@@ -67,6 +89,48 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: 🔍 Debug Workflow Context
+        run: |
+          echo "::group::Workflow Debug Information"
+          echo "Event: ${{ github.event_name }}"
+          echo "Ref: ${{ github.ref }}"
+          echo "Ref name: ${{ github.ref_name }}"
+          echo "Base ref: ${{ github.base_ref }}"
+          echo "Head ref: ${{ github.head_ref }}"
+          echo "SHA: ${{ github.sha }}"
+          echo "Before: ${{ github.event.before }}"
+          echo "After: ${{ github.event.after }}"
+          echo "Actor: ${{ github.actor }}"
+          echo "Repository: ${{ github.repository }}"
+          echo "::endgroup::"
+
+      - name: 📁 Check Repository Structure
+        run: |
+          echo "::group::Repository Structure Check"
+          echo "Current directory: $(pwd)"
+          echo "Directory contents:"
+          ls -la
+          echo ""
+          echo "Aphrodite directory check:"
+          if [ -d "aphrodite" ]; then
+            echo "✅ aphrodite directory exists"
+            echo "Aphrodite directory contents:"
+            ls -la aphrodite/ | head -20
+            echo "Aphrodite file count: $(find aphrodite/ -type f | wc -l)"
+          else
+            echo "❌ aphrodite directory does not exist"
+          fi
+          echo ""
+          echo "Key files check:"
+          for file in setup.py pyproject.toml CMakeLists.txt; do
+            if [ -f "$file" ]; then
+              echo "✅ $file exists"
+            else
+              echo "❌ $file missing"
+            fi
+          done
+          echo "::endgroup::"
 
       - name: 🐍 Set up Python 3.12
         uses: actions/setup-python@v4
@@ -114,13 +178,61 @@ jobs:
       - name: 📊 Check if Build is Needed
         id: changes
         run: |
+          echo "::group::Change Detection"
+          echo "Event type: ${{ github.event_name }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Base ref: ${{ github.event.before }}"
+          echo "Head ref: ${{ github.event.after }}"
+          
+          # Always build for workflow_dispatch
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            echo "should-build=true" >> $GITHUB_OUTPUT
-          elif git diff --name-only ${{ github.event.before }}..${{ github.event.after }} | grep -E '\.(py|cpp|cu|h|hpp|cuh|cmake|txt)$|setup\.py|pyproject\.toml|requirements/'; then
-            echo "should-build=true" >> $GITHUB_OUTPUT
+            if [[ "${{ github.event.inputs.force_build }}" == "true" ]]; then
+              echo "should-build=true (workflow_dispatch with force_build)" >> $GITHUB_OUTPUT
+              echo "Build triggered by manual workflow dispatch with force_build"
+            else
+              echo "should-build=true (workflow_dispatch)" >> $GITHUB_OUTPUT
+              echo "Build triggered by manual workflow dispatch"
+            fi
+          # For push events, check if we're on main/develop and if relevant files changed
+          elif [[ "${{ github.event_name }}" == "push" ]]; then
+            if [[ "${{ github.ref_name }}" == "main" || "${{ github.ref_name }}" == "develop" ]]; then
+              # Get list of changed files
+              if [[ -n "${{ github.event.before }}" && -n "${{ github.event.after }}" ]]; then
+                changed_files=$(git diff --name-only ${{ github.event.before }}..${{ github.event.after }})
+              else
+                # Fallback: check last commit
+                changed_files=$(git diff --name-only HEAD~1 HEAD)
+              fi
+              
+              echo "Changed files:"
+              echo "$changed_files"
+              
+              # Check if any relevant files changed
+              if echo "$changed_files" | grep -E '^(aphrodite/|setup\.py|pyproject\.toml|requirements/|CMakeLists\.txt|\.github/workflows/build-engine\.yml)'; then
+                echo "should-build=true (relevant changes detected)" >> $GITHUB_OUTPUT
+                echo "Build triggered by relevant file changes"
+              else
+                echo "should-build=false (no relevant changes)" >> $GITHUB_OUTPUT
+                echo "No relevant changes detected, skipping build"
+              fi
+            else
+              echo "should-build=false (not on main/develop)" >> $GITHUB_OUTPUT
+              echo "Not on main/develop branch, skipping build"
+            fi
+          # For pull requests, always build if on main/develop
+          elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            if [[ "${{ github.base_ref }}" == "main" || "${{ github.base_ref }}" == "develop" ]]; then
+              echo "should-build=true (PR to main/develop)" >> $GITHUB_OUTPUT
+              echo "Build triggered by PR to main/develop"
+            else
+              echo "should-build=false (PR not to main/develop)" >> $GITHUB_OUTPUT
+              echo "PR not targeting main/develop, skipping build"
+            fi
           else
-            echo "should-build=false" >> $GITHUB_OUTPUT
+            echo "should-build=false (unknown event)" >> $GITHUB_OUTPUT
+            echo "Unknown event type, skipping build"
           fi
+          echo "::endgroup::"
 
   # Build Matrix - Multiple configurations
   build-matrix:
@@ -182,6 +294,19 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: 🔍 Debug Build Context
+        run: |
+          echo "::group::Build Matrix Debug Information"
+          echo "Matrix target device: ${{ matrix.target_device }}"
+          echo "Matrix Python version: ${{ matrix.python-version }}"
+          echo "Matrix OS: ${{ matrix.os }}"
+          echo "Matrix CUDA version: ${{ matrix.cuda-version || 'N/A' }}"
+          echo "Matrix experimental: ${{ matrix.experimental }}"
+          echo "Should build from code-quality: ${{ needs.code-quality.outputs.should-build }}"
+          echo "Event: ${{ github.event_name }}"
+          echo "Ref: ${{ github.ref }}"
+          echo "::endgroup::"
 
       - name: 🗂️ Free up disk space
         run: |
