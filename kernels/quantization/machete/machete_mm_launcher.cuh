@@ -1,6 +1,6 @@
 #pragma once
 
-#include <torch/all.h>
+#include <torch/torch.h>
 #include <Python.h>
 
 #include "machete_mm_kernel.cuh"

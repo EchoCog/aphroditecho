@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <torch/all.h>
+#include <torch/torch.h>
 
 #if (defined(ENABLE_NVFP4_SM100) && ENABLE_NVFP4_SM100) || \
     (defined(ENABLE_NVFP4_SM120) && ENABLE_NVFP4_SM120)

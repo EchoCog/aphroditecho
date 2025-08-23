@@ -256,6 +256,36 @@ jobs:
             pip install -r requirements/common.txt
           fi
 
+      - name: 📥 Download and Setup LibTorch
+        run: |
+          echo "::group::LibTorch Setup"
+          echo "Setting up LibTorch for C++ compilation..."
+          
+          # Download LibTorch based on target device
+          if [ "${{ matrix.target_device }}" = "cuda" ]; then
+            # CUDA version - use CUDA 12.1 compatible LibTorch
+            wget -nv https://download.pytorch.org/libtorch/cu121/libtorch-shared-with-deps-2.3.0%2Bcu121.zip
+            unzip -q libtorch-shared-with-deps-2.3.0+cu121.zip
+            echo "TORCH_DIR=$PWD/libtorch" >> $GITHUB_ENV
+            echo "CMAKE_PREFIX_PATH=$PWD/libtorch:$CMAKE_PREFIX_PATH" >> $GITHUB_ENV
+          elif [ "${{ matrix.target_device }}" = "rocm" ]; then
+            # ROCm version
+            wget -nv https://download.pytorch.org/libtorch/rocm5.7/libtorch-shared-with-deps-2.3.0%2Brocm5.7.zip
+            unzip -q libtorch-shared-with-deps-2.3.0+rocm5.7.zip
+            echo "TORCH_DIR=$PWD/libtorch" >> $GITHUB_ENV
+            echo "CMAKE_PREFIX_PATH=$PWD/libtorch:$CMAKE_PREFIX_PATH" >> $GITHUB_ENV
+          else
+            # CPU version
+            wget -nv https://download.pytorch.org/libtorch/cpu/libtorch-shared-with-deps-2.3.0%2Bcpu.zip
+            unzip -q libtorch-shared-with-deps-2.3.0+cpu.zip
+            echo "TORCH_DIR=$PWD/libtorch" >> $GITHUB_ENV
+            echo "CMAKE_PREFIX_PATH=$PWD/libtorch:$CMAKE_PREFIX_PATH" >> $GITHUB_ENV
+          fi
+          
+          echo "LibTorch installed at: $TORCH_DIR"
+          echo "CMAKE_PREFIX_PATH: $CMAKE_PREFIX_PATH"
+          echo "::endgroup::"
+
       - name: 🏗️ Build Aphrodite Engine
         run: |
           echo "::group::Build Configuration"
@@ -263,6 +293,8 @@ jobs:
           echo "Python Version: ${{ matrix.python-version }}"
           echo "MAX_JOBS: $MAX_JOBS"
           echo "CMAKE_BUILD_TYPE: $CMAKE_BUILD_TYPE"
+          echo "TORCH_DIR: $TORCH_DIR"
+          echo "CMAKE_PREFIX_PATH: $CMAKE_PREFIX_PATH"
           echo "::endgroup::"
           
           echo "::group::Build Process"
@@ -272,8 +304,15 @@ jobs:
           if [ -f ".github/workflows/scripts/build.sh" ]; then
             bash .github/workflows/scripts/build.sh ${{ matrix.python-version }} ${{ matrix.cuda-version || '12.4' }}
           else
-            # Fallback build process
-            python setup.py bdist_wheel --dist-dir=dist
+            # Fallback build process with CMake
+            mkdir -p build && cd build
+            cmake -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE \
+                  -DAPHRODITE_PYTHON_EXECUTABLE=$(which python) \
+                  -DAPHRODITE_TARGET_DEVICE=${{ matrix.target_device }} \
+                  -DTorch_DIR=$TORCH_DIR/share/cmake/Torch \
+                  ..
+            cmake --build . --target _C -j$MAX_JOBS
+            cd ..
           fi
           echo "::endgroup::"
           

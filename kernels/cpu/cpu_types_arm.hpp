@@ -1,5 +1,5 @@
 #include <arm_neon.h>
-#include <torch/all.h>
+#include <torch/torch.h>
 #include <cmath>
 
 #if defined(__APPLE__)

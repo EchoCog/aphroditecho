@@ -20,7 +20,7 @@
 #include "xqa_kernel_launcher.cuh"
 
 #include <ATen/cuda/CUDAContext.h>
-#include <torch/all.h>
+#include <torch/torch.h>
 #include "attention/attention_dtypes.h"
 #include "cuda_compat.h"
 #include "dispatch_utils.h"

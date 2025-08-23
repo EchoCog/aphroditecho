@@ -24,7 +24,7 @@ limitations under the License.
 #include <c10/cuda/CUDAGuard.h>
 #include <cutlass/cutlass.h>
 #include <cutlass/kernel_hardware_info.h>
-#include <torch/all.h>
+#include <torch/torch.h>
 
 #include <cute/tensor.hpp>
 #include <iostream>

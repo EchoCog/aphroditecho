@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <torch/all.h>
+#include <torch/torch.h>
 
 #include <cuda_runtime_api.h>
 #include <cuda_runtime.h>

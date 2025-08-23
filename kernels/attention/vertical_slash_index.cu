@@ -5,7 +5,7 @@
 
 #include <cuda.h>
 
-#include <torch/all.h>
+#include <torch/torch.h>
 
 __device__ int64_t save_blocks(int* block_offset, int64_t range_start,
                                int64_t range_end, int64_t block_size,

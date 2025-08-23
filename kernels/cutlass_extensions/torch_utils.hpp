@@ -1,6 +1,6 @@
 #pragma once
 
-#include <torch/all.h>
+#include <torch/torch.h>
 
 #include "cute/layout.hpp"
 #include "cutlass/layout/matrix.h"

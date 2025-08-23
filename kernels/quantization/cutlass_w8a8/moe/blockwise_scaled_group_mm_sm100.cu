@@ -1,6 +1,6 @@
 #include "core/registration.h"
 
-#include <torch/all.h>
+#include <torch/torch.h>
 #include <cutlass/arch/arch.h>
 
 #include <ATen/cuda/CUDAContext.h>

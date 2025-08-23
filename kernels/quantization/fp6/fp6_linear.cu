@@ -170,7 +170,7 @@ cudaError_t fpx_linear_kernel(
 }
 }  // namespace aphrodite
 
-#include <torch/all.h>
+#include <torch/torch.h>
 #include <ATen/ATen.h>
 #include <ATen/cuda/CUDAContext.h>
 #include <torch/library.h>

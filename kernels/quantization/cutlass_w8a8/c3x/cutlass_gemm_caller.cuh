@@ -2,7 +2,7 @@
 
 // clang-format will break include orders
 // clang-format off
-#include <torch/all.h>
+#include <torch/torch.h>
 
 #include <ATen/cuda/CUDAContext.h>
 

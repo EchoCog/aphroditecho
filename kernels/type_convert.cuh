@@ -1,6 +1,6 @@
 #pragma once
 
-#include <torch/all.h>
+#include <torch/torch.h>
 
 #ifndef USE_ROCM
   #include <cuda_bf16.h>

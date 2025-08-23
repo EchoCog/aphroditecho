@@ -4,7 +4,7 @@
  */
 #pragma once
 
-#include <torch/all.h>
+#include <torch/torch.h>
 
 // Need a special dispatch case macro since we will nest the FP8 dispatch.
 // Instead of the usual 'scalar_t', this names the dispatched type 'fp8_t'.

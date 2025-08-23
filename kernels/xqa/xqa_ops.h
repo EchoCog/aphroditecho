@@ -1,6 +1,6 @@
 #pragma once
 
-#include <torch/all.h>
+#include <torch/torch.h>
 
 void xqa_paged_attention(torch::Tensor& out, torch::Tensor& query,
                          torch::Tensor& key_value_cache, int64_t num_heads,

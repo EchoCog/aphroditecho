@@ -1,4 +1,4 @@
-#include <torch/all.h>
+#include <torch/torch.h>
 #include "cuda_utils.h"
 #include "cutlass_extensions/common.hpp"
 

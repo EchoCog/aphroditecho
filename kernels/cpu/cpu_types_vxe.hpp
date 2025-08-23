@@ -4,7 +4,7 @@
 
 #include <vecintrin.h>
 #include <cmath>
-#include <torch/all.h>
+#include <torch/torch.h>
 namespace vec_op {
 
 #define vec_neg(a) (-(a))

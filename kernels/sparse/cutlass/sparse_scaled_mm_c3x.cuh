@@ -4,7 +4,7 @@
 // clang-format off
 #include <cudaTypedefs.h>
 
-#include <torch/all.h>
+#include <torch/torch.h>
 
 #include <ATen/cuda/CUDAContext.h>
 

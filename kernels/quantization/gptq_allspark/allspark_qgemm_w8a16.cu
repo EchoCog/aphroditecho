@@ -1,5 +1,5 @@
 #include "allspark_utils.cuh"
-#include <torch/all.h>
+#include <torch/torch.h>
 #include "core/registration.h"
 #include <cublas_v2.h>
 

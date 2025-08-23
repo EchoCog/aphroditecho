@@ -1,4 +1,4 @@
-#include <torch/all.h>
+#include <torch/torch.h>
 #include <torch/python.h>
 #include <cuda.h>
 #include <cuda_runtime.h>

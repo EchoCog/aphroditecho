@@ -1,5 +1,5 @@
 #include <c10/core/ScalarType.h>
-#include <torch/all.h>
+#include <torch/torch.h>
 #include <ATen/cuda/CUDAContext.h>
 #include "permute_unpermute_kernels/moe_permute_unpermute_kernel.h"
 #include "permute_unpermute_kernels/dispatch.h"
