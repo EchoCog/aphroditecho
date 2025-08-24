@@ -17,7 +17,6 @@ import contextlib
 
 # Handle both absolute and relative imports
 try:
-    from core.interfaces import Individual, EvolutionConfig
     from core.evolution_engine import EchoSelfEvolutionEngine
 except ImportError:
     from .evolution_engine import EchoSelfEvolutionEngine
@@ -39,9 +38,9 @@ class PerformanceMetrics:
     def overall_score(self) -> float:
         """Calculate overall performance score (0.0 to 1.0)."""
         # Normalize and weight different metrics
-        latency_score = max(0.0, 1.0 - (self.latency_ms / 1000.0))  # Lower is better
-        throughput_score = min(1.0, self.throughput_tokens_per_sec / 100.0)  # Higher is better
-        memory_score = max(0.0, 1.0 - (self.memory_usage_mb / 8192.0))  # Lower is better
+        latency_score = max(0.0, 1.0 - (self.latency_ms / 1000.0))  # Lower
+        throughput_score = min(1.0, self.throughput_tokens_per_sec / 100.0)
+        memory_score = max(0.0, 1.0 - (self.memory_usage_mb / 8192.0))
         accuracy_score = self.accuracy_score  # Already normalized
         
         # Weighted combination
