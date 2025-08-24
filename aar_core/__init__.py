@@ -8,15 +8,15 @@ __version__ = "0.1.0"
 __author__ = "EchoCog Deep Tree Echo Team"
 
 from .orchestration.core_orchestrator import AARCoreOrchestrator
-# from .agents.agent_manager import AgentManager  # Placeholder
-# from .arena.simulation_engine import SimulationEngine  # Placeholder  
-# from .relations.relation_graph import RelationGraph  # Placeholder
+from .agents.agent_manager import AgentManager
+from .arena.simulation_engine import SimulationEngine  
+from .relations.relation_graph import RelationGraph
 
 __all__ = [
     'AARCoreOrchestrator',
-    # 'AgentManager',
-    # 'SimulationEngine', 
-    # 'RelationGraph'
+    'AgentManager',
+    'SimulationEngine', 
+    'RelationGraph'
 ]
 
 # Configuration defaults
