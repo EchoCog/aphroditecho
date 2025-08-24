@@ -1,7 +1,18 @@
 # 🏗️ Aphrodite Engine Architecture
 
-> **Comprehensive Technical Architecture Documentation**  
-> Deep dive into the design, components, and implementation details of Aphrodite Engine
+> **Comprehensive Technical Architecture Documentation with 4E Embodied AI Framework**  
+> Deep dive into the design, components, and implementation details of Aphrodite Engine with Deep Tree Echo Membrane Computing and Agent-Arena-Relation orchestration
+
+## 🎯 4E Embodied AI Framework Overview
+
+Aphrodite Engine integrates a comprehensive **4E Embodied AI Framework** through Deep Tree Echo Membrane Computing, implementing **Embodied**, **Embedded**, **Extended**, and **Enacted** artificial intelligence principles:
+
+- **🤖 Embodied**: Virtual body representation with sensory-motor integration and proprioceptive feedback loops
+- **🌐 Embedded**: Environment-coupled processing with real-time constraints and context awareness  
+- **🔧 Extended**: Cognitive scaffolding through external memory, tool use, and distributed processing
+- **⚡ Enacted**: Action-perception loops enabling emergent behaviors through environmental interaction
+
+This architecture enables MLOps & Dynamic Model Training configured as a 4E Embodied AI framework for Deep Tree Echo with Virtual mappings to Sensory-Motor analogues with Proprioceptive feedback loops.
 
 ## 📋 Table of Contents
 

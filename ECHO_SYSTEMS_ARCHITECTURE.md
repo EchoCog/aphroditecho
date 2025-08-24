@@ -4,7 +4,40 @@
 
 ## 🎯 Executive Summary
 
-This document provides a unified architectural overview of all Echo.* systems within the Aphrodite Engine ecosystem. These systems collectively implement a comprehensive 4E Embodied AI framework with Deep Tree Echo Membrane Computing, Echo-Self AI Evolution Engine, and Agent-Arena-Relation (AAR) orchestration.
+This document provides a unified architectural overview of all Echo.* systems within the Aphrodite Engine ecosystem. These systems collectively implement a comprehensive **4E Embodied AI framework** with Deep Tree Echo Membrane Computing, Echo-Self AI Evolution Engine, and Agent-Arena-Relation (AAR) orchestration.
+
+## 🎯 4E Embodied AI Framework Integration
+
+The Echo Systems architecture is fundamentally built upon the **4E Embodied AI framework**, implementing all four core cognitive principles:
+
+- **🤖 Embodied**: Virtual body representation with sensory-motor integration and proprioceptive feedback loops
+- **🌐 Embedded**: Real-time environment coupling with context-aware processing and resource constraints  
+- **🔧 Extended**: Cognitive scaffolding through external memory, tool use, and distributed processing
+- **⚡ Enacted**: Action-perception loops enabling emergent behaviors through environmental interaction
+
+### 4E Framework Implementation Details
+
+Each Echo system implements specific aspects of the 4E framework:
+
+#### Embodied Cognition Core
+- Sensory-Motor analogues with Virtual mappings to Proprioceptive feedback loops
+- MLOps & Dynamic Model Training through embodied learning principles
+- Physical simulation and sensory integration across all Echo systems
+
+#### Embedded Agent Dynamics  
+- Environment-coupled processing in real-time contexts
+- Resource-constrained optimization and hardware abstraction
+- Context-aware decision making integrated with Aphrodite Engine
+
+#### Enacted System Relations
+- Action-perception coupling through sensorimotor contingencies
+- Perceptual prediction and embodied interaction mechanisms
+- Emergence dynamics enabling adaptive cognitive behaviors
+
+#### Extended Cognitive Field
+- Distributed cognitive load balancing across Echo systems
+- External memory and tool manipulation capabilities
+- Multi-agent shared cognition and collaborative processing
 
 ## 🏗️ System Architecture Map
 
