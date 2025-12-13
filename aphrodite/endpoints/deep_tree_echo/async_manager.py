@@ -20,15 +20,15 @@ logger = logging.getLogger(__name__)
 class ConnectionPoolConfig:
     """Configuration for async connection pooling."""
     
-    max_connections: int = 500  # Enhanced for 10x capacity
-    min_connections: int = 50   # Maintain more idle connections
+    max_connections: int = 100  # Optimized for 37 concurrent streams with overhead
+    min_connections: int = 37   # Match target concurrent stream count
     connection_timeout: float = 15.0  # Reduced timeout for faster failover
     idle_timeout: float = 180.0  # Shorter idle timeout for better resource recycling
     max_retries: int = 3
     retry_delay: float = 0.05  # Faster retry for high throughput
     enable_keepalive: bool = True
     keepalive_interval: float = 30.0
-    max_concurrent_creates: int = 50  # Limit concurrent connection creation
+    max_concurrent_creates: int = 37  # Match target concurrent stream count
 
 
 @dataclass 

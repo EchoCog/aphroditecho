@@ -195,7 +195,7 @@ class DTESNProcessor:
         self,
         config: Optional[DTESNConfig] = None,
         engine: Optional[AsyncAphrodite] = None,
-        max_concurrent_processes: int = 100,  # Enhanced for 10x capacity
+        max_concurrent_processes: int = 37,  # Optimized for 37 concurrent streams
         enable_async_optimization: bool = True,
         enable_dynamic_config: bool = True,
     ):
@@ -234,7 +234,7 @@ class DTESNProcessor:
         self._data_pipeline: Optional[DataProcessingPipeline] = None
         self._pipeline_monitor: Optional[IntegratedDataPipelineMonitor] = None
         self._pipeline_config = PipelineConfiguration(
-            max_workers=min(max_concurrent_processes // 2, 16),  # Balance workers with concurrency
+            max_workers=min(max_concurrent_processes // 2, 18),  # Balance workers with concurrency for 37 streams
             enable_dynamic_batching=True,
             max_batch_size=1000,
             enable_vectorization=True,
@@ -295,7 +295,7 @@ class DTESNProcessor:
         self._data_pipeline: Optional[DataProcessingPipeline] = None
         self._pipeline_monitor: Optional[IntegratedDataPipelineMonitor] = None
         self._pipeline_config = PipelineConfiguration(
-            max_workers=min(max_concurrent_processes // 2, 16),  # Balance workers with concurrency
+            max_workers=min(max_concurrent_processes // 2, 18),  # Balance workers with concurrency for 37 streams
             enable_dynamic_batching=True,
             max_batch_size=1000,
             enable_vectorization=True,
@@ -327,7 +327,7 @@ class DTESNProcessor:
         self._data_pipeline: Optional[DataProcessingPipeline] = None
         self._pipeline_monitor: Optional[IntegratedDataPipelineMonitor] = None
         self._pipeline_config = PipelineConfiguration(
-            max_workers=min(max_concurrent_processes // 2, 16),  # Balance workers with concurrency
+            max_workers=min(max_concurrent_processes // 2, 18),  # Balance workers with concurrency for 37 streams
             enable_dynamic_batching=enable_dynamic_batching,
             max_batch_size=1000,
             enable_vectorization=True,

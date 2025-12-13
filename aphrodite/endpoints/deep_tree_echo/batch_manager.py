@@ -45,10 +45,10 @@ class BatchingMetrics:
 class BatchConfiguration:
     """Configuration for dynamic batch processing."""
     
-    # Base batch sizing
+    # Base batch sizing - optimized for 37 concurrent streams
     min_batch_size: int = 1
-    max_batch_size: int = 32
-    target_batch_size: int = 8
+    max_batch_size: int = 37
+    target_batch_size: int = 12
     
     # Load-aware adjustments
     low_load_threshold: float = 0.3
