@@ -873,6 +873,10 @@ class CachedDTESNSystem:
         # Always call the underlying system to keep state consistent
         result = self._system.update_system(global_input)
 
+        # Invalidate state-dependent cached entries
+        self._cache.invalidate_by_type(CacheEntryType.SYSTEM_SUMMARY)
+        self._cache.invalidate_by_type(CacheEntryType.PERFORMANCE_SUMMARY)
+
         # Store result in cache for future reference / monitoring
         self._cache.put(
             entry_type=CacheEntryType.SYSTEM_UPDATE,
