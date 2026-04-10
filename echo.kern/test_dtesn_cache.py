@@ -593,13 +593,14 @@ class TestCachedDTESNSystem(unittest.TestCase):
         )
         self.cached = CachedDTESNSystem(self.mock_system, self.config)
 
-    def test_update_system_caches_result(self):
+    def test_update_system_always_calls_underlying(self):
+        """update_system is stateful (mutates reservoir) so must always execute."""
         arr = np.array([1.0, 2.0, 3.0])
         result1 = self.cached.update_system(arr)
         result2 = self.cached.update_system(arr)
 
-        # Should only call underlying system once
-        self.assertEqual(self.mock_system.update_call_count, 1)
+        # Must call underlying system every time to keep state consistent
+        self.assertEqual(self.mock_system.update_call_count, 2)
         self.assertEqual(result1, result2)
 
     def test_update_system_different_inputs_not_cached(self):
@@ -650,31 +651,34 @@ class TestPerformanceImprovement(unittest.TestCase):
     """Validate caching achieves 50% improvement."""
 
     def test_cached_response_time_improvement(self):
-        """Measure that cached lookups are at least 50% faster than uncached."""
+        """Measure that cached lookups are at least 50% faster than uncached.
+
+        Uses get_system_summary() which is a read-only method that benefits
+        from caching.  update_system() is stateful and always executes, so
+        it is not suitable for demonstrating cache speed-up.
+        """
         mock_system = MockDTESNSystem()
 
         # Add artificial processing delay to simulate real DTESN computation
-        original_update = mock_system.update_system
+        original_summary = mock_system.get_system_summary
 
-        def slow_update(global_input):
+        def slow_summary():
             time.sleep(0.005)  # 5ms simulated processing time
-            return original_update(global_input)
+            return original_summary()
 
-        mock_system.update_system = slow_update
+        mock_system.get_system_summary = slow_summary
 
         config = CacheConfig(enable_l2=False)
         cached = CachedDTESNSystem(mock_system, config)
 
-        arr = np.random.random(10)
-
         # Warm up: first call (cache miss)
         start = time.perf_counter()
-        cached.update_system(arr)
+        cached.get_system_summary()
         uncached_time = time.perf_counter() - start
 
         # Second call (cache hit)
         start = time.perf_counter()
-        cached.update_system(arr)
+        cached.get_system_summary()
         cached_time = time.perf_counter() - start
 
         # Cached should be at least 50% faster

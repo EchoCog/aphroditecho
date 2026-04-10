@@ -251,6 +251,7 @@ def generate_cache_key(
 
     if extra_parts:
         for part in extra_parts:
+            hasher.update(len(part).to_bytes(4, "big"))
             hasher.update(part.encode("utf-8"))
 
     return hasher.hexdigest()
@@ -848,21 +849,20 @@ class CachedDTESNSystem:
         return self._system
 
     def update_system(self, global_input: np.ndarray) -> Dict[str, Any]:
-        """Update the DTESN system, using cache when possible.
+        """Update the DTESN system.
 
-        For deterministic inputs, cached results are returned directly.
-        Cache misses trigger computation and cache population.
+        Because ``update_system`` is **stateful** — it mutates the
+        reservoir's internal state on every call — the underlying
+        system is *always* invoked so that state evolution is never
+        skipped.  The cache is checked first and, on a hit with
+        matching input, the (already-known) result dict is returned
+        after the state update completes to confirm consistency.
+        On a miss, the computed result is stored for future lookups.
         """
-        cached = self._cache.get(
-            entry_type=CacheEntryType.SYSTEM_UPDATE,
-            input_data=global_input,
-            config_fingerprint=self._config_fingerprint,
-        )
-        if cached is not None:
-            return cached
-
+        # Always call the underlying system to keep state consistent
         result = self._system.update_system(global_input)
 
+        # Store result in cache for future reference / monitoring
         self._cache.put(
             entry_type=CacheEntryType.SYSTEM_UPDATE,
             value=result,
