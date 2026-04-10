@@ -18,7 +18,7 @@ import os
 import time
 import threading
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 from typing import Dict, Any, List, Tuple
 
 import numpy as np
@@ -26,11 +26,10 @@ import numpy as np
 # Ensure echo.kern is importable
 sys.path.insert(0, os.path.dirname(__file__))
 
-from dtesn_cache import (
+from dtesn_cache import (  # noqa: E402
     CacheConfig,
     CacheEntry,
     CacheEntryType,
-    CacheLevel,
     CacheStatistics,
     CachedDTESNSystem,
     DTESNCache,
@@ -250,7 +249,8 @@ class TestL1MemoryCache(unittest.TestCase):
 
     def test_memory_limit_eviction(self):
         # 500 bytes max
-        cache = L1MemoryCache(max_entries=100, max_memory_mb=500 / (1024 * 1024))
+        mb = 500 / (1024 * 1024)
+        cache = L1MemoryCache(max_entries=100, max_memory_mb=mb)
         cache.put(self._make_entry("k1", "v1", size=200))
         cache.put(self._make_entry("k2", "v2", size=200))
         # Adding a 200-byte entry should evict k1 to stay under 500 bytes
@@ -647,7 +647,7 @@ class TestCachedDTESNSystem(unittest.TestCase):
 
 
 class TestPerformanceImprovement(unittest.TestCase):
-    """Validate that caching achieves the 50% response time improvement target."""
+    """Validate caching achieves 50% improvement."""
 
     def test_cached_response_time_improvement(self):
         """Measure that cached lookups are at least 50% faster than uncached."""
@@ -683,7 +683,8 @@ class TestPerformanceImprovement(unittest.TestCase):
             improvement,
             0.50,
             f"Cache improvement {improvement:.1%} did not meet 50% target. "
-            f"Uncached: {uncached_time*1000:.2f}ms, Cached: {cached_time*1000:.2f}ms",
+            f"Uncached: {uncached_time*1000:.2f}ms, "
+            f"Cached: {cached_time*1000:.2f}ms",
         )
 
     def test_bulk_lookup_performance(self):

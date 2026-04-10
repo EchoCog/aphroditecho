@@ -42,7 +42,7 @@ import time
 from collections import OrderedDict
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
@@ -90,7 +90,7 @@ class CacheConfig:
     entry_ttls: Dict[str, float] = field(default_factory=lambda: {
         CacheEntryType.SYSTEM_UPDATE.value: 60.0,       # 1 min — dynamic
         CacheEntryType.SYSTEM_SUMMARY.value: 120.0,     # 2 min
-        CacheEntryType.RESERVOIR_STATE.value: 30.0,     # 30s — changes frequently
+        CacheEntryType.RESERVOIR_STATE.value: 30.0,  # 30s
         CacheEntryType.MEMBRANE_STATE.value: 60.0,      # 1 min
         CacheEntryType.TREE_CLASSIFICATION.value: 600.0, # 10 min — stable
         CacheEntryType.VALIDATION_RESULT.value: 3600.0,  # 1 hour — very stable
@@ -240,7 +240,9 @@ def generate_cache_key(
         elif isinstance(input_data, dict):
             # Deterministic JSON serialization
             hasher.update(
-                json.dumps(input_data, sort_keys=True, default=str).encode("utf-8")
+                json.dumps(
+                    input_data, sort_keys=True, default=str
+                ).encode("utf-8")
             )
         elif isinstance(input_data, (bytes, bytearray)):
             hasher.update(input_data)
@@ -317,7 +319,8 @@ class L1MemoryCache:
             # Evict until we have room
             while (
                 len(self._store) >= self._max_entries
-                or (self._current_bytes + entry.size_bytes) > self._max_memory_bytes
+                or (self._current_bytes + entry.size_bytes)
+                > self._max_memory_bytes
             ) and self._store:
                 self._evict_lru()
 
@@ -482,7 +485,11 @@ def _serialize_for_redis(value: Any) -> bytes:
 
     def _convert(obj: Any) -> Any:
         if isinstance(obj, np.ndarray):
-            return {"__ndarray__": True, "data": obj.tolist(), "dtype": str(obj.dtype)}
+            return {
+                "__ndarray__": True,
+                "data": obj.tolist(),
+                "dtype": str(obj.dtype),
+            }
         if isinstance(obj, np.integer):
             return int(obj)
         if isinstance(obj, np.floating):
@@ -680,7 +687,10 @@ class DTESNCache:
             entry_type, input_data, config_fingerprint, extra_key_parts
         )
         versioned_key = f"{self._config.cache_version}:{key}"
-        ttl = ttl_override if ttl_override is not None else self._get_ttl(entry_type)
+        if ttl_override is not None:
+            ttl = ttl_override
+        else:
+            ttl = self._get_ttl(entry_type)
         size = _estimate_size(value)
 
         # Write to L1
