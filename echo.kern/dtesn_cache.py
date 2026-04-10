@@ -236,6 +236,8 @@ def generate_cache_key(
 
     if input_data is not None:
         if isinstance(input_data, np.ndarray):
+            hasher.update(str(input_data.shape).encode("utf-8"))
+            hasher.update(str(input_data.dtype).encode("utf-8"))
             hasher.update(input_data.tobytes())
         elif isinstance(input_data, dict):
             # Deterministic JSON serialization
