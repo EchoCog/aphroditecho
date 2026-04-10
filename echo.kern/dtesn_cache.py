@@ -642,23 +642,28 @@ class DTESNCache:
             if raw is not None:
                 try:
                     value = _deserialize_from_redis(raw)
-                    self._stats.l2_hits += 1
-                    # Promote to L1
-                    ttl = self._get_ttl(entry_type)
-                    size = _estimate_size(value)
-                    entry = CacheEntry(
-                        key=versioned_key,
-                        value=value,
-                        entry_type=entry_type,
-                        created_at=time.monotonic(),
-                        ttl_seconds=ttl,
-                        size_bytes=size,
-                        config_fingerprint=config_fingerprint,
-                    )
-                    self._l1.put(entry)
-                    return value
                 except Exception as exc:
                     logger.warning("L2 deserialization failed: %s", exc)
+                    value = None
+                if value is not None:
+                    self._stats.l2_hits += 1
+                    # Promote to L1
+                    try:
+                        ttl = self._get_ttl(entry_type)
+                        size = _estimate_size(value)
+                        entry = CacheEntry(
+                            key=versioned_key,
+                            value=value,
+                            entry_type=entry_type,
+                            created_at=time.monotonic(),
+                            ttl_seconds=ttl,
+                            size_bytes=size,
+                            config_fingerprint=config_fingerprint,
+                        )
+                        self._l1.put(entry)
+                    except Exception as exc:
+                        logger.warning("L2->L1 promotion failed: %s", exc)
+                    return value
             self._stats.l2_misses += 1
 
         return None
