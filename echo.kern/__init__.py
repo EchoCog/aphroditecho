@@ -120,6 +120,22 @@ except ImportError as e:
     class DTESNMultiAgentTrainingSystem: pass
     class DTESNTrainingConfiguration: pass
 
+# DTESN Caching Layer
+try:
+    from .dtesn_cache import (
+        DTESNCache,
+        CachedDTESNSystem,
+        CacheConfig,
+        CacheEntryType,
+    )
+    logger.debug("✓ DTESN caching layer imported successfully")
+except ImportError as e:
+    logger.debug(f"Note: DTESN caching layer not available: {e}")
+    class DTESNCache: pass
+    class CachedDTESNSystem: pass
+    class CacheConfig: pass
+    class CacheEntryType: pass
+
 # Memory Wall functionality
 def load_memory_wall_content():
     """
@@ -230,6 +246,10 @@ __all__ = [
     'CompetitiveLearningEngine',
     'DTESNMultiAgentTrainingSystem',
     'DTESNTrainingConfiguration',
+    'DTESNCache',
+    'CachedDTESNSystem',
+    'CacheConfig',
+    'CacheEntryType',
     'load_memory_wall_content',
     'extract_deep_tree_echo_message',
     'get_echo_identity_framework'
