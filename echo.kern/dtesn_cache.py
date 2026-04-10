@@ -294,6 +294,7 @@ class L1MemoryCache:
         self._max_memory_bytes = int(max_memory_mb * 1024 * 1024)
         self._store: OrderedDict[str, CacheEntry] = OrderedDict()
         self._current_bytes = 0
+        self._eviction_count = 0
         self._lock = threading.RLock()
 
     def get(self, key: str) -> Optional[CacheEntry]:
@@ -384,12 +385,18 @@ class L1MemoryCache:
         if entry is not None:
             self._current_bytes = max(0, self._current_bytes - entry.size_bytes)
 
+    @property
+    def eviction_count(self) -> int:
+        """Total number of LRU evictions performed."""
+        return self._eviction_count
+
     def _evict_lru(self) -> Optional[str]:
         """Evict the least recently used entry (caller must hold _lock)."""
         if not self._store:
             return None
         key, entry = self._store.popitem(last=False)
         self._current_bytes = max(0, self._current_bytes - entry.size_bytes)
+        self._eviction_count += 1
         return key
 
 
@@ -783,6 +790,8 @@ class DTESNCache:
 
     def get_stats_dict(self) -> Dict[str, Any]:
         """Get cache statistics as a dictionary."""
+        # Sync eviction count from L1 into statistics
+        self._stats.evictions = self._l1.eviction_count
         base = self._stats.to_dict()
         base["l1_entries"] = self._l1.size
         base["l1_memory_bytes"] = self._l1.memory_bytes
