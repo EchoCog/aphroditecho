@@ -53,9 +53,13 @@ class CPUWorker(Worker):
             self.local_omp_cpuid = omp_cpuids.split("|")[self.rank]
 
         if self.local_omp_cpuid != "all":
-            ret = torch.ops._C_utils.init_cpu_threads_env(self.local_omp_cpuid)
-            if ret:
-                logger.info(ret)
+            try:
+                ret = torch.ops._C_utils.init_cpu_threads_env(self.local_omp_cpuid)
+                if ret:
+                    logger.info(ret)
+            except AttributeError:
+                # CPU-only PyTorch doesn't have this operation, skip it
+                logger.debug("CPU thread environment initialization not available in CPU-only PyTorch")
 
         # Note: unique identifier for creating allreduce shared memory
         os.environ["APHRODITE_DIST_IDENT"] = self.distributed_init_method.split(
