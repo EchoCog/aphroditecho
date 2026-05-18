@@ -1354,3 +1354,5 @@ See our [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 - 📧 **Issues**: Report bugs on [GitHub Issues](https://github.com/EchoCog/aphroditecho/issues)
 - 📚 **Documentation**: [Complete guides and API reference](https://aphrodite.pygmalion.chat)
 - 🐦 **Updates**: Follow [@PygmalionAI](https://twitter.com/PygmalionAI) for news
+
+<!-- Declarative environment verification -->
