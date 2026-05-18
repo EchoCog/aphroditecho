@@ -1,3 +1,0 @@
-Performance Regression Test Report
-=================================
-All performance tests completed

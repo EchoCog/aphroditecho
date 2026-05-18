@@ -1,1 +1,0 @@
-"""Infrastructure components for backend service integration."""

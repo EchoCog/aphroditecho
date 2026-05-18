@@ -1,3 +1,0 @@
-Cross-Component Test Report
-==========================
-All cross-component tests completed

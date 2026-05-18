@@ -1,8 +1,0 @@
----
-source: tests/compgen.rs
-expression: data
----
-************ COMPGEN `prog cmd ` ************
-__argc_value=path	/color:default
-
-

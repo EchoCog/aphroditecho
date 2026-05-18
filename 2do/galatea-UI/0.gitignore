@@ -1,7 +1,0 @@
-/.vscode
-
-/.parcel-cache
-/dist
-/node_modules
-.pnpm-debug.log
-.env
